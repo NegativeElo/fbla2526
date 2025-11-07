@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Lawyer Objection Game</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent:#ffcc00;
+  --danger:#c62828;
+  --positive:#28a745;
+  --panel-bg: rgba(255,255,255,0.93);
+  --hud-bg: rgba(0,0,0,0.55);
+}
+html,body { margin:0; padding:0; height:100%; width:100vw; min-height:100vh; min-width:100vw;}
+body {
+  background: url('courtbg.jpg') no-repeat center top;
+  background-size: cover;
+  background-attachment: fixed;
+  min-height: 100vh; min-width: 100vw; width:100vw; height:100vh; overflow:hidden;
+}
+#hud {
+  position:fixed; top:16px; left:18px;
+  background: var(--hud-bg); color:#fff; padding:12px 17px 13px 17px; border-radius:12px;
+  border:2px solid rgba(255,255,255,0.09); font-family: 'Press Start 2P', monospace; font-size:13px;
+  z-index:1001; box-shadow:0 6px 22px rgba(0,0,0,0.67); pointer-events:none; user-select: none;
+}
+#hud span { display:block; line-height:1.5; }
+#return {
+  position:fixed; top:12px; right:18px; z-index:1002;
+  background:var(--danger); color:#fff; border:none; padding:12px 22px; border-radius:11px;
+  font-weight:700; cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,0.6); font-family:inherit; font-size:15px;
+}
+#return:hover { transform:translateY(-2px); }
+#gameBGwrap {
+  min-height:100vh; min-width:100vw; height:100vh; width:100vw;
+  display:flex; justify-content:center; align-items:center; position:relative; z-index:1; background: #000;
+}
+#mainBG {
+  width:700px; height:600px; background: url('courtbg.jpg') center 90px no-repeat; background-size: 590px 450px;
+  image-rendering: pixelated; position:relative; box-shadow:0 10px 50px #000d; border-radius:14px;
+  display:flex; justify-content:center; align-items:center; z-index:2; overflow:visible;
+}
+#objectionBubbles {
+  position: absolute;
+  left: 50%;
+  top: 140px;    /* Move both bubbles further down */
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+.objection-bubble {
+  background: #fff; color: #222; border: 2px solid #c62828;
+  border-radius: 7px; padding: 2px 5px; margin-bottom: 4px;
+  font-family: 'Press Start 2P', monospace; font-size: 10px;
+  box-shadow: 0 1.5px 8px rgba(0,0,0,0.10); text-align: center; opacity: 0.95; pointer-events: none;
+  min-width: 20px; max-width: 150px; width: fit-content; margin-left: auto; margin-right: auto;
+}
+.primary-bubble { border-color: #c62828; background: #fff; }
+.result-bubble { border-color: #28a745; background: #eaffee; color: #26703b; margin-top: 16px; font-size: 10px; }
+#gamePanels {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%;
+  display: flex; flex-direction: row; align-items: stretch; justify-content: space-between; z-index: 5; pointer-events: none;
+}
+.sidePanel { background: var(--panel-bg); border-radius: 14px; box-shadow: 0 8px 38px rgba(0,0,0,0.23);
+  pointer-events: auto; position: relative; opacity: 0.97; display: flex; flex-direction: column; align-items: center; gap: 14px; height: 100%;
+}
+#questionPanel { width: 180px; min-width: 120px; max-width: 210px; padding: 26px 12px 14px 12px;
+  border: 2.6px solid #c33; margin-top: 150px; margin-left: -225px; height: auto; align-self: flex-start;
+}
+.sidePanel.explanation { border-color: #1976d2; width: 210px; min-width: 120px; max-width: 240px;
+  padding: 26px 10px 13px 10px; margin-top: 225px; margin-right: -225px; height: auto; align-self: flex-start;
+}
+.explanationButtons { display: flex; flex-direction: column; gap: 13px; align-items: center; margin-top: 16px;}
+.questionTitle { font-size:15px; font-weight:700; color:#222; margin:0 0 7px 0; text-align:center;}
+.questionCount { font-family:'Press Start 2P', monospace; color:#999; font-size:10px; margin-bottom:8px; text-align:center;}
+.button-container { display:flex; flex-direction:column; gap:9px; width:100%; }
+.btn {
+  padding: 9px 0 8px 0; border-radius:7px; border: none; cursor:pointer; color:#fff; font-weight:700;
+  box-shadow:0 4px 10px rgba(0,0,0,0.20); transition:transform 0.11s, box-shadow 0.15s; min-width: 99%; font-size: 13px;
+  margin: 0; outline:none; background: #444; letter-spacing:0.01em;
+}
+.btn.selected, .btn:active { transform:translateY(1px); box-shadow:0 1px 6px rgba(0,0,0,0.23);}
+#A { background:#0069d9; }
+#B { background:var(--positive); }
+#C { background:#111; }
+#D { background:var(--danger); }
+.restartButton {
+  padding:8px 14px; background:#1976d2; color:#fff; border:0; border-radius:8px; font-weight:700; cursor:pointer;
+  font-size:12px; box-shadow: 0 3px 14px rgba(0,0,0,0.11);
+}
+.restartButton[style*="display:none"] { display:none!important; }
+#timerWrap {
+  width:100%; height:11px; background:rgba(0,0,0,0.10); border-radius:8px; overflow:hidden; border:2px solid rgba(0,0,0,0.09);
+}
+#timerBar { height:100%; width:100%; background:linear-gradient(90deg,#ffdb4d,#ff8c4d); transform-origin:left center;
+  transition:width 0.25s linear;
+}
+#answerBlock {
+  min-height:54px; min-width:92px; max-width:210px; font-size:13px; color:#222; background:rgba(255,255,255,0.75);
+  border-radius:10px; padding:10px 8px 9px 8px; margin-bottom:2px; box-shadow:0 3px 12px rgba(30,60,80,0.12);
+  text-align:center; line-height:1.5;
+}
+#answerBlock.empty { color:#aaa; background:rgba(255,255,255,0.38);}
+.correct { color:#1976d2;}
+.incorrect { color:#d32f2f;}
+#mainTitle {
+  font-family:'Press Start 2P', monospace; font-size:24px; font-weight:700; color:#fff; text-shadow:2.5px 2.5px 0 #000d;
+  letter-spacing:0.05em; width:100vw; position:fixed; top:15px; left:0; text-align:center; z-index:3; pointer-events: none; user-select:none;
+}
+#overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index:1500;
+}
+#overlay.show { display:flex; }
+#overlayCard {
+  background:#fff; padding:24px 22px; border-radius:14px; text-align:center; max-width:450px; box-shadow:0 35px 80px rgba(0,0,0,0.64);
+}
+#overlayCard h3 { margin:10px 0; font-size:20px; font-family:'Press Start 2P', monospace;}
+#overlayCard p { margin:14px 0; color:#333; font-size:16px; }
+.overlayBtns { display:flex;gap:19px;justify-content:center;margin-top:17px; }
+@media (max-width:800px){
+  #mainBG,#gamePanels { flex-direction: column; width:99vw; min-width:180px; height:auto; min-height:200px;}
+  #gamePanels {flex-direction:column; width:99vw;}
+  .sidePanel { margin:7px 0; min-width:90vw; max-width:99vw; height:auto;}
+  #questionPanel, .sidePanel.explanation { margin:0; width:100%;}
+}
+@media (max-width:470px){
+  .sidePanel { padding:7px 2.3vw; min-width:60vw; height:auto;}
+  #answerBlock {font-size:12px; min-width:50px; min-height:36px;}
+  #mainTitle {font-size:15px; padding-top:3px;}
+  #hud { font-size:10px;}
+  #questionPanel, .sidePanel.explanation { margin:0; }
+}
+</style>
+</head>
+<body>
+  <div id="hud" aria-hidden="true">
+    <span id="score">Score: 0</span>
+    <span id="casesLeft">Cases Left: 0</span>
+  </div>
+  <button id="return">Return to main page</button>
+  <div id="mainTitle">Lawyer Objection Game</div>
+  <div id="gameBGwrap">
+    <div id="mainBG">
+      <div id="objectionBubbles"></div>
+      <div id="gamePanels">
+        <div class="sidePanel question" id="questionPanel">
+          <div class="questionCount" id="qCount"></div>
+          <div class="questionTitle" id="scenarioTopic">Loading case...</div>
+          <div id="timerWrap" aria-hidden="true"><div id="timerBar"></div></div>
+          <div class="button-container" id="choices">
+            <button id="A" class="btn" style="display:none;"></button>
+            <button id="B" class="btn" style="display:none;"></button>
+            <button id="C" class="btn" style="display:none;"></button>
+            <button id="D" class="btn" style="display:none;"></button>
+          </div>
+        </div>
+        <div class="sidePanel explanation">
+          <div id="answerBlock" class="empty">Explanation will appear here after you answer.</div>
+          <div class="explanationButtons">
+            <button id="newScenarioButton" class="restartButton" style="display:none;">Next Case</button>
+            <button id="finishButton" class="restartButton" style="display:none;"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="overlay">
+    <div id="overlayCard">
+      <h3 id="overlayTitle">Challenge Complete</h3>
+      <p id="overlayText"></p>
+      <div class="overlayBtns">
+        <button id="restartFull" class="restartButton">Play Again</button>
+        <button id="closeOverlay" class="restartButton" style="background:#444;">Exit</button>
+      </div>
+    </div>
+  </div>
+<script>
+let objectionTerms = [
+  {
+    question: "The prosecutor begins repeatedly annoying and harassing the witness instead of asking proper questions. What is the correct objection?",
+    options: ["A. Speculation", "B. Argumentative", "C. Hearsay", "D. Badgering"],
+    answer: "D",
+    index: 3,
+    explanation: "Badgering occurs when a lawyer repeatedly harasses or intimidates a witness instead of asking legitimate questions."
+  },
+  {
+    question: "A witness starts to testify about what another person said outside of court to prove the truth of that statement. What is the objection?",
+    options: ["A. Narrative", "B. Hearsay", "C. Character Evidence", "D. Speculation"],
+    answer: "B",
+    index: 1,
+    explanation: "Hearsay is second-hand testimony — a witness cannot testify about what someone else said to prove that it’s true, unless an exception applies."
+  },
+  {
+    question: "A lawyer asks their own witness: 'You saw the defendant at the scene, didn’t you?' What’s the objection?",
+    options: ["A. Speculation", "B. Leading", "C. Argumentative", "D. Hearsay"],
+    answer: "B",
+    index: 1,
+    explanation: "Leading questions suggest the answer to the witness and are generally not allowed on direct examination."
+  },
+  {
+    question: "A witness begins guessing about why someone acted a certain way. What is the proper objection?",
+    options: ["A. Relevance", "B. Speculation", "C. Narrative", "D. Hearsay"],
+    answer: "B",
+    index: 1,
+    explanation: "Speculation occurs when a witness is asked to guess or offer an opinion about something they do not have personal knowledge of."
+  },
+  {
+    question: "A lawyer introduces a document without explaining where it came from or who wrote it. What should opposing counsel object to?",
+    options: ["A. Lack of Foundation", "B. Hearsay", "C. Argumentative", "D. Compound Question"],
+    answer: "A",
+    index: 0,
+    explanation: "Lack of foundation means the evidence has not been properly introduced or verified as authentic before being admitted."
+  },
+  {
+    question: "During direct examination, a witness begins giving a long, uninterrupted story that goes beyond the question asked. What is the objection?",
+    options: ["A. Asked and Answered", "B. Narrative", "C. Speculation", "D. Relevance"],
+    answer: "B",
+    index: 1,
+    explanation: "Narrative occurs when a witness provides a long, unprompted story instead of answering the question directly."
+  },
+  {
+    question: "A question combines two or more inquiries, making it confusing for the witness to answer. What is the proper objection?",
+    options: ["A. Relevance", "B. Badgering", "C. Argumentative", "D. Compound"],
+    answer: "D",
+    index: 3,
+    explanation: "A compound question asks multiple questions at once, making it difficult or confusing for the witness to answer clearly."
+  },
+  {
+    question: "An attorney keeps asking the same question even though the witness already answered it. What is the objection?",
+    options: ["A. Asked and Answered", "B. Speculation", "C. Leading", "D. Foundation"],
+    answer: "A",
+    index: 0,
+    explanation: "Asked and answered is used to stop repetitive questioning that has already been addressed by the witness."
+  },
+  {
+    question: "A witness begins to describe someone’s personality to imply guilt in the case. What’s the objection?",
+    options: ["A. Narrative", "B. Relevance", "C. Character Evidence", "D. Hearsay"],
+    answer: "C",
+    index: 2,
+    explanation: "Improper character evidence involves using a person's character traits to suggest guilt or innocence without proper relevance."
+  },
+  {
+    question: "An attorney’s question doesn’t seem to connect to any issue in the trial. What is the objection?",
+    options: ["A. Relevance", "B. Speculation", "C. Hearsay", "D. Foundation"],
+    answer: "A",
+    index: 0,
+    explanation: "Relevance is when the evidence or testimony does not relate to any material fact in the case."
+  },
+  {
+    question: "A witness tries to interpret what the law means instead of stating facts. What should opposing counsel object to?",
+    options: ["A. Calls for Legal Conclusion", "B. Narrative", "C. Speculation", "D. Argumentative"],
+    answer: "A",
+    index: 0,
+    explanation: "Calls for a legal conclusion occur when a witness is asked to give a legal opinion rather than factual testimony."
+  },
+  {
+    question: "An attorney asks a question that misrepresents what a witness said earlier. What is the proper objection?",
+    options: ["A. Hearsay", "B. Leading", "C. Misstates the Evidence", "D. Argumentative"],
+    answer: "C",
+    index: 2,
+    explanation: "Misstates the evidence is objected to when a lawyer incorrectly paraphrases or misrepresents a witness's prior statements."
+  },
+  {
+    question: "A question implies facts not already in evidence. What’s the objection?",
+    options: ["A. Foundation", "B. Assumes Facts Not in Evidence", "C. Compound", "D. Relevance"],
+    answer: "B",
+    index: 1,
+    explanation: "Assumes facts not in evidence means the question presumes unproven facts that have not been introduced yet."
+  },
+  {
+    question: "The opposing attorney asks a witness about information discussed privately with their lawyer. What’s the correct objection?",
+    options: ["A. Relevance", "B. Speculation", "C. Hearsay", "D. Attorney-Client Privilege"],
+    answer: "D",
+    index: 3,
+    explanation: "Attorney-client privilege protects confidential communications between a lawyer and their client."
+  },
+  {
+    question: "The question suggests that the witness is lying or being dishonest rather than seeking information. What’s the objection?",
+    options: ["A. Argumentative", "B. Badgering", "C. Relevance", "D. Speculation"],
+    answer: "A",
+    index: 0,
+    explanation: "Argumentative questions are objectionable because they challenge or provoke the witness instead of asking for factual information."
+  },
+  {
+    question: "A non-expert witness is asked to give an opinion about something that requires specialized knowledge. What is the objection?",
+    options: ["A. Narrative", "B. Improper Opinion", "C. Relevance", "D. Speculation"],
+    answer: "B",
+    index: 1,
+    explanation: "Improper opinion occurs when a witness is asked to give an opinion that they are not qualified to give."
+  },
+  {
+    question: "An attorney tries to enter a copy of a document into evidence even though the original is available. What’s the objection?",
+    options: ["A. Foundation", "B. Authentication", "C. Hearsay", "D. Best Evidence Rule"],
+    answer: "D",
+    index: 3,
+    explanation: "The best evidence rule requires the original document to be submitted as evidence unless a valid exception applies."
+  },
+  {
+    question: "A witness begins giving testimony about events they clearly did not observe firsthand. What’s the objection?",
+    options: ["A. Lack of Personal Knowledge", "B. Speculation", "C. Narrative", "D. Relevance"],
+    answer: "A",
+    index: 0,
+    explanation: "Lack of personal knowledge occurs when a witness testifies about something they did not directly observe."
+  },
+  {
+    question: "A question asks the witness about multiple events with one answer required. What should you object to?",
+    options: ["A. Compound", "B. Argumentative", "C. Speculation", "D. Hearsay"],
+    answer: "A",
+    index: 0,
+    explanation: "Compound questions combine multiple questions into one, making it difficult for the witness to answer clearly."
+  },
+  {
+    question: "A lawyer asks a question that requires the witness to choose between two unfair or incomplete options. What’s the objection?",
+    options: ["A. Compound", "B. Misleading Question", "C. Argumentative", "D. Narrative"],
+    answer: "B",
+    index: 1,
+    explanation: "A misleading question is objectionable because it forces the witness into a false or unfair choice."
+  },
+  {
+    question: "A witness begins to tell the jury what another witness said during a break. What is the objection?",
+    options: ["A. Relevance", "B. Narrative", "C. Speculation", "D. Hearsay"],
+    answer: "D",
+    index: 3,
+    explanation: "Hearsay objections apply when a witness reports what someone else said outside of court to prove the truth of that statement."
+  },
+  {
+    question: "An attorney is asking questions about evidence that hasn’t been introduced yet. What is the objection?",
+    options: ["A. Argumentative", "B. Lack of Foundation", "C. Hearsay", "D. Speculation"],
+    answer: "B",
+    index: 1,
+    explanation: "Lack of foundation is objected to when evidence is discussed before it has been properly introduced and verified."
+  },
+  {
+    question: "The attorney asks about a witness’s prior bad acts to suggest they are lying, without proper basis. What’s the objection?",
+    options: ["A. Improper Character Evidence", "B. Narrative", "C. Relevance", "D. Speculation"],
+    answer: "A",
+    index: 0,
+    explanation: "Improper character evidence occurs when past bad acts are used to suggest guilt without relevance to the current facts."
+  },
+  {
+    question: "The question asked by counsel assumes an answer to a previous question not yet addressed. What’s the objection?",
+    options: ["A. Compound", "B. Foundation", "C. Assumes Facts Not in Evidence", "D. Argumentative"],
+    answer: "C",
+    index: 2,
+    explanation: "Assumes facts not in evidence occurs when a question presumes unproven facts that have not yet been introduced."
+  },
+  {
+    question: "A witness gives an answer that includes irrelevant commentary beyond the question. What’s the objection?",
+    options: ["A. Speculation", "B. Non-Responsive", "C. Narrative", "D. Relevance"],
+    answer: "B",
+    index: 1,
+    explanation: "Non-responsive objections are used when a witness's answer goes beyond the question asked or introduces unrelated information."
+  }
+];
+
+let pool = JSON.parse(JSON.stringify(objectionTerms));
+const scoreEl = document.getElementById('score');
+const casesLeftEl = document.getElementById('casesLeft');
+const qCountEl = document.getElementById('qCount');
+const topic = document.getElementById('scenarioTopic');
+const answerBlock = document.getElementById('answerBlock');
+const A = document.getElementById('A');
+const B = document.getElementById('B');
+const C = document.getElementById('C');
+const D = document.getElementById('D');
+const newScenarioButton = document.getElementById('newScenarioButton');
+const finishButton = document.getElementById('finishButton');
+const timerBar = document.getElementById('timerBar');
+const overlay = document.getElementById('overlay');
+const overlayText = document.getElementById('overlayText');
+const overlayTitle = document.getElementById('overlayTitle');
+const restartFull = document.getElementById('restartFull');
+const closeOverlay = document.getElementById('closeOverlay');
+const returnBtn = document.getElementById('return');
+const objectionBubbles = document.getElementById('objectionBubbles');
+let bubbleTimeout1 = null;
+
+let currentScenario = null;
+let score = 0;
+let timerInterval = null;
+let timeLeft = 0;
+const TIME_PER_QUESTION = 15;
+
+// AUDIO
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+const audioCtx = AudioCtx ? new AudioCtx() : null;
+function playTone(type='sustain'){
+  if(!audioCtx) return;
+  const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+  o.type = 'square';
+  if(type === 'sustain'){ o.frequency.value = 880; g.gain.value = 0.03; }
+  else if(type === 'overrule'){ o.frequency.value = 220; g.gain.value = 0.04; }
+  else if(type === 'click'){ o.frequency.value = 1200; g.gain.value = 0.015; }
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(); g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.22);
+  o.stop(audioCtx.currentTime + 0.24);
+}
+
+function updateHUD(){
+  scoreEl.textContent = `Score: ${score}`;
+  casesLeftEl.textContent = `Cases Left: ${pool.length}`;
+  qCountEl.textContent = pool.length > 0
+    ? `Case ${objectionTerms.length - pool.length + 1} of ${objectionTerms.length}`
+    : "";
+}
+function getObjectionText(optionText){
+  return optionText.substring(optionText.indexOf(' ') + 1);
+}
+function setBtnsEnabled(val){
+  [A,B,C,D].forEach(btn => btn.disabled = !val);
+}
+function clearObjectionBubbles() {
+  objectionBubbles.innerHTML = '';
+  clearTimeout(bubbleTimeout1);
+}
+// Updated: allow custom inline style object
+function showObjectionBubble(text, styleClass = "", customStyle = {}) {
+  const div = document.createElement('div');
+  div.className = 'objection-bubble' + (styleClass ? ' ' + styleClass : '');
+  div.innerText = text;
+  for (let k in customStyle) div.style[k] = customStyle[k];
+  objectionBubbles.appendChild(div);
+}
+function showNewTopic(){
+  clearInterval(timerInterval);
+  timerBar.style.width = '100%';
+  answerBlock.textContent = "Explanation will appear here after you answer.";
+  answerBlock.className = "empty";
+  [A,B,C,D].forEach(btn=>{
+    btn.className = "btn";
+    btn.style.display = "none";
+  });
+  newScenarioButton.style.display = 'none';
+  finishButton.style.display = 'none';
+  setBtnsEnabled(false);
+  clearObjectionBubbles();
+
+  if(pool.length === 0){
+    finishGame();
+    return;
+  }
+  const idx = Math.floor(Math.random() * pool.length);
+  currentScenario = pool[idx];
+  topic.textContent = currentScenario.question;
+
+  setTimeout(()=>{
+    A.textContent = currentScenario.options[0];
+    B.textContent = currentScenario.options[1];
+    C.textContent = currentScenario.options[2];
+    D.textContent = currentScenario.options[3];
+    [A,B,C,D].forEach(btn => { btn.style.display = "block"; btn.disabled = false; btn.className = "btn"; })
+    startTimer(TIME_PER_QUESTION);
+  }, 200);
+
+  // Handler with custom bubble positioning
+  const handler = (choiceLetter, btn) => {
+    if (!currentScenario) return;
+    const scenario = currentScenario; // cache
+    clearInterval(timerInterval);
+    setBtnsEnabled(false);
+    btn.classList.add('selected');
+    const selectedIndex = choiceLetter.charCodeAt(0) - 65;
+    const userObjection = getObjectionText(scenario.options[selectedIndex]);
+    clearObjectionBubbles();
+
+    bubbleTimeout1 = setTimeout(() => {
+      // First bubble: Sustained/Overruled (topmost, centered, moved down)
+      showObjectionBubble(
+        choiceLetter === scenario.answer ? 'Sustained!' : 'Overruled!',
+        "result-bubble",
+        {
+          position: "relative",
+          top: "12px",
+          left: "-30px",
+          marginBottom: "0px"
+        }
+      );
+      // Second bubble: Objection (beneath, shifted left & lower)
+      showObjectionBubble(
+        `Objection! ${userObjection}`,
+        "primary-bubble",
+        {
+          position: "relative",
+          top: "20px",
+          left: "150px"
+        }
+      );
+    }, 600);
+
+    const correct = choiceLetter === scenario.answer;
+    if (correct) {
+      playTone('sustain');
+      score++;
+    } else {
+      playTone('overrule');
+    }
+    answerBlock.innerHTML =
+      correct
+      ? `<span class="correct">✅ Correct!</span><br>${scenario.explanation}`
+      : `<span class="incorrect">❌ Incorrect.</span><br>The correct answer was <b>${getObjectionText(scenario.options[scenario.index])}</b>.<br>${scenario.explanation}`;
+    answerBlock.className = correct ? "correct" : "incorrect";
+    pool.splice(pool.indexOf(scenario), 1);
+    currentScenario = null;
+    updateHUD();
+    if (pool.length === 0) {
+      finishButton.style.display = 'inline-block';
+      finishButton.textContent = 'Finish Challenge';
+    } else {
+      newScenarioButton.style.display = 'inline-block';
+    }
+  };
+  A.onclick = () => handler('A',A);
+  B.onclick = () => handler('B',B);
+  C.onclick = () => handler('C',C);
+  D.onclick = () => handler('D',D);
+}
+function startTimer(seconds){
+  setBtnsEnabled(true);
+  timeLeft = seconds;
+  timerBar.style.width = '100%';
+  const total = seconds;
+  timerInterval = setInterval(()=>{
+    timeLeft -= 0.19;
+    if(timeLeft < 0) timeLeft = 0;
+    const pct = Math.max(0, (timeLeft / total) * 100);
+    timerBar.style.width = pct + '%';
+    if(timeLeft <= 3){
+      timerBar.style.background = 'linear-gradient(90deg,#ff6060,#ffdb4d)';
+    } else {
+      timerBar.style.background = 'linear-gradient(90deg,#ffdb4d,#ff8c4d)';
+    }
+    if(timeLeft <= 0){
+      clearInterval(timerInterval);
+      setBtnsEnabled(false);
+
+      clearObjectionBubbles();
+      showObjectionBubble("Objection! Uhhh...");
+
+      answerBlock.innerHTML = `<span class="incorrect">⏱️ Time expired.</span><br>The correct answer was <b>${getObjectionText(currentScenario.options[currentScenario.index])}</b>.<br>${currentScenario.explanation}`;
+      answerBlock.className = "incorrect";
+      pool.splice(pool.indexOf(currentScenario), 1);
+      currentScenario = null;
+      updateHUD();
+      playTone('overrule');
+      if(pool.length === 0){
+        finishButton.style.display = 'inline-block';
+        finishButton.textContent = 'Finish Challenge';
+      } else {
+        newScenarioButton.style.display = 'inline-block';
+      }
+    }
+  }, 200);
+}
+function finishGame(){
+  overlayTitle.textContent = 'Challenge Complete!';
+  overlayText.textContent = `You finished all cases. Final score: ${score} / ${objectionTerms.length}`;
+  overlay.classList.add('show');
+  overlay.style.display = 'flex';
+  setTimeout(()=> playTone('sustain'), 200);
+}
+function restartAll(){
+  pool = JSON.parse(JSON.stringify(objectionTerms));
+  score = 0;
+  currentScenario = null;
+  overlay.classList.remove('show');
+  updateHUD();
+  showNewTopic();
+}
+newScenarioButton.addEventListener('click', ()=>{
+  playTone('click');
+  clearObjectionBubbles();
+  showNewTopic();
+});
+finishButton.addEventListener('click', ()=> finishGame());
+restartFull.addEventListener('click', ()=> restartAll());
+closeOverlay.addEventListener('click', ()=> {
+  overlay.classList.remove('show');
+});
+returnBtn.addEventListener('click', ()=>{
+  if(confirm('Are you sure you want to leave the page? Progress will be lost.')){
+    window.location.href = '/../index.html';
+  }
+});
+updateHUD();
+setTimeout(showNewTopic, 350);
+window.addEventListener('keydown', (e)=>{
+  if (A.disabled) return;
+  if(e.key === '1' || e.key.toLowerCase() === 'a') A.click();
+  if(e.key === '2' || e.key.toLowerCase() === 'b') B.click();
+  if(e.key === '3' || e.key.toLowerCase() === 'c') C.click();
+  if(e.key === '4' || e.key.toLowerCase() === 'd') D.click();
+  if(e.key.toLowerCase() === 'n') newScenarioButton.click();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Judge Career Simulator</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --accent:#ffcc00;
+  --danger:#c62828;
+  --positive:#28a745;
+  --panel-bg: rgba(255,255,255,0.93);
+  --hud-bg: rgba(0,0,0,0.55);
+}
+html,body {
+  margin:0; padding:0; height:100%; width:100vw; min-height:100vh; min-width:100vw;
+  font-family: 'Press Start 2P', monospace;
+  background: url('courtbg.jpg') no-repeat center top;
+  background-size: 680px 520px;
+  background-attachment: fixed;
+  overflow: hidden;
+}
+#hud {
+  position: fixed; top: 12px; left: 12px;
+  background: var(--hud-bg); color:#fff; padding: 9px 14px 8px 14px;
+  border-radius: 10px; border: 2px solid rgba(255,255,255,0.09);
+  font-family: 'Press Start 2P', monospace; font-size: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.52);
+  pointer-events: none; user-select: none; z-index: 1001;
+}
+#hud span { display: block; line-height: 1.3; }
+#return {
+  position: fixed; top: 10px; right: 12px; z-index: 1002;
+  background: var(--danger); color: #fff; border: none; padding: 8px 16px;
+  border-radius: 9px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-family: inherit; font-size: 12px;
+  transition: transform 0.15s ease;
+}
+#return:hover { transform: translateY(-2px); }
+#mainTitle {
+  font-family: 'Press Start 2P', monospace; font-size: 18px; font-weight: 700;
+  color: #fff; text-shadow: 2px 2px 0 #000d; letter-spacing: 0.04em;
+  width: 100vw; position: fixed; top: 10px; left: 0;
+  text-align: center; z-index: 3; pointer-events: none; user-select: none;
+}
+#gameBGwrap {
+  min-height: 100vh; min-width: 100vw; height: 100vh; width: 100vw;
+  background: #000; display: flex; justify-content: center; align-items: center;
+  position: relative; z-index: 1;
+}
+#mainBG {
+  width: 850px; height: 560px;
+  background: url('courtbg.jpg') center 54px no-repeat;
+  background-size: 500px 450px; 
+  image-rendering: pixelated;
+  position: relative;
+  box-shadow: 0 7px 38px #000d;
+  border-radius: 13px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  z-index: 2;
+  overflow: visible;
+  padding: 0;
+}
+#judgeBubbleWrap {
+  position: absolute; left: 46%; top: 118px;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex; flex-direction: column; align-items: center;
+  pointer-events: none;
+}
+#judgeBubble {
+  background: #fff;
+  color: #222;
+  border: 2px solid var(--danger);
+  border-radius: 7px;
+  padding: 7px 12px;
+  font-size: 10px;
+  box-shadow: 0 1.5px 8px rgba(0,0,0,0.1);
+  text-align: center;
+  max-width: 150px;
+  width: fit-content;
+  position: relative;
+  opacity: 0;
+  pointer-events: none;
+  margin-bottom: 2px;
+  font-weight: 700;
+  animation: fadeIn 0.4s ease forwards;
+  user-select: none;  
+  white-space: pre-line;
+  line-height: 1.3;
+}
+#judgeBubble.green {
+  border-color: var(--positive);
+  background: #eaffee;
+  color: #26703b;
+}
+#judgeBubble.red {
+  border-color: var(--danger);
+  background: #ffd1d1;
+  color: #7a1616;
+}
+#judgeBubble .bubble-tail {
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 15px solid #fff;
+  z-index: 10;
+}
+#judgeBubble.green .bubble-tail {
+  border-top-color: #eaffee;
+}
+#judgeBubble.red .bubble-tail {
+  border-top-color: #ffd1d1;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+#gamePanels {
+  position: absolute; top: 30px; left: 0; right: 0; bottom: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: space-between;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.sidePanel {
+  background: var(--panel-bg);
+  border-radius: 11px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.23);
+  pointer-events: auto;
+  position: relative;
+  opacity: 0.97;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 260px;
+  max-width: 370px;
+  width: 308px;
+  padding: 13px 9px 8px 9px;
+  font-size: 9px;
+  line-height: 1.2;
+  font-family: 'Press Start 2P', monospace;
+  font-weight: 400;
+  user-select: none;
+  overflow-y: auto;
+}
+
+#questionPanel {
+  border: 2px solid #c33;
+  margin-top: 75px;
+  margin-left: -175px;
+  min-height: 0;
+  max-height: 325px;
+  width: 300px;
+}
+
+.sidePanel.explanation {
+  border-color: #1976d2;
+  margin-top: 150px;
+  margin-right: -150px;
+  width: 170px;
+  min-height: 50px;
+  max-height: 200px;
+  padding: 8px 6px;
+  justify-content: flex-start;
+}
+
+
+.questionTitle {
+  font-size: 10px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 8px;
+  text-align: center;
+  white-space: normal;
+}
+.questionCount {
+  font-family: 'Press Start 2P', monospace;
+  color: #999;
+  font-size: 8px;
+  margin-bottom: 4px;
+  text-align: center;
+}
+#timerWrap {
+  width: 100%;
+  height: 8px;
+  background: rgba(0,0,0,0.07);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1.5px solid rgba(0,0,0,0.08);
+  margin-bottom: 4px;
+}
+#timerBar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #ffdb4d, #ff8c4d);
+  transform-origin: left center;
+  transition: width 0.25s linear;
+}
+.button-container {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+}
+
+.btn {
+  padding: 7px 0 6px 0;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 3px 7px rgba(0,0,0,0.18);
+  transition: transform 0.11s, box-shadow 0.15s;
+  min-width: 48%;
+  font-size: 9px;
+  margin: 0;
+  letter-spacing: 0.01em;
+  outline: none;
+  background: #444;
+}
+.btn.selected, .btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 5px rgba(0,0,0,0.16);
+}
+#defendantLost { background: var(--danger); }
+#defendantWon { background: var(--positive); }
+#nextCase {
+  margin-top: 20px;
+  padding: 11px 32px;
+  background: #1976d2;
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 11px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  width: 89%;
+  user-select: none;
+  display: none;
+}
+#answerBlock {
+  font-size: 10px;
+  color: #000000;
+  line-height: 1.22;
+  min-height: 74px;
+  max-height: 160px;
+  overflow-y: auto;
+  background: rgba(255,255,255,0.85);
+  border-radius: 7px;
+  padding: 14px 8px 11px 8px;
+  margin-bottom: 1px;
+  box-shadow: 0 2px 7px rgba(30,60,80,0.11);
+  text-align: center;
+  user-select: none;
+}
+#answerBlock.empty {
+  color: #000000;
+  background: rgba(255,255,255,0.38);
+}
+.correct {
+  color: var(--positive);
+}
+.incorrect {
+  color: var(--danger);
+}
+@media (max-width:1200px) {
+  #mainBG { width: 98vw; height: auto; }
+  #gamePanels {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100vw;
+  }
+  .sidePanel, #questionPanel, .sidePanel.explanation { min-width: 90vw; max-width: 99vw; width: 99vw; height: auto; }
+  #timerWrap { margin-bottom: 8px; }
+  #answerBlock { min-height: 45px; }
+}
+</style>
+</head>
+<body>
+<div id="hud" aria-hidden="true"><span id="score">Score: 0</span><span id="casesLeft">Cases Left: 0</span></div>
+<button id="return">Return to main page</button>
+<div id="mainTitle">Judge Career Simulator</div>
+<div id="gameBGwrap">
+  <div id="mainBG">
+    <div id="judgeBubbleWrap"></div>
+    <div id="gamePanels">
+      <div class="sidePanel question" id="questionPanel">
+        <div class="questionCount" id="qCount"></div>
+        <div class="questionTitle" id="caseTopic">Loading case...</div>
+        <div id="timerWrap" aria-hidden="true"><div id="timerBar"></div></div>
+        <div id="caseEvidence" class="case-argument"></div>
+        <div id="accuserArg" class="case-argument"></div>
+        <div id="defendantArg" class="case-argument"></div>
+        <div id="decisionQuestion"></div>
+        <div class="button-container" id="choices">
+          <button id="defendantLost" class="btn btn-red" style="display:none;"></button>
+          <button id="defendantWon" class="btn btn-gray" style="display:none;"></button>
+        </div>
+      </div>
+      <div class="sidePanel explanation">
+        <div id="answerBlock" class="empty">Explanation will appear here after you answer.</div>
+        <button id="nextCase">Next Case</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const judgeCases = [
+    {
+        caseName: "Unlawful Search of Backpack",
+        type: "criminal",
+        defendant: "Alex Johnson",
+        crime: "Drug Possession",
+        evidence: "Police searched Alex's backpack without a warrant and found illegal substances.",
+        accuserArgument: "The drugs were found in Alex's possession, which by itself is proof of guilt. Excluding evidence just because of a technical error would let criminals escape justice.",
+        defendantArgument: "The Constitution protects me against unreasonable searches. If police can ignore that, then no one's rights are safe.",
+        flaw: "prosecutor downplayed the Fourth Amendment as a 'technicality,' when it was a core protection.",
+        correctVerdict: "Not Guilty"
+    },
+    {
+        caseName: "Freedom of Speech Protest",
+        type: "criminal",
+        defendant: "Jamie Lee",
+        crime: "Disorderly Conduct",
+        evidence: "Jamie was arrested while peacefully protesting in a public park.",
+        accuserArgument: "The First Amendment didn't allow people to disrupt public order. Businesses nearby suffered financial losses because of the protest.",
+        defendantArgument: "Public parks are traditional forums for free speech. Peaceful protest, even if inconvenient, was protected by the First Amendment.",
+        flaw: "prosecutor stretched 'disorderly conduct' to cover peaceful protest, which courts consistently protected.",
+        correctVerdict: "Not Guilty"
+    },
+    {
+        caseName: "Drug Possession with Warrant",
+        type: "criminal",
+        defendant: "Kaelin Brooks",
+        crime: "Drug Possession",
+        evidence: "Police searched the defendant's house with a valid warrant and found illegal substances.",
+        accuserArgument: "The search was lawful and the drugs were found in plain sight. Claiming ignorance of what was in the bag didn't excuse possession.",
+        defendantArgument: "I borrowed the bag. If I didn't know drugs were inside, I shouldn't be punished for someone else's actions.",
+        flaw: "defendant argued lack of knowledge, but possession laws still applied when drugs were in one's control.",
+        correctVerdict: "Guilty"
+    },
+    {
+        caseName: "Environmental Protection Violation",
+        type: "criminal",
+        defendant: "Jordan Kim",
+        crime: "Pollution",
+        evidence: "Factory released toxic chemicals into a river without a permit.",
+        accuserArgument: "This wasn't just about private property. Pollution entered public waterways, which the Clean Water Act regulated for everyone's safety.",
+        defendantArgument: "My company owned the land where waste was dumped. Private property rights should have allowed us to dispose of materials without government interference.",
+        flaw: "defendant misused property rights — environmental law overrode them when public waterways were harmed.",
+        correctVerdict: "Guilty"
+    },
+    {
+        caseName: "Product Liability",
+        type: "civil",
+        defendant: "Greenfield Groceries",
+        crime: "Product Defect",
+        evidence: "Customer slipped on spilled juice in the store.",
+        accuserArgument: "The store failed to keep its floors safe, so it should be liable for the accident.",
+        defendantArgument: "We maintain regular cleaning schedules and posted warning signs. The accident happened despite reasonable precautions.",
+        flaw: "plaintiff assumed the store's reasonable safety measures were insufficient without proving negligence.",
+        correctVerdict: "Not Liable"
+    },
+    {
+        caseName: "Copyright Infringement",
+        type: "criminal",
+        defendant: "Casey Brown",
+        crime: "Copyright Violation",
+        evidence: "Casey uploaded a movie online without permission from the copyright holder.",
+        accuserArgument: "Even if Casey didn't profit, uploading to the internet distributed the movie to thousands, violating copyright law.",
+        defendantArgument: "I wasn't selling or profiting — sharing online was no different than letting a friend borrow a DVD.",
+        flaw: "defendant oversimplified — digital uploads distributed at massive scale, unlike lending a physical copy.",
+        correctVerdict: "Guilty"
+    },
+    {
+        caseName: "Insider Trading",
+        type: "criminal",
+        defendant: "Finnian Shaw",
+        crime: "Securities Fraud",
+        evidence: "Finnian sold stock after receiving confidential financial information.",
+        accuserArgument: "Using secret company knowledge to avoid losses undermined fair markets and violated securities law.",
+        defendantArgument: "I didn't share the information with anyone — I simply made personal financial decisions, which should have been my right.",
+        flaw: "defendant reframed insider trading as 'personal choice,' but the law prohibited trading on confidential information regardless.",
+        correctVerdict: "Guilty"
+    },
+    {
+        caseName: "Workplace Safety Violation",
+        type: "criminal",
+        defendant: "Sam Rivera",
+        crime: "OSHA Violation",
+        evidence: "Defendant's factory had no protective equipment for workers.",
+        accuserArgument: "Federal law required employers to provide safe working conditions. Cost didn't excuse ignoring worker safety.",
+        defendantArgument: "My employees knew the risks and chose to work here. They accepted the conditions voluntarily.",
+        flaw: "defendant tried to shift responsibility to workers, but OSHA placed the duty squarely on employers.",
+        correctVerdict: "Guilty"
+    },
+    {
+        caseName: "Breach of Contract",
+        type: "civil",
+        defendant: "TechNova Solutions",
+        crime: "Contract Dispute",
+        evidence: "Client showed proof that project deadlines were missed.",
+        accuserArgument: "The company didn't finish work on time, causing losses for the client.",
+        defendantArgument: "Delays were caused by client-supplied resources and were communicated. We fulfilled contractual obligations to the best of our ability.",
+        flaw: "plaintiff ignored evidence showing delays were not the company's fault.",
+        correctVerdict: "Not Liable"
+    },
+    {
+        caseName: "False Advertising",
+        type: "civil",
+        defendant: "Aurora Biotech",
+        crime: "Consumer Fraud",
+        evidence: "Company claimed its product cured illnesses with no scientific proof.",
+        accuserArgument: "The Federal Trade Commission prohibited deceptive marketing, and false health claims endangered consumers.",
+        defendantArgument: "Our ads were just exaggerations — everyone knows marketing uses strong language.",
+        flaw: "defendant trivialized false claims, but the law specifically prohibited misleading health-related advertising.",
+        correctVerdict: "Liable"
+    },
+    {
+        caseName: "Tax Evasion",
+        type: "criminal",
+        defendant: "Aria Caldwell",
+        crime: "Tax Fraud",
+        evidence: "Defendant failed to report large sums of income.",
+        accuserArgument: "The Internal Revenue Code required accurate reporting. Hiding income directly violated tax law.",
+        defendantArgument: "The tax code was too complicated; mistakes shouldn't be treated as crimes.",
+        flaw: "defendant portrayed deliberate concealment as 'mistakes,' but evidence showed intentional fraud.",
+        correctVerdict: "Guilty"
+    },
+    {
+        caseName: "Defamation Lawsuit",
+        type: "civil",
+        defendant: "Taylor Smith",
+        crime: "Defamation",
+        evidence: "Taylor publicly accused someone of crimes without evidence.",
+        accuserArgument: "Free speech didn't cover false statements that harmed reputations. Defamation was unlawful.",
+        defendantArgument: "The First Amendment allowed me to share my opinion, even if others disagreed.",
+        flaw: "defendant conflated opinion with false factual claims, which weren't protected.",
+        correctVerdict: "Liable"
+    },
+    {
+        caseName: "Whistleblower Retaliation",
+        type: "civil",
+        defendant: "Ironwood Technologies",
+        crime: "Employment Retaliation",
+        evidence: "Employee was fired after reporting safety violations.",
+        accuserArgument: "Federal whistleblower protections made it illegal to fire someone for reporting violations.",
+        defendantArgument: "The company had the right to manage staff and terminate employees for performance issues.",
+        flaw: "plaintiff disguised retaliation as performance management, but evidence showed the firing followed reporting.",
+        correctVerdict: "Liable"
+    },
+    {
+        caseName: "Trespassing on Military Base",
+        type: "criminal",
+        defendant: "Soren Beckett",
+        crime: "Trespassing",
+        evidence: "Defendant entered a restricted military zone without authorization.",
+        accuserArgument: "Military areas were clearly marked, and unauthorized entry posed security risks.",
+        defendantArgument: "I was exercising my right to travel freely in public spaces.",
+        flaw: "defendant misapplied free travel rights to restricted zones where national security laws applied.",
+        correctVerdict: "Guilty"
+    },
+    {
+        caseName: "Wire Fraud",
+        type: "criminal",
+        defendant: "Rosalind Hale",
+        crime: "Fraud",
+        evidence: "Defendant sent emails to trick victims into sending money.",
+        accuserArgument: "Wire fraud statutes made it illegal to use electronic communication to defraud others.",
+        defendantArgument: "The victims should have been more careful — I didn't force them to send money.",
+        flaw: "defendant shifted blame to victims, but fraud law prohibited intentional deception regardless of victim caution.",
+        correctVerdict: "Guilty"
+    },
+    {
+        caseName: "Advertising Complaint",
+        type: "civil",
+        defendant: "BrightLight Energy",
+        crime: "False Advertising",
+        evidence: "Plaintiff showed energy efficiency claims were misleading and did not meet the standards advertised.",
+        accuserArgument: "The ads exaggerated the product benefits, misleading customers.",
+        defendantArgument: "All claims were backed by independent testing and disclaimers were included. Advertising was accurate and compliant.",
+        flaw: "plaintiff assumed exaggeration without considering variability in the products' efficiency and legal disclaimers.",
+        correctVerdict: "Not Liable"
+    },
+    {
+        caseName: "Pirated Software",
+        type: "criminal",
+        defendant: "Celeste Morin",
+        crime: "Copyright Violation",
+        evidence: "Defendant distributed cracked software copies online.",
+        accuserArgument: "Distributing pirated software violated federal copyright law and harmed developers.",
+        defendantArgument: "I wasn't selling it, just sharing with others who couldn't afford the real thing.",
+        flaw: "defendant reframed piracy as charity, but the law prohibited unauthorized distribution regardless of intent.",
+        correctVerdict: "Guilty"
+    },
+    {
+        caseName: "Premises Liability Claim",
+        type: "civil",
+        defendant: "Silver Creek Mall",
+        crime: "Negligence",
+        evidence: "Customer tripped on uneven pavement outside the mall.",
+        accuserArgument: "The mall is responsible for unsafe conditions on its property.",
+        defendantArgument: "Inspections were performed regularly, and repairs were scheduled promptly. The accident was unforeseeable despite reasonable precautions.",
+        flaw: "plaintiff assumed liability without proving the mall failed in its duty of care.",
+        correctVerdict: "Not Liable"
+    },
+    {
+        caseName: "Bribery",
+        type: "criminal",
+        defendant: "Orin Valdez",
+        crime: "Bribery",
+        evidence: "Defendant accepted money to influence official decisions.",
+        accuserArgument: "Accepting payment for political favors violated anti-bribery statutes and undermined trust in government.",
+        defendantArgument: "It was just a donation — politicians accepted money all the time.",
+        flaw: "defendant blurred the line between donations and bribery, but evidence showed payment was tied to specific favors.",
+        correctVerdict: "Guilty"
+    },
+    {
+        caseName: "Child Labor Violation",
+        type: "criminal",
+        defendant: "Yara Winslow",
+        crime: "Labor Law Violation",
+        evidence: "Children under 14 were found working in the factory.",
+        accuserArgument: "Federal labor law prohibited child labor under strict age requirements.",
+        defendantArgument: "The kids wanted to help their families, and we paid them fairly.",
+        flaw: "defendant appealed to sympathy but ignored strict prohibitions on child labor.",
+        correctVerdict: "Guilty"
+    },
+    {
+        caseName: "Hate Speech vs. Free Speech",
+        type: "criminal",
+        defendant: "Xander Rowan",
+        crime: "Harassment",
+        evidence: "Defendant shouted racial slurs and threats at a public rally.",
+        accuserArgument: "True threats and harassment weren't protected by the First Amendment — this endangered public safety.",
+        defendantArgument: "Offensive words still counted as free speech. I never physically harmed anyone.",
+        flaw: "defendant equated threats with mere offensive speech, but threats weren't protected.",
+        correctVerdict: "Guilty"
+    },
+    {
+        caseName: "Second-Hand Smoke Ban",
+        type: "criminal",
+        defendant: "Elowen Torres",
+        crime: "Health Code Violation",
+        evidence: "Defendant allowed indoor smoking in their restaurant despite local bans.",
+        accuserArgument: "Local law banned indoor smoking to protect public health.",
+        defendantArgument: "It was my private business — customers could choose whether to come in.",
+        flaw: "defendant treated health codes as optional, but the law applied to all businesses equally.",
+        correctVerdict: "Guilty"
+    },
+    {
+        caseName: "Library Access Restriction",
+        type: "civil",
+        defendant: "Harrison High School",
+        crime: "First Amendment Violation",
+        evidence: "School blocked access to certain online resources in the library, limiting student research.",
+        accuserArgument: "Students need full access to all online content for research, and restricting sites violated their rights.",
+        defendantArgument: "The school aimed to prevent exposure to harmful or inappropriate content, which is allowed under educational guidelines.",
+        flaw: "plaintiff assumed all restrictions automatically violated student rights without considering educational justification.",
+        correctVerdict: "Not Liable"
+    }
+];
+const scoreEl = document.getElementById('score');
+const casesLeftEl = document.getElementById('casesLeft');
+const topic = document.getElementById('caseTopic');
+const evidence = document.getElementById('caseEvidence');
+const accuserArg = document.getElementById('accuserArg');
+const defendantArg = document.getElementById('defendantArg');
+const decision = document.getElementById('decisionQuestion');
+const answerBlock = document.getElementById('answerBlock');
+const defendantLost = document.getElementById('defendantLost');
+const defendantWon = document.getElementById('defendantWon');
+const nextCaseBtn = document.getElementById('nextCase');
+const judgeBubbleWrap = document.getElementById('judgeBubbleWrap');
+const timerBar = document.getElementById('timerBar');
+const returnBtn = document.getElementById('return');
+
+let currentScenario = null;
+let score = 0;
+let timerInterval = null;
+let timeLeft = 0;
+const TIME_PER_QUESTION = 15;
+
+function playTone(type = 'sustain') {
+  if (!window.AudioContext && !window.webkitAudioContext) return;
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = 'square';
+  if (type === 'sustain') { o.frequency.value = 880; g.gain.value = 0.04; }
+  else if (type === 'overrule') { o.frequency.value = 220; g.gain.value = 0.05; }
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(); g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.22);
+  o.stop(audioCtx.currentTime + 0.24);
+}
+
+function showJudgeBubble(text, color) {
+  judgeBubbleWrap.innerHTML = '';
+  const div = document.createElement('div');
+  div.id = 'judgeBubble';
+  div.className = color;
+  div.innerHTML = `${text}<div class="bubble-tail"></div>`;
+  judgeBubbleWrap.appendChild(div);
+  div.style.opacity = '0';
+  setTimeout(() => {
+    div.style.opacity = '1';
+    div.style.animation = 'fadeIn 0.4s forwards';
+  }, 30);
+}
+
+function hideJudgeBubble() {
+  judgeBubbleWrap.innerHTML = '';
+}
+
+function updateHUD() {
+  scoreEl.textContent = `Score: ${score}`;
+  casesLeftEl.textContent = `Cases Left: ${judgeCases.length}`;
+}
+
+function clearTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+}
+
+function startTimer(seconds) {
+  timeLeft = seconds;
+  timerBar.style.width = '100%';
+  timerInterval = setInterval(() => {
+    timeLeft -= 0.19;
+    if (timeLeft < 0) timeLeft = 0;
+    const pct = Math.max(0, (timeLeft / seconds) * 100);
+    timerBar.style.width = pct + '%';
+    if (timeLeft <= 3) {
+      timerBar.style.background = 'linear-gradient(90deg,#ff6060,#ffdb4d)';
+    } else {
+      timerBar.style.background = 'linear-gradient(90deg,#ffdb4d,#ff8c4d)';
+    }
+    if (timeLeft <= 0) {
+      clearTimer();
+      defendantLost.disabled = true;
+      defendantWon.disabled = true;
+      hideJudgeBubble();
+      showJudgeBubble("Time's Up!", 'red');
+      answerBlock.innerHTML = `<span class="incorrect">⏱️ Time expired.</span><br>The correct answer was <b>${currentScenario.correctVerdict}</b>.<br>Flaw: ${currentScenario.flaw}`;
+      answerBlock.className = "incorrect";
+      nextCaseBtn.style.display = "inline-block";
+      const index = judgeCases.indexOf(currentScenario);
+      if (index > -1) judgeCases.splice(index, 1);
+      currentScenario = null;
+      updateHUD();
+      playTone('overrule');
+    }
+  }, 200);
+}
+
+function showExplanation(text) {
+  answerBlock.style.opacity = "0";
+  answerBlock.textContent = text;
+  setTimeout(() => {
+    answerBlock.style.transition = "opacity 0.44s";
+    answerBlock.style.opacity = "1";
+  }, 50);
+}
+
+function showNewTopic() {
+  clearTimer();
+  answerBlock.textContent = "Explanation will appear here after you answer.";
+  answerBlock.className = "empty";
+  nextCaseBtn.style.display = "none";
+  [defendantLost, defendantWon].forEach(btn => {
+    btn.style.display = 'block';
+    btn.disabled = false;
+  });
+  hideJudgeBubble();
+  currentScenario = null;
+  if (judgeCases.length === 0) {
+    answerBlock.textContent = `Challenge complete! Final score: ${score} / 23`;
+    answerBlock.className = 'correct';
+    [defendantLost, defendantWon].forEach(btn => btn.style.display = 'none');
+    nextCaseBtn.style.display = 'none';
+    topic.textContent = '';
+    evidence.textContent = '';
+    accuserArg.textContent = '';
+    defendantArg.textContent = '';
+    decision.textContent = '';
+    return;
+  }
+  currentScenario = judgeCases[Math.floor(Math.random() * judgeCases.length)];
+  topic.textContent = `Case: ${currentScenario.caseName}`;
+  evidence.textContent = "Evidence: " + currentScenario.evidence;
+  accuserArg.textContent = "Prosecution: " + currentScenario.accuserArgument;
+  defendantArg.textContent = "Defense: " + currentScenario.defendantArgument;
+  decision.textContent = currentScenario.type === 'criminal' ? 'Is the defendant guilty?' : 'Is the defendant liable?';
+  defendantLost.textContent = currentScenario.type === 'criminal' ? 'Guilty' : 'Liable';
+  defendantWon.textContent = currentScenario.type === 'criminal' ? 'Not Guilty' : 'Not Liable';
+  answerBlock.className = "empty";
+  answerBlock.textContent = "Explanation will appear here after you answer.";
+  updateHUD();
+  startTimer(TIME_PER_QUESTION);
+}
+
+function handleChoice(isLost) {
+  clearTimer();
+  defendantLost.disabled = true;
+  defendantWon.disabled = true;
+  const correctVerdict = currentScenario.correctVerdict;
+  let correct = false;
+  if ((isLost && (correctVerdict === "Guilty" || correctVerdict === "Liable")) || (!isLost && (correctVerdict === "Not Guilty" || correctVerdict === "Not Liable"))) {
+    correct = true;
+    score++;
+  }
+  playTone(correct ? 'sustain' : 'overrule');
+  const verdictText = isLost ? (currentScenario.type === "criminal" ? "Guilty!" : "Liable!") : (currentScenario.type === "criminal" ? "Not Guilty!" : "Not Liable!");
+  showJudgeBubble(verdictText, correct ? 'green' : 'red');
+  showExplanation(
+    correct
+      ? `Correct! The defendant ${isLost ? "should lose" : "should win"}! Flaw: ${currentScenario.flaw}`
+      : `Incorrect. The defendant ${isLost ? "should have won" : "should have lost"}! Flaw: ${currentScenario.flaw}`
+  );
+  nextCaseBtn.style.display = "inline-block";
+  const index = judgeCases.indexOf(currentScenario);
+  if (index > -1) judgeCases.splice(index, 1);
+  currentScenario = null;
+  updateHUD();
+}
+
+defendantLost.onclick = () => handleChoice(true);
+defendantWon.onclick = () => handleChoice(false);
+nextCaseBtn.onclick = () => showNewTopic();
+
+returnBtn.addEventListener('click', () => {
+  if (confirm('Are you sure you want to leave the page? Progress will be lost.')) {
+    window.location.href = '/../index.html';
+  }
+});
+
+showNewTopic();
+</script>
+</body>
+</html>

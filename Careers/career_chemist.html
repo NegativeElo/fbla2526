@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chemistry Career Game</title>
+<style>
+  body {
+    background: #e8edf3;
+    font-family: "Segoe UI", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 20px;
+  }
+
+  #gameArea {
+    width: 960px;
+    position: relative;
+  }
+  #return {
+    position: absolute;
+    top: 20px;
+    right: 32px;
+    z-index: 100;
+    background:#1976d2;color:white;border:none;border-radius:7px;padding:12px 18px;font-size:1rem;cursor:pointer;transition:background 0.16s;
+  }
+  #periodicTable {
+    position: relative;
+    width: 960px;
+    height: 550px;
+    background: linear-gradient(#fdfdfd, #f5f5f5);
+    border: 2px solid #333;
+    box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  }
+
+  .element {
+    width: 44px;
+    height: 44px;
+    position: absolute;
+    border-radius: 6px;
+    border: 1px solid #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    color: #111;
+    transition: all 0.15s ease-in-out;
+  }
+
+  .element:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 6px rgba(0,0,0,0.2);
+  }
+
+  .alkali { background: #f7b2ad; }
+  .alkaline { background: #f8d49d; }
+  .transition { background: #f9f3a2; }
+  .post-transition { background: #cce3b2; }
+  .metalloid { background: #a2d6c2; }
+  .nonmetal { background: #9acfea; }
+  .halogen { background: #c4b7f0; }
+  .noble { background: #f4b5f0; }
+  .lanth { background: #e0c6a4; }
+  .actin { background: #d1a6a4; }
+
+  #goalDisplay, #selectedElementsDisplay, #reactionDisplay, #timerDisplay, #scoreDisplay {
+    margin-top: 10px;
+    font-size: 15px;
+    text-align: center;
+  }
+
+  #reactionDisplay { color: #0066cc; font-weight: bold; }
+  #timerDisplay { color: #cc0000; font-weight: bold; }
+  #scoreDisplay { color: #008800; font-weight: bold; }
+
+  #submitButton, #startChallengeButton {
+    width: 150px;
+    height: 45px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 16px;
+    margin: 15px 20px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+  }
+
+  #submitButton { background: #28a745; }
+  #submitButton:hover { background: #2ecc71; transform: scale(1.05); }
+
+  #startChallengeButton { background: #007bff; }
+  #startChallengeButton:hover { background: #3399ff; transform: scale(1.05); }
+
+  .seriesLabel {
+    position: absolute;
+    font-size: 13px;
+    color: #333;
+    font-weight: bold;
+  }
+
+  h3, h4 { text-align: center; margin: 10px 0; }
+</style>
+</head>
+<body>
+<button id="return">Return to main page</button>
+<div id="gameArea">
+  <h3>Welcome to the Chemistry Playground! Here you will experience the career of a chemist.</h3>
+  <h4>Feel free to click on different elements in the periodic table and create different compounds!</h4>
+  <h4>When you are ready, click "Start Challenge"! You will have 2 minutes to create the compounds it tells you to!</h4>
+
+  <div id="periodicTable"></div>
+  <div class="seriesLabel" style="top:520px; left:60px;">Lanthanides</div>
+  <div class="seriesLabel" style="top:570px; left:60px;">Actinides</div>
+
+  <div id="goalDisplay" style="display:none;"></div>
+  <div id="selectedElementsDisplay"></div>
+  <div id="reactionDisplay"></div>
+  <div id="timerDisplay" style="display:none;"></div>
+  <div id="scoreDisplay" style="display:none;"></div>
+
+  <div style="text-align:center;">
+    <div id="submitButton">Submit</div>
+    <div id="startChallengeButton">Start Challenge</div>
+  </div>
+</div>
+
+<script>
+const returnButton = document.getElementById("return");
+  returnButton.addEventListener("click", function () {
+      if(confirm("Are you sure you would like to leave this page? Your progress will not be saved.")) {
+          window.location.href = "/../index.html"
+      }
+  });
+const periodicTable = document.getElementById('periodicTable');
+const selectedElementsDisplay = document.getElementById("selectedElementsDisplay");
+const goalDisplay = document.getElementById("goalDisplay");
+const reactionDisplay = document.getElementById("reactionDisplay");
+const timerDisplay = document.getElementById("timerDisplay");
+const scoreDisplay = document.getElementById("scoreDisplay");
+const submitButton = document.getElementById("submitButton");
+const startChallengeButton = document.getElementById("startChallengeButton");
+
+let selectedElements = [];
+let timeLeft = 120;
+let score = 0;
+let gameActive = false;
+let freeMode = true;
+let challengeCompounds = [];
+let goal = null;
+let challengeStartedAt = null;
+
+const goalLists = [
+  {name: "Carbon dioxide", formula: {C:1, O:2}},
+  {name: "Glucose", formula: {C:6, H:12, O:6}},
+  {name: "Lithium oxide", formula: {Li:2, O:1}},
+  {name: "Glycerol", formula: {C:3, H:8, O:3}},
+  {name: "Table salt", formula: {Na:1, Cl:1}},
+  {name: "Water", formula: {H:2, O:1}},
+  {name: "Basic carbohydrate", formula: {C:1, H:2, O:1}},
+  {name: "Protein (simplified)", formula: {C:2, H:4, O:2, N:1}},
+  {name: "Methane", formula: {C:1, H:4}},
+  {name: "Ammonia", formula: {N:1, H:3}},
+  {name: "Ethanol", formula: {C:2, H:6, O:1}}
+];
+
+function countOf(sym){ return selectedElements.filter(e=>e===sym).length; }
+
+function isExactFormula(formula){
+  for(let elem in formula) if(countOf(elem)!==formula[elem]) return false;
+  let total = Object.values(formula).reduce((a,b)=>a+b,0);
+  return selectedElements.length === total;
+}
+
+function checkReactions(){
+  let results = [];
+  if(isExactFormula({C:1,O:2})) results.push("You made Carbon Dioxide (CO₂)!");
+  else if(isExactFormula({C:2,H:4,O:2,N:1})) results.push("You made a basic protein (C₂H₄O₂N)!");
+  else if(isExactFormula({C:6,H:12,O:6})) results.push("You made Glucose (C₆H₁₂O₆)!");
+  else if(isExactFormula({H:2,O:1})) results.push("You made Water (H₂O)!");
+  else if(isExactFormula({Li:2,O:1})) results.push("You made Lithium Oxide (Li₂O)!");
+  else if(isExactFormula({C:3,H:8,O:3})) results.push("You made Glycerol (C₃H₈O₃)!");
+  else if(isExactFormula({Na:1,Cl:1})) results.push("You made Table Salt (NaCl)!");
+  else if(isExactFormula({C:1,H:2,O:1})) results.push("You made Basic Carbohydrate (CH₂O)!");
+  else if(isExactFormula({C:1,H:4})) results.push("You made Methane (CH₄)!");
+  else if(isExactFormula({N:1,H:3})) results.push("You made Ammonia (NH₃)!");
+  else if(isExactFormula({C:2,H:6,O:1})) results.push("You made Ethanol (C₂H₆O)!");
+  else results.push("No valid reactions.");
+  reactionDisplay.textContent = results.join(" ");
+  selectedElements = [];
+  updateSelectedElements();
+}
+
+function startChallenge(){
+  if(gameActive) return;
+  score=0; timeLeft=120; gameActive=true; freeMode=false;
+  challengeCompounds=[...goalLists];
+  challengeStartedAt=Date.now();
+  pickNextGoal();
+  goalDisplay.style.display="block";
+  timerDisplay.style.display="block";
+  scoreDisplay.style.display="block";
+  startChallengeButton.style.opacity="0.5";
+  startChallengeButton.style.pointerEvents="none";
+}
+
+function pickNextGoal(){
+  if(challengeCompounds.length===0){
+    gameActive=false;
+    let timeUsed=Math.round((Date.now()-challengeStartedAt)/1000);
+    reactionDisplay.textContent=`Challenge complete! You got all compounds correct in ${timeUsed} seconds.`;
+    goalDisplay.style.display="none";
+    timerDisplay.style.display="none";
+    scoreDisplay.style.display="none";
+    startChallengeButton.style.opacity="1";
+    startChallengeButton.style.pointerEvents="auto";
+    return;
+  }
+  let index=Math.floor(Math.random()*challengeCompounds.length);
+  goal=challengeCompounds[index];
+  goalDisplay.textContent="Compound to create: "+goal.name;
+}
+
+function checkChallengeReaction(){
+  if(!goal) return;
+  if(isExactFormula(goal.formula)){
+    score++;
+    reactionDisplay.textContent="Correct! You made "+goal.name+" (+1)";
+    challengeCompounds = challengeCompounds.filter(c=>c!==goal);
+    pickNextGoal();
+  } else {
+    reactionDisplay.textContent="Not the correct compound!";
+  }
+  selectedElements=[];
+  updateSelectedElements();
+}
+
+function updateSelectedElements(){
+  selectedElementsDisplay.textContent="Selected: "+(selectedElements.join(" ")||"none");
+}
+
+const elementData = [
+["H",1,1,"nonmetal"],["He",1,18,"noble"],
+["Li",2,1,"alkali"],["Be",2,2,"alkaline"],["B",2,13,"metalloid"],["C",2,14,"nonmetal"],["N",2,15,"nonmetal"],["O",2,16,"nonmetal"],["F",2,17,"halogen"],["Ne",2,18,"noble"],
+["Na",3,1,"alkali"],["Mg",3,2,"alkaline"],["Al",3,13,"post-transition"],["Si",3,14,"metalloid"],["P",3,15,"nonmetal"],["S",3,16,"nonmetal"],["Cl",3,17,"halogen"],["Ar",3,18,"noble"],
+["K",4,1,"alkali"],["Ca",4,2,"alkaline"],["Sc",4,3,"transition"],["Ti",4,4,"transition"],["V",4,5,"transition"],["Cr",4,6,"transition"],["Mn",4,7,"transition"],["Fe",4,8,"transition"],["Co",4,9,"transition"],["Ni",4,10,"transition"],["Cu",4,11,"transition"],["Zn",4,12,"transition"],["Ga",4,13,"post-transition"],["Ge",4,14,"metalloid"],["As",4,15,"metalloid"],["Se",4,16,"nonmetal"],["Br",4,17,"halogen"],["Kr",4,18,"noble"],
+["Rb",5,1,"alkali"],["Sr",5,2,"alkaline"],["Y",5,3,"transition"],["Zr",5,4,"transition"],["Nb",5,5,"transition"],["Mo",5,6,"transition"],["Tc",5,7,"transition"],["Ru",5,8,"transition"],["Rh",5,9,"transition"],["Pd",5,10,"transition"],["Ag",5,11,"transition"],["Cd",5,12,"transition"],["In",5,13,"post-transition"],["Sn",5,14,"post-transition"],["Sb",5,15,"metalloid"],["Te",5,16,"metalloid"],["I",5,17,"halogen"],["Xe",5,18,"noble"],
+["Cs",6,1,"alkali"],["Ba",6,2,"alkaline"],["La",8,4,"lanth"],["Ce",8,5,"lanth"],["Pr",8,6,"lanth"],["Nd",8,7,"lanth"],["Pm",8,8,"lanth"],["Sm",8,9,"lanth"],["Eu",8,10,"lanth"],["Gd",8,11,"lanth"],["Tb",8,12,"lanth"],["Dy",8,13,"lanth"],["Ho",8,14,"lanth"],["Er",8,15,"lanth"],["Tm",8,16,"lanth"],["Yb",8,17,"lanth"],["Lu",8,18,"lanth"],
+["Hf",6,4,"transition"],["Ta",6,5,"transition"],["W",6,6,"transition"],["Re",6,7,"transition"],["Os",6,8,"transition"],["Ir",6,9,"transition"],["Pt",6,10,"transition"],["Au",6,11,"transition"],["Hg",6,12,"transition"],["Tl",6,13,"post-transition"],["Pb",6,14,"post-transition"],["Bi",6,15,"post-transition"],["Po",6,16,"metalloid"],["At",6,17,"halogen"],["Rn",6,18,"noble"],
+["Fr",7,1,"alkali"],["Ra",7,2,"alkaline"],["Ac",9,4,"actin"],["Th",9,5,"actin"],["Pa",9,6,"actin"],["U",9,7,"actin"],["Np",9,8,"actin"],["Pu",9,9,"actin"],["Am",9,10,"actin"],["Cm",9,11,"actin"],["Bk",9,12,"actin"],["Cf",9,13,"actin"],["Es",9,14,"actin"],["Fm",9,15,"actin"],["Md",9,16,"actin"],["No",9,17,"actin"],["Lr",9,18,"actin"],
+["Rf",7,4,"transition"],["Db",7,5,"transition"],["Sg",7,6,"transition"],["Bh",7,7,"transition"],["Hs",7,8,"transition"],["Mt",7,9,"transition"],["Ds",7,10,"transition"],["Rg",7,11,"transition"],["Cn",7,12,"transition"],["Nh",7,13,"post-transition"],["Fl",7,14,"post-transition"],["Mc",7,15,"post-transition"],["Lv",7,16,"post-transition"],["Ts",7,17,"halogen"],["Og",7,18,"noble"]
+];
+
+elementData.forEach(([sym,row,col,cat])=>{
+  const el=document.createElement('div');
+  el.className='element '+cat;
+  el.textContent=sym;
+  el.style.left=((col-1)*50)+'px';
+  let y = row <= 7 ? (row-1)*50 : (row===8 ? 420 : 470);
+  el.style.top=y+'px';
+  el.addEventListener('click',()=>{ selectedElements.push(sym); updateSelectedElements(); });
+  periodicTable.appendChild(el);
+});
+
+submitButton.addEventListener('click', ()=>{ if(freeMode) checkReactions(); else checkChallengeReaction(); });
+startChallengeButton.addEventListener('click', startChallenge);
+
+setInterval(()=>{
+  if(gameActive && !freeMode){
+    if(timeLeft>0) timeLeft--;
+    else {
+      gameActive=false;
+      reactionDisplay.textContent="Time’s up! Final Score: "+score;
+      goalDisplay.style.display="none";
+      timerDisplay.style.display="none";
+      scoreDisplay.style.display="none";
+      startChallengeButton.style.opacity="1";
+      startChallengeButton.style.pointerEvents="auto";
+    }
+  }
+  if(gameActive){
+    timerDisplay.textContent="Time Left: "+timeLeft;
+    scoreDisplay.textContent="Score: "+score;
+  }
+},1000);
+
+updateSelectedElements();
+</script>
+</body>
+</html>

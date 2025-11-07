@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Creekside Career Explorer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #f5f7fa, #dfe9f3);
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 0;
+            padding: 20px 10px;
+            font-size: 2rem;
+            color: #2c3e50;
+        }
+
+        h3 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            color: #34495e;
+            border-left: 6px solid #3498db;
+            padding-left: 10px;
+        }
+
+        #logout {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        #logout:hover {
+            background: #c0392b;
+        }
+
+        #careerOptions {
+            width: 80%;
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        button.career {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: white;
+            background: #3498db;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+            transition: all 0.25s ease;
+        }
+
+        button.career:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+        button.career:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <div style="position: relative; height: 100px;"> 
+        <h1 id="welcomeMessage">
+            Welcome to Career Quest!<br>
+            Feel free to explore our assortment of careers!
+        </h1>
+        <button id="logout" onclick="location.href='index.html'">Logout</button>
+    </div>
+    <div id="careerOptions"></div>
+    <script>
+        const careers = [
+            { category: "STEM", name: "Computer Scientist", url: "/Careers/career_computer_scientist.html"},
+            { category: "STEM", name: "Chemist", url: "/Careers/career_chemist.html"},
+            { category: "Finance", name: "Stock Trader", url: "/Careers/career_stock_trader.html"},
+            { category: "Law/Legal", name: "Judge", url: "/Careers/career_judge.html"},
+            { category: "Law/Legal", name: "Lawyer", url: "/Careers/career_lawyer.html"},
+        ];
+
+        const container = document.getElementById("careerOptions");
+        let category_heading = null;
+
+        careers.forEach(career => {
+            if (!category_heading || career.category !== category_heading.textContent) {
+                category_heading = document.createElement('h3');
+                category_heading.textContent = career.category;
+                container.appendChild(category_heading);
+            }
+
+            const career_button = document.createElement('button');
+            career_button.textContent = career.name;
+            career_button.classList.add("career");
+            container.appendChild(career_button);
+
+            career_button.onclick = () => {
+                window.location.href = career.url;
+            }
+        });
+    </script>
+</body>
+</html>

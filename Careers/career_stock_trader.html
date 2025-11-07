@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Trader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: linear-gradient(135deg, #409c8e, #1f6b5b);
+            color: #f1f1f1;
+        }
+
+        h1 {
+            color: #ffffff;
+            text-align: center;
+        }
+
+        h2 {
+            font-weight: 400;
+            text-align: center;
+            color: #e0e7ff;
+        }
+
+        button {
+            background: #2563eb;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 14px;
+            margin: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        button:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+        }
+
+        #return {
+            position: absolute;
+            top: 10px;
+            right: 0;
+            background: none;
+            border: none;
+            color: #93c5fd;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        /* Finance summary */
+        #financeSummary {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            margin: 20px auto;
+            max-width: 900px;
+        }
+
+        #financeSummary p {
+            flex: 1 1 200px;
+            margin: 0;
+            padding: 14px 18px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: #f1f5f9;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            backdrop-filter: blur(6px);
+        }
+
+        #financeSummary p:nth-of-type(1) { border-top: 4px solid #16a34a; }
+        #financeSummary p:nth-of-type(2) { border-top: 4px solid #f59e0b; }
+        #financeSummary p:nth-of-type(3) { border-top: 4px solid #2563eb; }
+        #financeSummary p:nth-of-type(4) { border-top: 4px solid #dc2626; }
+
+        h4 {
+            margin-top: 20px;
+            margin-bottom: 6px;
+            color: #fefefe;
+        }
+
+        p {
+            margin: 6px 0;
+        }
+        .orderRow {
+            display: flex;
+            align-items: center;
+            gap: 8px;   /* space between text and button */
+        }
+
+        .orderRow p {
+            margin: 0;  /* remove default paragraph margins */
+        }
+
+    </style>
+</head>
+<body>
+    <button id="return">Return to main page</button>
+    <h1>Stock Trading</h1>
+    <h2>Welcome to the Stock Market! Here you can buy and sell stocks, and your goal is to make a profit!</h2>
+    <h2>You will start with $100,000, and you must try to predict the stock prices and buy what you think will help you the most! Enjoy!</h2>
+
+    <main></main>
+
+    <script>
+        let money = 100000.00;
+        let netWorth = money;
+        const stocks = [
+            { name: "NVIDIA(NVDA)", price: parseFloat((Math.random()*150 + 50).toFixed(2)), shares: 0, bankrupt: false },
+            { name: "MICROSOFT(MSFT)", price: parseFloat((Math.random()*150 + 50).toFixed(2)), shares: 0, bankrupt: false },
+            { name: "APPLE(AAPL)", price: parseFloat((Math.random()*150 + 50).toFixed(2)), shares: 0, bankrupt: false },
+            { name: "ALPHABET(GOOGL/GOOG)", price: parseFloat((Math.random()*150 + 50).toFixed(2)), shares: 0, bankrupt: false },
+            { name: "AMAZON(AMZN)", price: parseFloat((Math.random()*150 + 50).toFixed(2)), shares: 0, bankrupt: false },
+            { name: "TESLA(TSLA)", price: parseFloat((Math.random()*150 + 50).toFixed(2)), shares: 0, bankrupt: false }
+        ];
+
+        function changePrice(stockName) {
+            if (stockName.bankrupt) return;
+            let change = parseFloat((Math.random()*20+0.01).toFixed(2));
+            if (Math.random() <=0.55) {
+                stockName.price += change;
+            } else {
+                stockName.price = Math.max(0, stockName.price-change);
+                if (stockName.price == 0) {
+                    stockName.bankrupt = true;
+                }
+            }
+        }
+
+        function cashDifference() {
+            changeInCash.textContent = `Change in CASH: $${(money - 100000).toFixed(2)}`;
+        }
+
+        function netWorthDifference() {
+            changeInNetWorth.textContent = `Change in NET WORTH: $${(netWorth - 100000).toFixed(2)}`;
+        }
+
+        const container = document.querySelector("main");
+
+        const financeSummary = document.createElement('div');
+        financeSummary.id = "financeSummary";
+        container.appendChild(financeSummary);
+
+        const moneyLeft = document.createElement('p');
+        moneyLeft.textContent = `Starting money: $${money.toFixed(2)}`;
+        financeSummary.appendChild(moneyLeft);
+
+        const changeInCash = document.createElement('p');
+        changeInCash.textContent = `Change in CASH: $${(100000 - money).toFixed(2)}`;
+        financeSummary.appendChild(changeInCash);
+
+        const netWorthDisplay = document.createElement('p');
+        netWorthDisplay.textContent = `Net worth: $${netWorth.toFixed(2)}`;
+        financeSummary.appendChild(netWorthDisplay);
+
+        const changeInNetWorth = document.createElement('p');
+        changeInNetWorth.textContent = `Change in NET WORTH: $${(netWorth - 100000).toFixed(2)}`;
+        financeSummary.appendChild(changeInNetWorth);
+
+        stocks.forEach(stock => {
+            const stock_info = document.createElement('h4');
+            container.appendChild(stock_info);
+            stock_info.textContent = stock.name;
+
+            const buy_button = document.createElement('button');
+            container.appendChild(buy_button);
+            buy_button.textContent = "Buy";
+
+            const sell_button = document.createElement('button');
+            sell_button.textContent = "Sell";
+            const limitOrderBuy_button = document.createElement('button');
+            limitOrderBuy_button.textContent = "Buy limit order";
+            buy_button.insertAdjacentElement('afterend', limitOrderBuy_button);
+            limitOrderBuy_button.insertAdjacentElement('afterend', sell_button);
+
+            const limitOrderSell_button = document.createElement('button');
+            limitOrderSell_button.textContent = "Sell limit order";
+            sell_button.insertAdjacentElement('afterend', limitOrderSell_button);
+            const buyOrderContainer = document.createElement('div');
+            container.appendChild(buyOrderContainer);
+
+            // === FIXED limit order sections ===
+            buyOrderContainer.className = "orderRow";  // flex row
+
+            const placedBuyLimitOrders = document.createElement('p');
+            buyOrderContainer.appendChild(placedBuyLimitOrders);
+
+            const cancelBuyLimitOrder = document.createElement('button');
+            cancelBuyLimitOrder.textContent = "Cancel Buy Limit Order";
+            cancelBuyLimitOrder.style.display = "none";
+            buyOrderContainer.appendChild(cancelBuyLimitOrder);
+
+            const sellOrderContainer = document.createElement('div');
+            sellOrderContainer.className = "orderRow";  // flex row
+            container.appendChild(sellOrderContainer);
+
+            const placedSellLimitOrders = document.createElement('p');
+            sellOrderContainer.appendChild(placedSellLimitOrders);
+
+            const cancelSellLimitOrder = document.createElement('button');
+            cancelSellLimitOrder.textContent = "Cancel Sell Limit Order";
+            cancelSellLimitOrder.style.display = "none";
+            sellOrderContainer.appendChild(cancelSellLimitOrder);
+            const stock_price = document.createElement('p');
+            container.appendChild(stock_price);
+            const sharesOfStock = document.createElement('p');
+            container.appendChild(sharesOfStock);
+            const stockBankrupt = document.createElement('p');
+            container.appendChild(stockBankrupt);
+            buy_button.addEventListener("click", function() {
+                let numShares = parseFloat(prompt("How many shares would you like to buy? "));
+                if (isNaN(numShares) || numShares <= 0) {
+                    alert("Please enter a valid number of shares!");
+                } else {
+                    if (money >= numShares*stock.price) {
+                        money -= numShares*stock.price;
+                        moneyLeft.textContent = `Money left: $${money.toFixed(2)}`;
+                        cashDifference();
+                        stock.shares += numShares;
+                        sharesOfStock.textContent = `Number of shares of ${stock.name}: ${stock.shares}`;
+                    } else {
+                        alert(`You don't have enough money to purchase ${numShares} shares of ${stock.name}!`);
+                    }
+                }           
+            });
+            sell_button.addEventListener("click", function() {
+                let sellNumShares = parseFloat(prompt("How many shares would you like to sell? "));
+                if (isNaN(sellNumShares) || sellNumShares <= 0) {
+                    alert("Please enter a valid number of shares!");
+                } else {
+                    if (stock.shares >= sellNumShares) {
+                        stock.shares -= sellNumShares;
+                        money += sellNumShares*stock.price;
+                        moneyLeft.textContent = `Money left: $${money.toFixed(2)}`;
+                        cashDifference();
+                        if (stock.shares == 0) {
+                            sharesOfStock.textContent = '';
+                        } else {
+                            sharesOfStock.textContent = `Number of shares of ${stock.name}: ${stock.shares}`;
+                        }
+                    } else {
+                        alert(`You don't have enough shares to sell ${sellNumShares} shares of ${stock.name}!`);
+                    }
+                }
+            });
+            limitOrderBuy_button.addEventListener("click", function() {
+                let limitPrice = parseFloat(prompt("At what maximum price would you like to buy this share? "));
+                if (isNaN(limitPrice) || limitPrice <= 0) {
+                    alert("Please enter a valid price!");
+                } else {
+                    let limitShares = parseFloat(prompt("How many shares would you like to buy? "));
+                    if (isNaN(limitShares) || limitShares <= 0) {
+                        alert("Please enter a valid number of shares!");
+                    } else {
+                        if (money >= limitShares*limitPrice) {
+                            placedBuyLimitOrders.textContent = `Buy limit order for ${limitShares} shares of ${stock.name} at $${limitPrice}.`
+                            cancelBuyLimitOrder.style.display = "inline-block";
+                            const buyInterval = setInterval(() => {
+                                if (money >= limitShares*limitPrice) {
+                                    if (stock.price <= limitPrice) {
+                                        money -= limitShares*stock.price;
+                                        moneyLeft.textContent = `Money left: $${money.toFixed(2)}`;
+                                        cashDifference();
+                                        stock.shares += limitShares;
+                                        sharesOfStock.textContent = `Number of shares of ${stock.name}: ${stock.shares}`;
+                                        alert(`Bought ${limitShares} shares of ${stock.name} at $${stock.price.toFixed(2)}!`);
+                                        clearInterval(buyInterval);
+                                        cancelBuyLimitOrder.style.display = "none";
+                                        placedBuyLimitOrders.textContent = "";
+                                    }
+                                } else {
+                                    setTimeout(() => {
+                                        alert(`Your buy limit order on ${stock.name} has been canceled. You no longer have enough money to buy ${limitShares} shares of ${stock.name} at $${limitPrice.toFixed(2)}.`);
+                                        cancelBuyLimitOrder.style.display = "none";
+                                        placedBuyLimitOrders.textContent = "";
+                                    }, 500)
+                                    clearInterval(buyInterval);
+                                }
+                            }, 1000);
+                            cancelBuyLimitOrder.addEventListener("click", function() {
+                                if(confirm(`Are you sure you would like to cancel your buy limit order on ${stock.name}? This action cannot be undone.`)) {
+                                    cancelBuyLimitOrder.style.display = "none";
+                                    placedBuyLimitOrders.textContent = "";
+                                    clearInterval(buyInterval);
+                                }
+                            });
+                        } else {
+                            alert(`You don't have enough money to place this buy limit order.`);
+                        }
+                    }
+                }
+            });
+            limitOrderSell_button.addEventListener("click", function() {
+                let limitPrice = parseFloat(prompt("At what minimum price would you like to sell this share? "));
+                if (isNaN(limitPrice) || limitPrice <= 0) {
+                    alert("Please enter a valid price!");
+                } else {
+                    let limitShares = parseFloat(prompt("How many shares would you like to sell? "));
+                    if (isNaN(limitShares) || limitShares <= 0) {
+                        alert("Please enter a valid number of shares!");
+                    } else {
+                        if (stock.shares >= limitShares) {
+                            placedSellLimitOrders.textContent = `Sell limit order for ${limitShares} shares of ${stock.name} at $${limitPrice}.`
+                            cancelSellLimitOrder.style.display = "inline-block";
+                            const sellInterval = setInterval(() => {
+                                if (stock.shares >= limitShares) {
+                                    if (stock.price >= limitPrice) {
+                                        money += limitShares*stock.price;
+                                        moneyLeft.textContent = `Money left: $${money.toFixed(2)}`;
+                                        cashDifference();
+                                        stock.shares -= limitShares;
+                                        if (stock.shares == 0) {
+                                            sharesOfStock.textContent = '';
+                                        } else {
+                                            sharesOfStock.textContent = `Number of shares of ${stock.name}: ${stock.shares}`;
+                                        }
+                                        alert(`Sold ${limitShares} shares of ${stock.name} at $${stock.price.toFixed(2)}!`);
+                                        clearInterval(sellInterval);
+                                        cancelSellLimitOrder.style.display = "none";
+                                        placedSellLimitOrders.textContent = "";
+                                    }
+                                } else {
+                                    setTimeout(() => {
+                                        alert(`Your sell limit order on ${stock.name} has been canceled. You no longer have enough shares ${limitShares} shares of ${stock.name}.`);
+                                        cancelSellLimitOrder.style.display = "none";
+                                        placedSellLimitOrders.textContent = "";
+                                    }, 500);
+                                    clearInterval(sellInterval);
+                                }
+                            }, 1000);
+                            cancelSellLimitOrder.addEventListener("click", function() {
+                                if(confirm(`Are you sure you would like to cancel your sell limit order on ${stock.name}? This action cannot be undone.`)) {
+                                    cancelSellLimitOrder.style.display = "none";
+                                    placedSellLimitOrders.textContent = "";
+                                    clearInterval(sellInterval);
+                                }
+                            });
+                        } else {
+                            alert(`You don't have enough shares to place this sell limit order.`);
+                        }
+                    }
+                }
+            });           
+            changePrice(stock);
+            if (stock.bankrupt) {
+                buy_button.disabled = true;
+                sell_button.disabled = true;
+                limitOrderBuy_button.disabled = true;
+                limitOrderSell_button.disabled = true;
+                stockBankrupt.innerHTML = `${stock.name} has gone bankrupt!<br>${stock.name} is no longer available for purchase.`;
+                stock_price.textContent = "$0.00";
+                stock.price = 0.00;
+            } else {
+                stock_price.textContent = `Stock Price: $${stock.price.toFixed(2)}`;
+            }
+            setInterval(() => {
+                changePrice(stock);
+                if (stock.bankrupt) {
+                    buy_button.disabled = true;
+                    sell_button.disabled = true;
+                    limitOrderBuy_button.disabled = true;
+                    limitOrderSell_button.disabled = true;
+                    stockBankrupt.innerHTML = `${stock.name} has gone bankrupt! Their stock price has reached $0.00.<br>${stock.name} is no longer available for purchase.`;
+                    stock_price.textContent = "$0.00";
+                    stock.price = 0.00;
+                } else {
+                    stock_price.textContent = `Stock Price: $${stock.price.toFixed(2)}`;
+                }
+                stocks.forEach(stock => {
+                    netWorth += stock.price*stock.shares;
+                    netWorthDisplay.textContent = `Net worth: $${netWorth.toFixed(2)}`;
+                    netWorthDifference();
+                });
+                netWorth = money;
+            }, 5000);
+        });
+
+        const returnButton = document.getElementById("return");
+        returnButton.addEventListener("click", function () {
+            if(confirm("Are you sure you would like to leave this page? Your progress will not be saved.")) {
+                window.location.href = "/../index.html";
+            }
+        });
+    </script>
+</body>
+</html>
