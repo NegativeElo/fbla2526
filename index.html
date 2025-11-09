@@ -29,24 +29,6 @@
             padding-left: 10px;
         }
 
-        #logout {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        #logout:hover {
-            background: #c0392b;
-        }
-
         #careerOptions {
             width: 80%;
             max-width: 700px;
@@ -88,7 +70,6 @@
             Welcome to Career Quest!<br>
             Feel free to explore our assortment of careers!
         </h1>
-        <button id="logout" onclick="location.href='index.html'">Logout</button>
     </div>
     <div id="careerOptions"></div>
     <script>
@@ -96,8 +77,8 @@
             { category: "STEM", name: "Computer Scientist", url: "Careers/career_computer_scientist.html"},
             { category: "STEM", name: "Chemist", url: "Careers/career_chemist.html"},
             { category: "Finance", name: "Stock Trader", url: "Careers/career_stock_trader.html"},
-            { category: "Law/Legal", name: "Judge", url: "Careers/career_judge.html"},
-            { category: "Law/Legal", name: "Lawyer", url: "Careers/career_lawyer.html"},
+            { category: "Legal", name: "Judge", url: "Careers/career_judge.html"},
+            { category: "Legal", name: "Lawyer", url: "Careers/career_lawyer.html"},
         ];
 
         const container = document.getElementById("careerOptions");
