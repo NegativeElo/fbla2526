@@ -31,15 +31,21 @@ html,body {
 }
 #hud span { display: block; line-height: 1.3; }
 #return {
-  position: fixed; top: 10px; right: 12px; z-index: 1002;
+  position: fixed; top: 10px; right: 10px; z-index: 1002;
   background: var(--danger); color: #fff; border: none; padding: 8px 16px;
   border-radius: 9px; font-weight: 700; cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-family: inherit; font-size: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-family: inherit; font-size: 12px;
   transition: transform 0.15s ease;
 }
 #return:hover { transform: translateY(-2px); }
 #mainTitle {
   font-family: 'Press Start 2P', monospace; font-size: 18px; font-weight: 700;
+  color: #fff; text-shadow: 2px 2px 0 #000d; letter-spacing: 0.04em;
+  width: 100vw; position: fixed; top: 10px; left: 0;
+  text-align: center; z-index: 3; pointer-events: none; user-select: none;
+}
+#instructions {
+  font-family: 'Press Start 2P', monospace; font-size: 14px; font-weight: 600;
   color: #fff; text-shadow: 2px 2px 0 #000d; letter-spacing: 0.04em;
   width: 100vw; position: fixed; top: 10px; left: 0;
   text-align: center; z-index: 3; pointer-events: none; user-select: none;
@@ -51,7 +57,7 @@ html,body {
 }
 #mainBG {
   width: 850px; height: 560px;
-  background: url('courtbg.jpg') center 54px no-repeat;
+  background: url('courtbg.jpg') center 80px no-repeat;
   background-size: 500px 450px; 
   image-rendering: pixelated;
   position: relative;
@@ -299,7 +305,8 @@ html,body {
 <body>
 <div id="hud" aria-hidden="true"><span id="score">Score: 0</span><span id="casesLeft">Cases Left: 0</span></div>
 <button id="return">Return to main page</button>
-<div id="mainTitle">Judge Career Simulator</div>
+<div id="mainTitle">Judge Simulator</div>
+<div id="instructions"><br><br>Read over the case and decide who's right!</div>
 <div id="gameBGwrap">
   <div id="mainBG">
     <div id="judgeBubbleWrap"></div>
@@ -311,6 +318,7 @@ html,body {
         <div id="caseEvidence" class="case-argument"></div>
         <div id="accuserArg" class="case-argument"></div>
         <div id="defendantArg" class="case-argument"></div>
+        <br>
         <div id="decisionQuestion"></div>
         <div class="button-container" id="choices">
           <button id="defendantLost" class="btn btn-red" style="display:none;"></button>

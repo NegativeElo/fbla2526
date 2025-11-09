@@ -38,7 +38,7 @@ body {
   display:flex; justify-content:center; align-items:center; position:relative; z-index:1; background: #000;
 }
 #mainBG {
-  width:700px; height:600px; background: url('courtbg.jpg') center 90px no-repeat; background-size: 590px 450px;
+  width:700px; height: 530px; background: url('courtbg.jpg') center 75px no-repeat; background-size: 590px 450px;
   image-rendering: pixelated; position:relative; box-shadow:0 10px 50px #000d; border-radius:14px;
   display:flex; justify-content:center; align-items:center; z-index:2; overflow:visible;
 }
@@ -70,7 +70,7 @@ body {
   pointer-events: auto; position: relative; opacity: 0.97; display: flex; flex-direction: column; align-items: center; gap: 14px; height: 100%;
 }
 #questionPanel { width: 180px; min-width: 120px; max-width: 210px; padding: 26px 12px 14px 12px;
-  border: 2.6px solid #c33; margin-top: 150px; margin-left: -225px; height: auto; align-self: flex-start;
+  border: 2.6px solid #c33; margin-top: 120px; margin-left: -225px; height: auto; align-self: flex-start;
 }
 .sidePanel.explanation { border-color: #1976d2; width: 210px; min-width: 120px; max-width: 240px;
   padding: 26px 10px 13px 10px; margin-top: 225px; margin-right: -225px; height: auto; align-self: flex-start;
@@ -112,6 +112,10 @@ body {
   font-family:'Press Start 2P', monospace; font-size:24px; font-weight:700; color:#fff; text-shadow:2.5px 2.5px 0 #000d;
   letter-spacing:0.05em; width:100vw; position:fixed; top:15px; left:0; text-align:center; z-index:3; pointer-events: none; user-select:none;
 }
+#instructions {
+  font-family:'Press Start 2P', monospace; font-size:18px; font-weight:600; color:#fff; text-shadow:2.5px 2.5px 0 #000d;
+  letter-spacing:0.05em; width:100vw; position:fixed; top:15px; left:0; text-align:center; z-index:3; pointer-events: none; user-select:none;
+}
 #overlay {
   position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index:1500;
 }
@@ -144,6 +148,7 @@ body {
   </div>
   <button id="return">Return to main page</button>
   <div id="mainTitle">Lawyer Objection Game</div>
+  <div id="instructions"><br><br>Choose the correct objection to win!</div>
   <div id="gameBGwrap">
     <div id="mainBG">
       <div id="objectionBubbles"></div>
