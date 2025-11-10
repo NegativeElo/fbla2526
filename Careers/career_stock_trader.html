@@ -21,7 +21,10 @@
             text-align: center;
             color: #e0e7ff;
         }
-
+        h3 {
+            text-align: center;
+            color: #000000
+        }
         button {
             background: #2563eb;
             border: none;
@@ -51,7 +54,6 @@
             font-size: 1rem;
         }
 
-        /* Finance summary */
         #financeSummary {
             display: flex;
             flex-wrap: wrap;
@@ -92,11 +94,11 @@
         .orderRow {
             display: flex;
             align-items: center;
-            gap: 8px;   /* space between text and button */
+            gap: 8px;
         }
 
         .orderRow p {
-            margin: 0;  /* remove default paragraph margins */
+            margin: 0;
         }
 
     </style>
@@ -106,7 +108,7 @@
     <h1>Stock Trading</h1>
     <h2>Welcome to the Stock Market! Here you can buy and sell stocks, and your goal is to make a profit!</h2>
     <h2>You will start with $100,000, and you must try to predict the stock prices and buy what you think will help you the most! Enjoy!</h2>
-
+    <h3>Note: We have imposed a maximum of 1 buy and 1 sell limit order per company. Any new limit orders will replace previous ones.</h3>
     <main></main>
 
     <script>
@@ -186,8 +188,7 @@
             const buyOrderContainer = document.createElement('div');
             container.appendChild(buyOrderContainer);
 
-            // === FIXED limit order sections ===
-            buyOrderContainer.className = "orderRow";  // flex row
+            buyOrderContainer.className = "orderRow";
 
             const placedBuyLimitOrders = document.createElement('p');
             buyOrderContainer.appendChild(placedBuyLimitOrders);
@@ -198,7 +199,7 @@
             buyOrderContainer.appendChild(cancelBuyLimitOrder);
 
             const sellOrderContainer = document.createElement('div');
-            sellOrderContainer.className = "orderRow";  // flex row
+            sellOrderContainer.className = "orderRow";
             container.appendChild(sellOrderContainer);
 
             const placedSellLimitOrders = document.createElement('p');
@@ -263,25 +264,27 @@
                             placedBuyLimitOrders.textContent = `Buy limit order for ${limitShares} shares of ${stock.name} at $${limitPrice}.`
                             cancelBuyLimitOrder.style.display = "inline-block";
                             const buyInterval = setInterval(() => {
-                                if (money >= limitShares*limitPrice) {
-                                    if (stock.price <= limitPrice) {
-                                        money -= limitShares*stock.price;
-                                        moneyLeft.textContent = `Money left: $${money.toFixed(2)}`;
-                                        cashDifference();
-                                        stock.shares += limitShares;
-                                        sharesOfStock.textContent = `Number of shares of ${stock.name}: ${stock.shares}`;
-                                        alert(`Bought ${limitShares} shares of ${stock.name} at $${stock.price.toFixed(2)}!`);
+                                if(!stock.bankrupt) {
+                                    if (money >= limitShares*limitPrice) {
+                                        if (stock.price <= limitPrice) {
+                                            money -= limitShares*stock.price;
+                                            moneyLeft.textContent = `Money left: $${money.toFixed(2)}`;
+                                            cashDifference();
+                                            stock.shares += limitShares;
+                                            sharesOfStock.textContent = `Number of shares of ${stock.name}: ${stock.shares}`;
+                                            alert(`Bought ${limitShares} shares of ${stock.name} at $${stock.price.toFixed(2)}!`);
+                                            clearInterval(buyInterval);
+                                            cancelBuyLimitOrder.style.display = "none";
+                                            placedBuyLimitOrders.textContent = "";
+                                        }
+                                    } else {
+                                        setTimeout(() => {
+                                            alert(`Your buy limit order on ${stock.name} has been canceled. You no longer have enough money to buy ${limitShares} shares of ${stock.name} at $${limitPrice.toFixed(2)}.`);
+                                            cancelBuyLimitOrder.style.display = "none";
+                                            placedBuyLimitOrders.textContent = "";
+                                        }, 500)
                                         clearInterval(buyInterval);
-                                        cancelBuyLimitOrder.style.display = "none";
-                                        placedBuyLimitOrders.textContent = "";
                                     }
-                                } else {
-                                    setTimeout(() => {
-                                        alert(`Your buy limit order on ${stock.name} has been canceled. You no longer have enough money to buy ${limitShares} shares of ${stock.name} at $${limitPrice.toFixed(2)}.`);
-                                        cancelBuyLimitOrder.style.display = "none";
-                                        placedBuyLimitOrders.textContent = "";
-                                    }, 500)
-                                    clearInterval(buyInterval);
                                 }
                             }, 1000);
                             cancelBuyLimitOrder.addEventListener("click", function() {
@@ -310,29 +313,31 @@
                             placedSellLimitOrders.textContent = `Sell limit order for ${limitShares} shares of ${stock.name} at $${limitPrice}.`
                             cancelSellLimitOrder.style.display = "inline-block";
                             const sellInterval = setInterval(() => {
-                                if (stock.shares >= limitShares) {
-                                    if (stock.price >= limitPrice) {
-                                        money += limitShares*stock.price;
-                                        moneyLeft.textContent = `Money left: $${money.toFixed(2)}`;
-                                        cashDifference();
-                                        stock.shares -= limitShares;
-                                        if (stock.shares == 0) {
-                                            sharesOfStock.textContent = '';
-                                        } else {
-                                            sharesOfStock.textContent = `Number of shares of ${stock.name}: ${stock.shares}`;
+                                if(!stock.bankrupt){
+                                    if (stock.shares >= limitShares) {
+                                        if (stock.price >= limitPrice) {
+                                            money += limitShares*stock.price;
+                                            moneyLeft.textContent = `Money left: $${money.toFixed(2)}`;
+                                            cashDifference();
+                                            stock.shares -= limitShares;
+                                            if (stock.shares == 0) {
+                                                sharesOfStock.textContent = '';
+                                            } else {
+                                                sharesOfStock.textContent = `Number of shares of ${stock.name}: ${stock.shares}`;
+                                            }
+                                            alert(`Sold ${limitShares} shares of ${stock.name} at $${stock.price.toFixed(2)}!`);
+                                            clearInterval(sellInterval);
+                                            cancelSellLimitOrder.style.display = "none";
+                                            placedSellLimitOrders.textContent = "";
                                         }
-                                        alert(`Sold ${limitShares} shares of ${stock.name} at $${stock.price.toFixed(2)}!`);
+                                    } else {
+                                        setTimeout(() => {
+                                            alert(`Your sell limit order on ${stock.name} has been canceled. You no longer have enough shares ${limitShares} shares of ${stock.name}.`);
+                                            cancelSellLimitOrder.style.display = "none";
+                                            placedSellLimitOrders.textContent = "";
+                                        }, 500);
                                         clearInterval(sellInterval);
-                                        cancelSellLimitOrder.style.display = "none";
-                                        placedSellLimitOrders.textContent = "";
                                     }
-                                } else {
-                                    setTimeout(() => {
-                                        alert(`Your sell limit order on ${stock.name} has been canceled. You no longer have enough shares ${limitShares} shares of ${stock.name}.`);
-                                        cancelSellLimitOrder.style.display = "none";
-                                        placedSellLimitOrders.textContent = "";
-                                    }, 500);
-                                    clearInterval(sellInterval);
                                 }
                             }, 1000);
                             cancelSellLimitOrder.addEventListener("click", function() {
@@ -350,6 +355,10 @@
             });           
             changePrice(stock);
             if (stock.bankrupt) {
+                cancelSellLimitOrder.remove();
+                cancelBuyLimitOrder.remove();
+                placedBuyLimitOrders.textContent="";
+                placedSellLimitOrders.textContent="";
                 buy_button.disabled = true;
                 sell_button.disabled = true;
                 limitOrderBuy_button.disabled = true;
@@ -357,12 +366,17 @@
                 stockBankrupt.innerHTML = `${stock.name} has gone bankrupt!<br>${stock.name} is no longer available for purchase.`;
                 stock_price.textContent = "$0.00";
                 stock.price = 0.00;
+                sharesOfStock.textContent = "";
             } else {
                 stock_price.textContent = `Stock Price: $${stock.price.toFixed(2)}`;
             }
             setInterval(() => {
                 changePrice(stock);
                 if (stock.bankrupt) {
+                    cancelSellLimitOrder.remove();
+                    cancelBuyLimitOrder.remove();
+                    placedBuyLimitOrders.textContent="";
+                    placedSellLimitOrders.textContent="";
                     buy_button.disabled = true;
                     sell_button.disabled = true;
                     limitOrderBuy_button.disabled = true;
@@ -370,6 +384,7 @@
                     stockBankrupt.innerHTML = `${stock.name} has gone bankrupt! Their stock price has reached $0.00.<br>${stock.name} is no longer available for purchase.`;
                     stock_price.textContent = "$0.00";
                     stock.price = 0.00;
+                    sharesOfStock.textContent = "";
                 } else {
                     stock_price.textContent = `Stock Price: $${stock.price.toFixed(2)}`;
                 }

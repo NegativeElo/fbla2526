@@ -45,7 +45,7 @@ body {
 #objectionBubbles {
   position: absolute;
   left: 50%;
-  top: 140px;    /* Move both bubbles further down */
+  top: 140px;
   transform: translateX(-50%);
   z-index: 9999;
   display: flex;
@@ -391,7 +391,6 @@ let timerInterval = null;
 let timeLeft = 0;
 const TIME_PER_QUESTION = 15;
 
-// AUDIO
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 const audioCtx = AudioCtx ? new AudioCtx() : null;
 function playTone(type='sustain'){
@@ -423,7 +422,6 @@ function clearObjectionBubbles() {
   objectionBubbles.innerHTML = '';
   clearTimeout(bubbleTimeout1);
 }
-// Updated: allow custom inline style object
 function showObjectionBubble(text, styleClass = "", customStyle = {}) {
   const div = document.createElement('div');
   div.className = 'objection-bubble' + (styleClass ? ' ' + styleClass : '');
@@ -462,10 +460,9 @@ function showNewTopic(){
     startTimer(TIME_PER_QUESTION);
   }, 200);
 
-  // Handler with custom bubble positioning
   const handler = (choiceLetter, btn) => {
     if (!currentScenario) return;
-    const scenario = currentScenario; // cache
+    const scenario = currentScenario;
     clearInterval(timerInterval);
     setBtnsEnabled(false);
     btn.classList.add('selected');
@@ -474,7 +471,6 @@ function showNewTopic(){
     clearObjectionBubbles();
 
     bubbleTimeout1 = setTimeout(() => {
-      // First bubble: Sustained/Overruled (topmost, centered, moved down)
       showObjectionBubble(
         choiceLetter === scenario.answer ? 'Sustained!' : 'Overruled!',
         "result-bubble",
@@ -485,7 +481,6 @@ function showNewTopic(){
           marginBottom: "0px"
         }
       );
-      // Second bubble: Objection (beneath, shifted left & lower)
       showObjectionBubble(
         `Objection! ${userObjection}`,
         "primary-bubble",

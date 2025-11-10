@@ -127,7 +127,6 @@
         justCollected = false;
         draw();
 
-        // Reset Run button style and disabled state properly
         runBtn.disabled = false;
         runBtn.classList.remove('disabled-button');
 
@@ -147,7 +146,6 @@
           ctx.arc(ingredient.x * gridSize + gridSize / 2, ingredient.y * gridSize + gridSize / 2, gridSize / 2.5, 0, 2 * Math.PI);
           ctx.closePath(); ctx.fillStyle = '#38b000'; ctx.fill(); ctx.strokeStyle = '#225e19'; ctx.lineWidth = 2; ctx.stroke();
         }
-        // Player always drawn, regardless of isRunning or crash
         ctx.beginPath();
         ctx.arc(player.x * gridSize + gridSize / 2, player.y * gridSize + gridSize / 2, gridSize / 2.5, 0, 2 * Math.PI);
         ctx.closePath(); ctx.fillStyle = '#e53935'; ctx.fill(); ctx.strokeStyle = '#b71c1c'; ctx.lineWidth = 2; ctx.stroke();
@@ -172,7 +170,6 @@
               clearInterval(timerInterval); gameActive = false;
               showNotify(`Time's up! Collected: ${score}`);
 
-              // Disable and visually dull Run button
               runBtn.disabled = true;
               runBtn.classList.add('disabled-button');
 
@@ -191,7 +188,6 @@
           showNotify("Error: Out of bounds!");
           isRunning = false;
 
-          // Disable and dull run button
           runBtn.disabled = true;
           runBtn.classList.add('disabled-button');
 
@@ -202,7 +198,6 @@
           showNotify("Crashed into a blocked tile! Please reset.");
           isRunning = false;
 
-          // Disable and dull run button
           runBtn.disabled = true;
           runBtn.classList.add('disabled-button');
 
