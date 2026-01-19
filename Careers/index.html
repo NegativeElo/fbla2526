@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Quest | FBLA 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --accent: #4cc9f0;
+            --danger: #f72585;
+            --bg: #0f0f1b;
+        }
+        
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Top HUD showing Master Progress */
+        .hud {
+            width: 100%;
+            padding: 20px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 4px solid var(--primary);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 { font-size: 2.5rem; color: var(--accent); margin: 10px 0; }
+        .master-score { font-size: 0.8rem; color: #aaa; }
+
+        /* The Map/Grid of Worlds */
+        .map-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            max-width: 1000px;
+            width: 90%;
+            padding: 20px;
+        }
+
+        .career-node {
+            background: #1a1a2e;
+            border: 4px solid var(--primary);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            text-decoration: none;
+            color: white;
+        }
+
+        .career-node:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(76, 201, 240, 0.4);
+        }
+
+        /* Visual indicator for completed careers */
+        .career-node.completed {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .career-node.completed::after {
+            content: "CERTIFIED ✅";
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            font-size: 0.5rem;
+            color: #2ecc71;
+        }
+
+        .career-node h3 { font-size: 0.9rem; margin-bottom: 15px; }
+        /* Add this to your CSS */
+        .career-node.completed:hover {
+            border-color: #2ecc71;
+            box-shadow: 0 0 25px rgba(46, 204, 113, 0.6);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+            filter: brightness(0.8);
+        }
+
+        /* Footer Controls */
+        .controls {
+            margin-top: auto;
+            padding: 40px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            color: white;
+        }
+
+        .btn-reset { background: var(--danger); font-size: 0.6rem; }
+        .btn-quit { background: #555; font-size: 0.6rem; }
+        /* Welcome Overlay Styling */
+
+@keyframes blinker {
+    50% { opacity: 0; }
+}
+
+/* Info Button Styling */
+  #infoBtn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    width: 35px;
+    height: 35px;
+    background: #1976d2;
+    color: white;
+    border: 2px solid #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+    z-index: 1500;
+  }
+#infoBtn:hover {
+    background: #2196f3; /* Slightly lighter blue */
+    transform: translate(-1px, -1px);
+    box-shadow: 5px 5px 0 rgba(0,0,0,0.6);
+}
+
+#infoBtn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+}
+/* Modal Styling */
+/* Modal Styling */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 3000;
+    left: 0; top: 0; 
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6); /* Slightly darker backdrop */
+    backdrop-filter: blur(4px); /* Adds a modern feel */
+}
+
+.modal-content {
+    background-color: #ffffff;
+    margin: 2% auto; /* Reduced margin to give more vertical space */
+    padding: 35px;
+    border-radius: 15px;
+    width: 60%;
+    max-height: 80vh; /* Limits height to 80% of the viewport */
+    overflow-y: auto; /* Enables vertical scrolling */
+    position: relative;
+    text-align: left;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    
+    /* Font and Color Fixes */
+    font-family: Arial, Helvetica, sans-serif; /* Normal, standard font */
+    color: #000000; /* Pure black text */
+    line-height: 1.6;
+}
+
+/* Ensure headings inside modal are also black */
+.modal-content h2, .modal-content h3 {
+    color: #000000;
+    margin-top: 0;
+}
+
+/* Custom scrollbar styling for the modal */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+.modal-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+.modal-content::-webkit-scrollbar-thumb {
+    background: #1976d2;
+    border-radius: 10px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px; right: 20px;
+    font-size: 28px; font-weight: bold; cursor: pointer;
+}
+
+    </style>
+</head>
+<body>
+<div id="infoBtn" title="How to Play">?</div>
+
+<div id="infoModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="document.getElementById('infoModal').style.display='none'">&times;</span>
+        <h2>📜 Career Quest: Game Rules & Instructions</h2>
+        <hr>
+        
+        <h3>General Objective</h3>
+        <p style="text-align: justify;">Your goal is to explore five different careers paths: Computer Scientist, Chemist, Stock Trader, Judge, and Lawyer. Complete the challenge goal in each game to certify yourself in that career. Higher scores will get you more points. Complete the game by certifying yourself in all 5 careers or by achieving a total score of 100 or more!</p>
+
+        <h3>How to Play</h3>
+        <ul>
+            <li><strong>Computer Scientist:</strong> Drag and drop code blocks to navigate the player (the red ball) to the green ball. Avoid obstacles and don't crash into walls.<br><strong>&nbsp;&nbsp;&nbsp;&nbsp;Challenge Goal: </strong>Collect the green ball at least 5 times in 2 minutes<br><br></li>
+            <li><strong>Stock Trader:</strong> Buy low and sell high. Use Limit Orders to automate your trades while the market fluctuates.<br><strong>&nbsp;&nbsp;&nbsp;&nbsp;Challenge Goal: </strong>Increase your net worth by $50,000 in 5 minutes<br><br></li>
+            <li><strong>Judge:</strong> Read the case files carefully. Deliver your verdict based on the evidence presented before time runs out.<br><strong>&nbsp;&nbsp;&nbsp;&nbsp;Challenge Goal: </strong>Become a Supreme Court Justice<br><br></li>
+            <li><strong>Chemist:</strong> Select the elements that make up chemicals.<br><strong>&nbsp;&nbsp;&nbsp;&nbsp;Challenge Goal: </strong>Match 20 compounds with their chemical makeup correctly<br><br></li>
+            <li><strong>Lawyer:</strong> Watch the actions of the opposing counsel. Make the correct objection.<br><strong>&nbsp;&nbsp;&nbsp;&nbsp;Challenge Goal: </strong>Become a Managing Partner</li>
+        </ul>
+
+        <h3>Controls</h3>
+        <p>All games are playable via the mouse. However, certain games also have keys that perform the same action. You can press <strong>Enter</strong> to bypass intro screens and <strong>ESC</strong> at any time to quit a game and return to the main hub.</p>
+
+        <hr>
+        <h3>Technical Implementation (For Judges)</h3>
+        <p>This simulation is built using a modern web stack to ensure cross-platform compatibility:</p>
+        <ul>
+            <li><strong>Programming Languages:</strong> HTML5, CSS3, and Vanilla JavaScript (ES6+).</li>
+            <li><strong>Libraries:</strong> Google Blockly API (for the Computer Scientist visual programming logic).</li>
+            <li><strong>Graphics:</strong> HTML5 Canvas API for real-time rendering of game grids and stock market charts.</li>
+            <li><strong>State Management:</strong> Real-time data persistence using <code>localStorage</code> API to track scores and completion status across browser sessions.</li>
+        </ul>
+    </div>
+</div>
+    <div class="hud">
+        <h1>CAREER QUEST</h1>
+        <div class="master-score" id="stats">Total Score: 0 | Careers: 0/5</div>
+    </div>
+
+    <div class="map-grid">
+        <a href="./Careers/career_computer_scientist.html" class="career-node" id="node-CS">
+            <h3>COMPUTER SCIENTIST</h3>
+        </a>
+        <a href="./Careers/career_chemist.html" class="career-node" id="node-Chem">
+            <h3>CHEMIST</h3>
+        </a>
+        <a href="./Careers/career_stock_trader.html" class="career-node" id="node-Stock">
+            <h3>STOCK TRADER</h3>
+        </a>
+        <a href="./Careers/career_judge.html" class="career-node" id="node-Judge">
+            <h3>JUDGE</h3>
+        </a>
+        <a href="./Careers/career_lawyer.html" class="career-node" id="node-Law">
+            <h3>LAWYER</h3>
+        </a>
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-reset" onclick="resetGame()">RESET DATA</button>
+        <button class="btn btn-quit" onclick="terminateSession()">QUIT GAME</button>
+    </div>
+
+    <script>
+// Handle Info Modal
+const infoBtn = document.getElementById('infoBtn');
+const infoModal = document.getElementById('infoModal');
+const closeBtn = document.querySelector('.close-btn');
+
+infoBtn.onclick = function() {
+    infoModal.style.display = "block";
+}
+
+
+// Close modal if user clicks outside of it
+window.onclick = function(event) {
+    if (event.target == infoModal) {
+        infoModal.style.display = "none";
+    }
+}
+        function terminateSession() {
+            if (confirm("Disconnect from FBLA Career Quest? Your progress will not be saved.")) {
+                document.body.style.backgroundColor = "#000";
+                document.body.innerHTML = `
+                    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; text-align:center; font-family:'Press Start 2P';">
+                        <h1 style="color:#f72585; font-size: 30px;">UPLINK TERMINATED</h1>
+                        <p style="color:#555; font-size: 20px; margin-top:20px;">SAFE TO CLOSE TAB</p>
+                        <button class="btn" style="background:#333; margin-top:50px; font-size:8px;" onclick="location.reload()">RETURN TO GAME</button>
+                    </div>
+                `;
+                localStorage.removeItem("FBLA_CAREER_DATA");
+            }
+        }
+        function updateHub() {
+            // Load the save data
+            const rawData = localStorage.getItem('FBLA_CAREER_DATA');
+            const data = rawData ? JSON.parse(rawData) : { completed: [], totalScore: 0, scorePerCareer: [0, 0, 0, 0, 0] };
+
+            // Update Header Stats
+            document.getElementById('stats').innerText = 
+                `Total Score: ${data.totalScore} | Careers Certified: ${data.completed.length}/5`;
+            if (data.completed.length === 5) {
+                document.body.style.backgroundColor = "#000";
+                document.body.innerHTML = `
+                    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; text-align:center; font-family:'Press Start 2P';">
+                        <h1 style="color:#f72585; font-size: 25px;">CONGRATULATIONS! You have completed all ${data.completed.length} quests in Career Quest, with a score of ${data.totalScore}!</h1>
+                        <p style="color:#555; font-size: 20px; margin-top:20px;">Play these games more and increase your score!</p>
+                        <button class="btn" style="background:#333; margin-top:50px; font-size:8px;" onclick="location.reload()">RETURN TO GAME</button>
+                    </div>
+                `;
+            }
+            // Mark completed careers visually
+            const careerMap = {
+                'Computer Scientist': 'node-CS',
+                'Chemist': 'node-Chem',
+                'Stock Trader': 'node-Stock',
+                'Judge': 'node-Judge',
+                'Lawyer': 'node-Law'
+            };
+
+            data.completed.forEach(career => {
+                const id = careerMap[career];
+                if (id) document.getElementById(id).classList.add('completed');
+            });
+        }
+
+        function resetGame() {
+            if (confirm("Are you sure you want to erase all progress?")) {
+                localStorage.removeItem("FBLA_CAREER_DATA");
+                location.reload();
+            }
+        }
+
+        // Initialize Hub on Load
+        window.onload = updateHub;
+
+        // Mandatory ESC Key logic
+        window.addEventListener('keydown', (e) => {
+            if (e.key === "Escape") {
+                alert("You are already at the Main Menu.");
+            }
+        });
+    </script>
+</body>
+</html>

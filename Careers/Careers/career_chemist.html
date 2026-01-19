@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chemistry Career Lab - Retro</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  /* RETRO GAMIFIED BACKGROUND */
+  body {
+    background: radial-gradient(circle at center, #1a2a6c, #b21f1f, #fdbb2d);
+    background-attachment: fixed;
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    font-family: 'Press Start 2P', cursive;
+    color: white;
+    margin: 0;
+    padding: 20px;
+    overflow-x: hidden;
+    font-size: 11px;
+    text-align: center;
+  }
+
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* CRT SCANLINE EFFECT */
+  body::before {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+    z-index: 9999;
+    background-size: 100% 2px, 2px 100%;
+    pointer-events: none;
+  }
+
+  #gameArea {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    position: relative;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 4px solid #1976d2;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+
+  h2 { font-size: 1.2rem; text-shadow: 2px 2px #1976d2; margin-bottom: 10px; }
+  p { font-size: 1.0rem; }
+  #topControls {
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  #periodicTable {
+    position: relative;
+    width: 960px;
+    height: 530px; 
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #fff;
+    margin: 0 auto;
+    border-radius: 10px;
+  }
+
+  .element {
+    width: 44px;
+    height: 44px;
+    position: absolute;
+    border-radius: 4px;
+    border: 1px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    color: #000;
+    transition: transform 0.1s;
+    font-size: 12px;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  }
+
+  .element:hover { transform: scale(1.1); z-index: 10; }
+  .element:active { transform: translateY(2px); }
+
+  /* Element Colors */
+  .alkali { background: #f7b2ad; }
+  .alkaline { background: #f8d49d; }
+  .transition { background: #f9f3a2; }
+  .post-transition { background: #cce3b2; }
+  .metalloid { background: #a2d6c2; }
+  .nonmetal { background: #9acfea; }
+  .halogen { background: #c4b7f0; }
+  .noble { background: #f4b5f0; }
+  .lanth { background: #e0c6a4; }
+  .actin { background: #d1a6a4; }
+
+  #displayWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin: 15px 0;
+  }
+
+  #selectedElementsDisplay {
+    background: #fff;
+    color: #000;
+    padding: 10px 20px;
+    border-radius: 5px;
+    min-width: 250px;
+    font-size: 12px;
+    border: 3px solid #1976d2;
+  }
+
+  .scoreboard {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 15px;
+  }
+
+  .timer { background: #ffd54f; color: #000; padding: 10px; border-radius: 5px; border: 2px solid #fff; box-shadow: 4px 4px 0 #8a6d00; }
+  .score { background: #69f0ae; color: #004d40; padding: 10px; border-radius: 5px; border: 2px solid #fff; box-shadow: 4px 4px 0 #00796b; }
+
+  #goalDisplay {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px dashed #fff;
+    font-size: 10px;
+  }
+
+  #reactionDisplay { color: #69f0ae; margin: 10px 0; min-height: 15px; font-size: 13px; }
+
+  .button-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  /* BASE BUTTON STYLING (MATCHING RETURN BTN LOGIC) */
+  button, .btn-style {
+    font-family: 'Press Start 2P', cursive;
+    padding: 10px 15px;
+    font-size: 10px;
+    border: none;
+    cursor: pointer;
+    color: white;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+  }
+
+  /* Update the base hover to include the lightening effect transitions */
+button:hover:not(:disabled) {
+    transform: translateY(-3px);
+    filter: brightness(1.2); /* This is the "direct" way to lighten any color */
+}
+
+/* If you prefer specific color control instead of filter: brightness */
+#submitButton:hover { 
+    background: #32cd52; /* Lightened green */
+    box-shadow: 0 6px 0 #1e7e34; 
+}
+
+#startChallengeButton:hover { 
+    background: #339cff; /* Lightened blue */
+    box-shadow: 0 6px 0 #0056b3; 
+}
+
+#skipButton:hover { 
+    background: #ffb43e; /* Lightened orange */
+    box-shadow: 0 6px 0 #d35400; 
+}
+
+#clearButton:hover { 
+    background: #ff6b5d; /* Lightened red */
+    box-shadow: 0 6px 0 #c0392b; 
+}
+
+#backspaceButton:hover { 
+    background: #c73e3e; /* Lightened dark red */
+    box-shadow: 0 6px 0 #7b1f1f; 
+}
+
+#infoBtn:hover {
+    background: #3a91e8; /* Lightened info blue */
+    box-shadow: 0 6px 0 #0d47a1;
+}
+
+  button:active:not(:disabled) {
+    transform: translateY(0px);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.5) !important;
+  }
+
+  /* Specific Button Colors & Shadows */
+  #submitButton { 
+    background: #28a745; 
+    box-shadow: 0 3px 0 #1e7e34;
+  }
+
+  #startChallengeButton { 
+    background: #007bff; 
+    box-shadow: 0 3px 0 #0056b3;
+    margin-top: 10px; /* Replaces the translate logic to keep it centered */
+  }
+
+  #skipButton { 
+    background: #f39c12; 
+    box-shadow: 0 3px 0 #d35400;
+  }
+
+  #clearButton { 
+    background: #e74c3c; 
+    box-shadow: 0 3px 0 #c0392b;
+  }
+
+  #backspaceButton { 
+    background: #a32a2a; 
+    box-shadow: 0 3px 0 #7b1f1f;
+  }
+
+  #return {
+    position: absolute;
+    top: 10px;
+    right: 8px;
+    background: #ef1111;
+    box-shadow: 0 3px 0 #990000;
+    z-index: 100;
+  }
+  #return:hover {
+            background: #ff5555;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 #990000;
+        }
+
+  button:disabled { background: #777; box-shadow: none; cursor: not-allowed; transform: none !important; }
+
+  .seriesLabel { position: absolute; font-size: 10px; color: #fff; font-weight: bold; }
+
+  #infoBtn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    width: 35px;
+    height: 35px;
+    background: #1976d2;
+    color: white;
+    border: 2px solid #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 #0d47a1;
+    z-index: 1500;
+    transition: all 0.2s ease;
+  }
+  #infoBtn:hover {
+    background: #2196f3;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 0 #0d47a1;
+  }
+
+  #infoBtn:active {
+    transform: translateY(0px);
+    box-shadow: 0 1px 0 #0d47a1;
+  }
+
+  /* Modal Styling */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 3000;
+    left: 0; top: 0; 
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-content {
+    background-color: #ffffff;
+    margin: 5vh auto;
+    border-radius: 15px;
+    width: 60%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    text-align: left;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    font-family: Arial, Helvetica, sans-serif;
+    color: #000000;
+    line-height: 1.6;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-header {
+    position: sticky;
+    top: 0;
+    background: #ffffff;
+    padding: 20px 35px;
+    border-bottom: 2px solid #f1f1f1;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-body {
+    padding: 20px 35px 35px 35px;
+  }
+
+  .modal-content h2, .modal-content h3 {
+    color: #000000;
+    margin: 0;
+    text-shadow: none;
+  }
+
+  .modal-content::-webkit-scrollbar { width: 8px; }
+  .modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+  .modal-content::-webkit-scrollbar-thumb { background: #1976d2; border-radius: 10px; }
+
+  .close-btn {
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #000;
+    line-height: 1;
+  }
+
+  @media screen and (max-width: 960px) {
+    #periodicTable { transform: scale(0.8); transform-origin: top center; margin-bottom: -110px; }
+  }
+  @media screen and (max-width: 480px) {
+    #periodicTable { transform: scale(0.4); margin-bottom: -320px; }
+    .modal-content { width: 90%; }
+  }
+</style>
+</head>
+<body>
+
+<div id="infoBtn" title="How to Play">?</div>
+
+<div id="infoModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📜 CAREER QUEST: CHEMISTRY</h2>
+            <span class="close-btn">&times;</span>
+        </div>
+        
+        <div class="modal-body">
+            <h3>CHALLENGE GOAL</h3>
+            <ul><li><p>Make at least 20 chemicals in 2 minutes</p></li></ul>
+
+            <h3>How to Play</h3>
+            <ul>
+                <li><p>You can make different chemicals for practice before starting the challenge, but it will not contribute towards your score or certify you</p></li>
+                <li><p>Once you begin the challenge, a chemical will be stated and you must create that chemical</p></li>
+                <li><p>Chemicals are created by selected the elements needed to make that chemical in any order.</p></li>
+                <li><p>Every 5 chemicals created will earn you 1 point towards your total score</p></li>
+            </ul>
+            
+            <h3>CONTROLS</h3>
+            <ul>
+                <li><p>Use the <strong>MOUSE</strong> to select elements or buttons</p></li>
+                <li><p>Press <strong>ENTER</strong> to submit your answer</p></li>
+                <li><p>Press <strong>BACKSPACE</strong> to erase the last element you selected</p></li>
+                <li><p>Press <strong>ESC</strong> to exit the game</p></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<button id="return">EXIT</button>
+
+<div id="gameArea">
+  <h2>CHEMISTRY CAREER LAB</h2>
+  <h3 class="challenge-goal">Create 20 compounds in 2 minutes to certify!</h3>
+
+  <div id="topControls">
+    <button id="startChallengeButton">START CHALLENGE</button>
+  </div>
+
+  <div class="scoreboard">
+    <div id="timerDisplay" class="timer" style="display:none;">2:00</div>
+    <div id="scoreDisplay" class="score" style="display:none;">Score: 0</div>
+  </div>
+
+  <div id="goalDisplay" style="display:none;"></div>
+  
+  <div id="reactionDisplay" style="display:none;"></div>
+
+  <div id="displayWrapper">
+    <div id="selectedElementsDisplay">Selected: none</div>
+    <button id="backspaceButton">⌫</button>
+  </div>
+  
+  <div class="button-container">
+    <button id="clearButton">CLEAR</button>
+    <button id="submitButton">SUBMIT</button>
+    <button id="skipButton" style="display:none;">SKIP</button>
+  </div>
+
+  <div id="periodicTable">
+    <div class="seriesLabel" style="top:440px; left:55px;">Lanthanides</div>
+    <div class="seriesLabel" style="top:490px; left:75px;">Actinides</div>
+  </div>
+</div>
+
+<script>
+const infoBtn = document.getElementById('infoBtn');
+const infoModal = document.getElementById('infoModal');
+const closeBtn = document.querySelector('.close-btn');
+
+infoBtn.onclick = function() {
+    infoModal.style.display = "block";
+    if (gameActive) clearInterval(timerInterval);
+}
+closeBtn.onclick = function() {
+    infoModal.style.display = "none";
+    if (gameActive) startTimer();
+  }
+// Close modal if user clicks outside of it
+window.onclick = function(event) {
+    if (event.target == infoModal) {
+        infoModal.style.display = "none";
+        if (gameActive) startTimer();
+      }
+}
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+const NOTE_FREQS = {
+  "C3": 130.81, "C#3": 138.59, "D3": 146.83, "D#3": 155.56, "E3": 164.81, "F3": 174.61, "F#3": 185.00, "G3": 196.00, "G#3": 207.65, "A3": 220.00, "A#3": 233.08, "B3": 246.94,
+  "C4": 261.63, "C#4": 277.18, "D4": 293.66, "D#4": 311.13, "E4": 329.63, "F4": 349.23, "F#4": 369.99, "G4": 392.00, "G#4": 415.30, "A4": 440.00, "A#4": 466.16, "B4": 493.88
+};
+
+const NOTE_KEYS = Object.keys(NOTE_FREQS);
+
+function playSound(freq, duration = 0.2, type = 'triangle', gainVal = 0.1) {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+function playRandomKeyboardNote() {
+  const randomNote = NOTE_KEYS[Math.floor(Math.random() * NOTE_KEYS.length)];
+  playSound(NOTE_FREQS[randomNote]);
+}
+
+function playSuccessMelody() {
+  playSound(NOTE_FREQS["C4"], 0.3);
+  setTimeout(() => playSound(NOTE_FREQS["E4"], 0.3), 100);
+  setTimeout(() => playSound(NOTE_FREQS["G4"], 0.3), 200);
+  setTimeout(() => playSound(NOTE_FREQS["C5"] || 523.25, 0.5), 300);
+}
+
+// --- GLOBALS & DATA ---
+let hasSavedPoints = false;
+let badgeAlertedThisRound = false;
+let selectedElements = [];
+let timeLeft = 120;
+let score = 0;
+let gameActive = false;
+let freeMode = true;
+let goal = null;
+let timerInterval = null;
+
+const goalLists = { 
+  "Carbon dioxide (CO₂)": {C:1, O:2},
+  "Glucose (C₆H₁₂O₆)": {C:6, H:12, O:6},
+  "Lithium oxide (Li₂O)": {Li:2, O:1},
+  "Table salt (NaCl)": {Na:1, Cl:1},
+  "Water (H₂O)": {H:2, O:1},
+  "Methane (CH₄)": {C:1, H:4},
+  "Ammonia (NH₃)": {N:1, H:3},
+  "Ammonium (NH₄)": {N:1, H:4},
+  "Ethanol (C₂H₆O)": {C:2, H:6, O:1},
+  "Sulfuric Acid (H₂SO₄)": {H:2, S:1, O:4},
+  "Baking Soda (NaHCO₃)": {Na:1, H:1, C:1, O:3},
+  "Acetic Acid (C₂H₄O₂)": {C:2, H:4, O:2},
+  "Hydrochloric Acid (HCl)": {H:1, Cl:1},
+  "Oxygen Gas (O₂)": {O:2},
+  "Nitric Acid (HNO₃)": {H:1, N:1, O:3},
+  "Phosphoric Acid (H₃PO₄)": {H:3, P:1, O:4},
+  "Sodium Hydroxide (NaOH)": {Na:1, O:1, H:1},
+  "Potassium Hydroxide (KOH)": {K:1, O:1, H:1},
+  "Calcium Carbonate (CaCO₃)": {Ca:1, C:1, O:3},
+  "Magnesium Hydroxide (Mg(OH)₂)": {Mg:1, O:2, H:2},
+  "Nitrogen Gas (N₂)": {N:2},
+  "Ozone (O₃)": {O:3},
+  "Nitrous Oxide (N₂O)": {N:2, O:1},
+  "Hydrogen Sulfide (H₂S)": {H:2, S:1},
+  "Sulfur Dioxide (SO₂)": {S:1, O:2},
+  "Carbon Monoxide (CO)": {C:1, O:1},
+  "Chlorine Gas (Cl₂)": {Cl:2},
+  "Potassium Chloride (KCl)": {K:1, Cl:1},
+  "Calcium Chloride (CaCl₂)": {Ca:1, Cl:2},
+  "Magnesium Oxide (MgO)": {Mg:1, O:1},
+  "Silver Nitrate (AgNO₃)": {Ag:1, N:1, O:3},
+  "Potassium Permanganate (KMnO₄)": {K:1, Mn:1, O:4},
+  "Propane (C₃H₈)": {C:3, H:8},
+  "Butane (C₄H₁₀)": {C:4, H:10},
+  "Benzene (C₆H₆)": {C:6, H:6},
+  "Acetone (C₃H₆O)": {C:3, H:6, O:1},
+  "Methanol (CH₄O)": {C:1, H:4, O:1},
+  "Caffeine (C₈H₁₀N₄O₂)": {C:8, H:10, N:4, O:2},
+  "Aspirin (C₉H₈O₄)": {C:9, H:8, O:4},
+  "Urea (CH₄N₂O)": {C:1, H:4, N:2, O:1},
+  "Hydrogen Peroxide (H₂O₂)": {H:2, O:2},
+  "Silver Iodide (AgI)": {Ag:1, I:1},
+  "Sodium Fluoride (NaF)": {Na:1, F:1},
+  "Hydrobromic Acid (HBr)": {H:1, Br:1},
+  "Perchloric Acid (HClO₄)": {H:1, Cl:1, O:4}
+};
+
+let challengeCompounds = Object.keys(goalLists);
+
+function updateCareerData(finalScore) { 
+  if (hasSavedPoints || finalScore <= 0) return;
+  const rawData = localStorage.getItem("FBLA_CAREER_DATA");
+  let data = rawData ? JSON.parse(rawData) : { completed: [], totalScore: 0, scorePerCareer: {"Computer Scientist":0, "Chemist": 0, "Stock Trader":0, "Judge":0, "Lawyer":0} };
+  data.totalScore = (Number(data.totalScore) || 0) + Number(finalScore);
+  data.scorePerCareer["Chemist"] = (Number(data.scorePerCareer["Chemist"]) || 0) + Number(finalScore);
+  localStorage.setItem('FBLA_CAREER_DATA', JSON.stringify(data));
+  hasSavedPoints = true; 
+}
+
+function handleExit() { 
+  const rawData = localStorage.getItem('FBLA_CAREER_DATA');
+  let data = rawData ? JSON.parse(rawData) : { completed: [] };
+  let status = data.completed.includes("Chemist") ? "Certified" : "Not Certified";
+  if (confirm(`Exit? Status: ${status}`)) {
+    if (gameActive && !freeMode) updateCareerData(Math.floor(score/5));
+    window.location.href = "../index.html";
+  }
+}
+
+function startTimer() { 
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (timeLeft > 0) {
+      timeLeft--;
+      let mins = Math.floor(timeLeft/60);
+      let secs = timeLeft%60;
+      document.getElementById('timerDisplay').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+      document.getElementById('scoreDisplay').textContent = "Score: " + score;
+    } else {
+      endChallenge();
+    }
+  }, 1000);
+}
+
+function endChallenge() { 
+  clearInterval(timerInterval);
+  gameActive = false;
+  reactionDisplay.style.display="";
+  reactionDisplay.textContent = "Game over! Final Score: " + score;
+  setTimeout(() => {
+    if (reactionDisplay.textContent.includes("Game over")) {
+      reactionDisplay.textContent=""
+      reactionDisplay.style.display="none";
+    }
+  }, 5000);
+  updateCareerData(Math.floor(score/5));
+  document.getElementById("goalDisplay").style.display = "none";
+  document.getElementById("timerDisplay").style.display = "none";
+  document.getElementById("scoreDisplay").style.display = "none";
+  document.getElementById("skipButton").style.display = "none";
+  document.getElementById("startChallengeButton").style.display = "inline-flex";
+  goal=false;
+  freeMode=true;
+  selectedElements = [];
+  updateSelectedElements();
+}
+
+function isExactFormula(formula) { 
+  const counts = {};
+  selectedElements.forEach(sym => counts[sym] = (counts[sym] || 0) + 1);
+  for (let elem in formula) {
+    if (counts[elem] !== formula[elem]) return false;
+  }
+  return selectedElements.length === Object.values(formula).reduce((a, b) => a + b, 0);
+}
+
+function checkReactions() { 
+  let foundName = null;
+  for (const [name, formula] of Object.entries(goalLists)) {
+    if (isExactFormula(formula)) {
+      foundName = name;
+      playSuccessMelody();
+      setTimeout(() => { selectedElements = []; updateSelectedElements(); }, 1500);
+      break;
+    }
+  }
+  if (!foundName) playSound(100, 0.3, 'sawtooth');
+  reactionDisplay.textContent = foundName ? `Created: ${foundName}!` : "No reaction.";
+  setTimeout(() => {
+    reactionDisplay.textContent = "";
+    reactionDisplay.style.display = "none";
+  }, 5000);
+}
+
+function startChallenge() { 
+  playSound(NOTE_FREQS["G4"], 0.4, 'square');
+  score = 0; timeLeft = 120;
+  gameActive = true; freeMode = false;
+  challengeCompounds = Object.keys(goalLists);
+  
+  document.getElementById("skipButton").style.display = "inline-flex";
+  document.getElementById("startChallengeButton").style.display = "none";
+  document.getElementById("goalDisplay").style.display = "block";
+  document.getElementById("timerDisplay").style.display = "block";
+  document.getElementById("scoreDisplay").style.display = "block";
+  
+  pickNextGoal();
+  startTimer();
+}
+
+function pickNextGoal() { 
+  if (challengeCompounds.length === 0) {
+    endChallenge();
+    return;
+  }
+  let index = Math.floor(Math.random() * challengeCompounds.length);
+  let name = challengeCompounds[index];
+  goal = { name: name, formula: goalLists[name] };
+  const displayName = name.split("(")[0].trim();
+  document.getElementById("goalDisplay").textContent = "Goal: " + displayName;
+}
+
+function checkChallengeReaction() {
+  if (!goal) return;
+  if (isExactFormula(goal.formula)) {
+    score++;
+    playSuccessMelody();
+    
+    if (score === 20 && !badgeAlertedThisRound) { 
+      badgeAlertedThisRound = true;
+      clearInterval(timerInterval);
+      
+      const rawData = localStorage.getItem("FBLA_CAREER_DATA"); 
+      let data = rawData ? JSON.parse(rawData) : { completed: [] };
+      if (!data.completed.includes("Chemist")) {
+        data.completed.push("Chemist");
+        localStorage.setItem("FBLA_CAREER_DATA", JSON.stringify(data));
+      }
+      
+      setTimeout(() => {
+        alert("Great job! You are now certified as a Chemist! Keep playing to increase your total score!");
+        if (timeLeft > 0) startTimer();
+      }, 200);
+    }
+
+    reactionDisplay.textContent = "Correct: " + goal.name;
+    challengeCompounds = challengeCompounds.filter(c => c !== goal.name);
+    pickNextGoal();
+    selectedElements = [];
+    updateSelectedElements();
+  } else { 
+    playSound(120, 0.3, 'sawtooth');
+    reactionDisplay.textContent = "Incorrect formula!";
+  }
+}
+
+function updateSelectedElements() {
+  document.getElementById("selectedElementsDisplay").textContent = "Selected: " + (selectedElements.join(" ") || "none");
+}
+
+const elementData = [ 
+  ["H",1,1,"nonmetal"],["He",1,18,"noble"],
+  ["Li",2,1,"alkali"],["Be",2,2,"alkaline"],["B",2,13,"metalloid"],["C",2,14,"nonmetal"],["N",2,15,"nonmetal"],["O",2,16,"nonmetal"],["F",2,17,"halogen"],["Ne",2,18,"noble"],
+  ["Na",3,1,"alkali"],["Mg",3,2,"alkaline"],["Al",3,13,"post-transition"],["Si",3,14,"metalloid"],["P",3,15,"nonmetal"],["S",3,16,"nonmetal"],["Cl",3,17,"halogen"],["Ar",3,18,"noble"],
+  ["K",4,1,"alkali"],["Ca",4,2,"alkaline"],["Sc",4,3,"transition"],["Ti",4,4,"transition"],["V",4,5,"transition"],["Cr",4,6,"transition"],["Mn",4,7,"transition"],["Fe",4,8,"transition"],["Co",4,9,"transition"],["Ni",4,10,"transition"],["Cu",4,11,"transition"],["Zn",4,12,"transition"],["Ga",4,13,"post-transition"],["Ge",4,14,"metalloid"],["As",4,15,"metalloid"],["Se",4,16,"nonmetal"],["Br",4,17,"halogen"],["Kr",4,18,"noble"],
+  ["Rb",5,1,"alkali"],["Sr",5,2,"alkaline"],["Y",5,3,"transition"],["Zr",5,4,"transition"],["Nb",5,5,"transition"],["Mo",5,6,"transition"],["Tc",5,7,"transition"],["Ru",5,8,"transition"],["Rh",5,9,"transition"],["Pd",5,10,"transition"],["Ag",5,11,"transition"],["Cd",5,12,"transition"],["In",5,13,"post-transition"],["Sn",5,14,"post-transition"],["Sb",5,15,"metalloid"],["Te",5,16,"metalloid"],["I",5,17,"halogen"],["Xe",5,18,"noble"],
+  ["Cs",6,1,"alkali"],["Ba",6,2,"alkaline"],["La",8,4,"lanth"],["Ce",8,5,"lanth"],["Pr",8,6,"lanth"],["Nd",8,7,"lanth"],["Pm",8,8,"lanth"],["Sm",8,9,"lanth"],["Eu",8,10,"lanth"],["Gd",8,11,"lanth"],["Tb",8,12,"lanth"],["Dy",8,13,"lanth"],["Ho",8,14,"lanth"],["Er",8,15,"lanth"],["Tm",8,16,"lanth"],["Yb",8,17,"lanth"],["Lu",8,18,"lanth"],
+  ["Hf",6,4,"transition"],["Ta",6,5,"transition"],["W",6,6,"transition"],["Re",6,7,"transition"],["Os",6,8,"transition"],["Ir",6,9,"transition"],["Pt",6,10,"transition"],["Au",6,11,"transition"],["Hg",6,12,"transition"],["Tl",6,13,"post-transition"],["Pb",6,14,"post-transition"],["Bi",6,15,"post-transition"],["Po",6,16,"metalloid"],["At",6,17,"halogen"],["Rn",6,18,"noble"],
+  ["Fr",7,1,"alkali"],["Ra",7,2,"alkaline"],["Ac",9,4,"actin"],["Th",9,5,"actin"],["Pa",9,6,"actin"],["U",9,7,"actin"],["Np",9,8,"actin"],["Pu",9,9,"actin"],["Am",9,10,"actin"],["Cm",9,11,"actin"],["Bk",9,12,"actin"],["Cf",9,13,"actin"],["Es",9,14,"actin"],["Fm",9,15,"actin"],["Md",9,16,"actin"],["No",9,17,"actin"],["Lr",9,18,"actin"],
+  ["Rf",7,4,"transition"],["Db",7,5,"transition"],["Sg",7,6,"transition"],["Bh",7,7,"transition"],["Hs",7,8,"transition"],["Mt",7,9,"transition"],["Ds",7,10,"transition"],["Rg",7,11,"transition"],["Cn",7,12,"transition"],["Nh",7,13,"post-transition"],["Fl",7,14,"post-transition"],["Mc",7,15,"post-transition"],["Lv",7,16,"post-transition"],["Ts",7,17,"halogen"],["Og",7,18,"noble"]
+];
+
+const periodicTable = document.getElementById('periodicTable');
+elementData.forEach(([sym, row, col, cat]) => { 
+  const el = document.createElement('div');
+  el.className = 'element ' + cat;
+  el.textContent = sym;
+  el.style.left = ((col - 1) * 50 + 30) + 'px';
+  el.style.top = (row <= 7 ? (row - 1) * 50 + 30 : (row === 8 ? 420 : 470)) + 'px';
+
+  el.addEventListener('click', () => { 
+    playRandomKeyboardNote();
+    selectedElements.push(sym); 
+    updateSelectedElements(); 
+  });
+  periodicTable.appendChild(el);
+});
+
+// --- EVENT LISTENERS ---
+window.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    document.getElementById('submitButton').click();
+  }
+})
+document.getElementById('submitButton').addEventListener('click', () => {
+  reactionDisplay.style.display = "";
+  if (freeMode) checkReactions(); else checkChallengeReaction();
+});
+
+document.getElementById('startChallengeButton').addEventListener('click', startChallenge);
+
+document.getElementById('skipButton').addEventListener("click", () => {
+  if (!gameActive) return;
+  playSound(NOTE_FREQS["B3"]);
+  pickNextGoal();
+  selectedElements = [];
+  updateSelectedElements();
+});
+window.addEventListener("keydown", e => {
+  if (e.key === "Backspace") document.getElementById('backspaceButton').click();
+})
+document.getElementById('backspaceButton').addEventListener("click", () => {
+  playSound(NOTE_FREQS["C3"], 0.1);
+  if (selectedElements.length > 0) {
+    selectedElements.pop();
+    updateSelectedElements();
+  }
+});
+
+document.getElementById('clearButton').addEventListener("click", () => {
+  playSound(80, 0.2, 'sawtooth');
+  selectedElements = [];
+  updateSelectedElements();
+});
+
+document.getElementById("return").addEventListener("click", handleExit);
+window.addEventListener("keydown", e => { if(e.key === "Escape") handleExit(); });
+
+updateSelectedElements();
+</script>
+</body>
+</html>

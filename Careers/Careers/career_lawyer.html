@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Lawyer Career Simulator | FBLA Edition</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
+    <style>
+        /* Shared Styles with Judge Simulator */
+        :root {
+            --accent: #d6af12;
+            --danger: #ff4d4d;
+            --positive: #2ecc71;
+            --panel-bg: #2c3e50; 
+            --hud-bg: #1a252f;
+            --primary: #3498db;
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%; width: 100%;
+            font-family: 'Press Start 2P', monospace;
+            background-color: #111;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .main-wrapper {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Viewport for Courtroom Visuals */
+        #courtroomView {
+            flex: 1.5;
+            background: #222 url('judgebackground.jpg') center center no-repeat;
+            background-size: 100% 100%; 
+            border-right: 5px solid var(--primary);
+            position: relative;
+        }
+
+        #interfaceSide {
+            flex: 1;
+            background: var(--panel-bg);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -10px 0 20px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        /* HUD Styling */
+        #hud {
+            background: var(--hud-bg);
+            padding: 20px;
+            border-bottom: 4px solid var(--primary);
+            font-size: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            position: relative;
+        }
+
+        .stat-box { display: flex; flex-direction: column; gap: 8px; }
+        #trustBarWrap { width: 100%; height: 14px; background: #444; border: 2px solid #fff; margin-top: 5px; }
+        #trustBar { width: 100%; height: 100%; background: var(--positive); transition: width 0.5s; }
+
+        .starting-panel-return-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            color: #fff;
+            padding: 12px 24px;
+            font-size: 10px;
+            border: 2px solid #fff;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+            transition: transform 0.1s;
+        }
+
+        .panel-return-btn {
+          position: absolute;
+            top: 10px;
+            right: 8px;
+            background: #ef1111;
+            color: white;
+            border: none;
+            font-size: 10px;
+            padding: 10px 15px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 3px 0 #990000;
+            transition: all 0.2s ease;
+            z-index: 100;
+        }
+
+        .panel-return-btn:hover {
+            background: #ff5555;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 #990000;
+        }
+
+        /* Speech Bubbles */
+        .speech-bubble {
+            position: absolute;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 8px;
+            color: white;
+            text-align: center;
+            width: 150px; 
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+            line-height: 1.4;
+            pointer-events: none;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            margin-left: -10px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+        }
+
+        #lawyerBubble { top: 20%; left: 5%; background-color: var(--primary); }
+        #lawyerBubble::after { border-color: var(--primary) transparent; }
+
+        /* Dynamic Judge Bubble classes */
+        #judgeBubble { top: 15%; left: 43%; transform: translateX(-50%); background-color: #555; }
+        
+        /* Modifier classes for the Judge Bubble tail colors */
+        #judgeBubble.sustained { background-color: var(--positive); }
+        #judgeBubble.sustained::after { border-color: var(--positive) transparent; }
+        
+        #judgeBubble.overruled { background-color: var(--danger); }
+        #judgeBubble.overruled::after { border-color: var(--danger) transparent; }
+
+        /* Timer */
+        #timerContainer {
+            background: #000;
+            padding: 10px 25px;
+            border-bottom: 2px solid #555;
+        }
+        #timerWrap { 
+            width: 100%; 
+            height: 15px; 
+            background: #222; 
+            border: 2px solid #fff; 
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        #timerBar { height: 100%; width: 100%; background: var(--primary); transition: width 0.1s linear; }
+
+        #gameContentArea {
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .panel-header {
+            color: var(--primary);
+            font-size: 13px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .case-text {
+            font-size: 10px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .btn-container { display: flex; flex-direction: column; gap: 10px; }
+        button.choice-btn {
+            font-family: 'Press Start 2P', cursive; 
+            cursor: pointer;
+            border: none; 
+            padding: 15px; 
+            font-size: 9px; 
+            border-radius: 4px;
+            text-align: left;
+            color: white;
+            transition: transform 0.1s, filter 0.2s;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+        }
+        button.choice-btn:hover { filter: brightness(1.2); }
+        button.choice-btn:active { transform: translateY(3px); box-shadow: none; }
+        button.choice-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        #btnA { background: var(--primary); }
+        #btnB { background: var(--danger); }
+        #btnC { background: var(--accent);}
+        #btnD { background: var(--positive); }
+        #nextBtn { background: var(--primary); color: white; display: none; margin-top: 15px; padding: 18px; text-align: center; width: 100%;}
+
+        #startScreen {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            z-index: 10000; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+        }
+
+#infoBtn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 35px;
+            height: 35px;
+            background: #1976d2;
+            color: white;
+            border: 2px solid #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+            z-index: 20000;
+        }
+        #infoBtn:hover {
+            background: #2196f3;
+            transform: translate(-1px, -1px);
+            box-shadow: 5px 5px 0 rgba(0,0,0,0.6);
+        }
+
+        #infoBtn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+        }
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 3000;
+            left: 0; top: 0; 
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6); 
+            backdrop-filter: blur(4px); 
+            z-index: 20000;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            margin: 2% auto; 
+            border-radius: 15px;
+            width: 60%;
+            max-height: 80vh; 
+            overflow-y: auto; 
+            position: relative;
+            text-align: left;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            font-family: Arial, Helvetica, sans-serif; 
+            color: #000000; 
+            line-height: 1.6;
+            font-size: 14px; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            position: sticky;
+            top: 0;
+            background: #ffffff;
+            padding: 20px 35px;
+            border-bottom: 2px solid #f1f1f1;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 20px 35px 35px 35px;
+        }
+
+        .modal-content h2, .modal-content h3 {
+            color: #000000;
+            margin: 0;
+            text-shadow: none; 
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #1976d2;
+            border-radius: 10px;
+        }
+
+        .close-btn {
+            font-size: 28px; 
+            font-weight: bold; 
+            cursor: pointer;
+            color: #000; 
+            line-height: 1;
+        }
+
+        /* Mobile Scaling */
+        @media screen and (max-width: 960px) {
+            #periodicTable { transform: scale(0.8); transform-origin: top center; margin-bottom: -110px; }
+        }
+        @media screen and (max-width: 480px) {
+            #periodicTable { transform: scale(0.4); margin-bottom: -320px; }
+            .modal-content { width: 90%; }
+            .modal-header, .modal-body { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+<div id="infoBtn" title="How to Play">?</div>
+
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📜 CAREER QUEST: JUDGE</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <h3>CHALLENGE GOAL</h3>
+                <ul><li><p style="font-size: 1.0rem;">End the game with a final score of 20 or more</p></li></ul>
+
+                <h3>How to Play</h3>
+                <ul style="font-size: 1.0rem;">
+                <li><p>Analyze the case description and evidence provided</p></li>
+                <li><p>Choose the correct verdict based on the law to earn points</p></li>
+                <li><p>Maintain your Public Trust bar; incorrect rulings will penalize your career</p></li>
+                <li><p>Every 5 points your score increases by will earn you 1 point towards your total score</p></li>
+                </ul>
+                <h3>CONTROLS</h3>
+                <ul style="font-size: 1.0rem;">
+                  <li><p>Use the <strong>MOUSE</strong> to select your verdict</p></li>
+                  <li><p>Press <strong>ENTER</strong> to move to the next case</p></li>
+                  <li><p>Press <strong>ESC</strong> to exit the game</p></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+<div id="startScreen">
+    <button class="starting-panel-return-btn" style="top:20px; right:20px;" onclick="exitAction()">EXIT</button>
+    <h1 style="font-size: 32px; color: var(--primary); margin-bottom: 25px;">LAWYER SIMULATOR</h1>
+    <p style="margin-bottom: 45px; line-height: 2; font-size: 12px;">Listen for illegal questions.<br>Protect your client.</p>
+    <button onclick="startGame()" style="font-size: 20px; padding: 30px 60px; background: var(--primary); color: #fff; border:none; cursor:pointer; font-family:inherit;">OBJECTION!</button>
+</div>
+
+<div class="main-wrapper">
+    <div id="courtroomView">
+        <div class="panel-return-btn" onclick="exitAction()">EXIT</div>
+        <div id="lawyerBubble" class="speech-bubble">OBJECTION!</div>
+        <div id="judgeBubble" class="speech-bubble">SUSTAINED!</div>
+    </div>
+
+    <div id="interfaceSide">
+        <div id="hud">
+            <div class="stat-box">
+                <span id="rankText">Rank: Junior Associate</span>
+                <span id="scoreText" style="margin-top:10px;">Score: 0</span>
+                <span id="casesSolvedText" style="margin-top:7px; font-size: 9px;">Cases Won: 0/25</span>
+            </div>
+            <div class="stat-box">
+                <span>Reputation</span> 
+                <div id="trustBarWrap"><div id="trustBar"></div></div>
+                <span id="casesCompletedText" style="margin-top:5px; font-size: 9px;">Cases Handled: 0/25</span>
+            </div>
+        </div>
+
+        <div id="timerContainer">
+            <div id="timerWrap"><div id="timerBar"></div></div>
+        </div>
+
+        <div id="gameContentArea">
+            <div id="caseSection">
+                <div class="panel-header" id="caseTitle">Witness on Stand...</div>
+                <div id="caseContent" class="case-text"></div>
+                <div class="btn-container">
+                    <button id="btnA" class="choice-btn" onclick="handleChoice('A')">1. Loading...</button>
+                    <button id="btnB" class="choice-btn" onclick="handleChoice('B')">2. Loading...</button>
+                    <button id="btnC" class="choice-btn" onclick="handleChoice('C')">3. Loading...</button>
+                    <button id="btnD" class="choice-btn" onclick="handleChoice('D')">4. Loading...</button>
+                </div>
+            </div>
+
+            <div id="feedbackSection" style="margin-top: 30px;">
+                <div class="panel-header">RULING ANALYSIS</div>
+                <div id="explanationText" class="case-text" style="color: #bdc3c7;">The court is currently in recess.</div>
+                <button id="nextBtn" onclick="loadNewCase()">NEXT TESTIMONY (ENTER)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const infoBtn = document.getElementById('infoBtn');
+const infoModal = document.getElementById('infoModal');
+const closeBtn = document.querySelector('.close-btn');
+let wasGameActiveBeforeModal = false;
+
+infoBtn.onclick = function() {
+    infoModal.style.display = "block";
+    
+    // If the game is running, pause it
+    if (gameActive) {
+        wasGameActiveBeforeModal = true; 
+        gameActive = false; // This "closes" the safety gate for keydown events
+        clearInterval(timerInterval);
+        
+        // Disable buttons so they can't be clicked while modal is open
+        document.getElementById("btnA").disabled = true;
+        document.getElementById("btnB").disabled = true;
+        document.getElementById("btnC").disabled = true;
+        document.getElementById("btnD").disabled = true;
+    } else {
+        wasGameActiveBeforeModal = false;
+    }
+}
+
+// Create a reusable close function
+function closeModal() {
+    infoModal.style.display = "none";
+    
+    // Only resume if the game was actually in progress
+    if (wasGameActiveBeforeModal) {
+        gameActive = true; // Re-open the safety gate
+        
+        // Re-enable buttons if a choice hasn't been made yet
+        // (Assuming you have logic elsewhere to keep them disabled if verdict is shown)
+        if (document.getElementById("nextBtn").style.display !== 'block') {
+            document.getElementById("btnA").disabled = false;
+            document.getElementById("btnB").disabled = false;
+            document.getElementById("btnC").disabled = false;
+            document.getElementById("btnD").disabled = false;
+            startTimer();
+        }
+    }
+}
+
+closeBtn.onclick = closeModal;
+
+window.onclick = function(event) {
+    if (event.target == infoModal) {
+        closeModal();
+    }
+}
+
+window.addEventListener("keydown", e => {
+        if (e.key === "Escape") exitAction();
+        if (!gameActive) {
+            if (e.key === "Enter" && infoModal.style.display !== "block") {
+                startGame();
+            }
+        }
+        else {
+            const key = e.key.toUpperCase();
+            if (["1", "2", "3", "4"].includes(e.key)) {
+                const map = {"1":"A", "2":"B", "3":"C", "4":"D"};
+                if (!document.getElementById("btnA").disabled) handleChoice(map[e.key]);
+            }
+            if (["A", "B", "C", "D"].includes(key)) {
+                if (!document.getElementById("btnA").disabled) handleChoice(key);
+            }
+            if (e.key === "Enter" && document.getElementById("nextBtn").style.display === 'block') {
+                loadNewCase();
+            }
+        }
+    });
+
+    let hasSavedPoints = false;
+    let gameActive = false;
+    let score = 0;
+    let reputation = 100;
+    let casesSolvedCount = 0;
+    let casesCompletedCount = 0;
+    let currentCase = null;
+    let timerInterval = null;
+    let promotions = {p1: false, p2: false, p3: false};
+    let timeLeft = 100;
+
+    const objectionTerms = [
+        {
+            question: "The prosecutor begins repeatedly annoying and harassing the witness instead of asking proper questions. What is the correct objection?",
+            options: ["1. Speculation", "2. Argumentative", "3. Hearsay", "4. Badgering"],
+            answer: "D",
+            explanation: "Badgering occurs when a lawyer repeatedly harasses or intimidates a witness instead of asking legitimate questions."
+        },
+        {
+            question: "A witness starts to testify about what another person said outside of court to prove the truth of that statement. What is the objection?",
+            options: ["1. Narrative", "2. Hearsay", "3. Character Evidence", "4. Speculation"],
+            answer: "B",
+            explanation: "Hearsay is second-hand testimony — a witness cannot testify about what someone else said to prove that it’s true, unless an exception applies."
+        },
+        {
+            question: "A lawyer asks their own witness: 'You saw the defendant at the scene, didn’t you?' What’s the objection?",
+            options: ["1. Speculation", "2. Leading", "3. Argumentative", "4. Hearsay"],
+            answer: "B",
+            explanation: "Leading questions suggest the answer to the witness and are generally not allowed on direct examination."
+        },
+        {
+            question: "A witness begins guessing about why someone acted a certain way. What is the proper objection?",
+            options: ["1. Relevance", "2. Speculation", "3. Narrative", "4. Hearsay"],
+            answer: "B",
+            explanation: "Speculation occurs when a witness is asked to guess or offer an opinion about something they do not have personal knowledge of."
+        },
+        {
+            question: "A lawyer introduces a document without explaining where it came from or who wrote it. What should opposing counsel object to?",
+            options: ["1. Lack of Foundation", "2. Hearsay", "3. Argumentative", "4. Compound Question"],
+            answer: "A",
+            explanation: "Lack of foundation means the evidence has not been properly introduced or verified as authentic before being admitted."
+        },
+        {
+            question: "During direct examination, a witness begins giving a long, uninterrupted story that goes beyond the question asked. What is the objection?",
+            options: ["1. Asked and Answered", "2. Narrative", "3. Speculation", "4. Relevance"],
+            answer: "B",
+            explanation: "Narrative occurs when a witness provides a long, unprompted story instead of answering the question directly."
+        },
+        {
+            question: "A question combines two or more inquiries, making it confusing for the witness to answer. What is the proper objection?",
+            options: ["1. Relevance", "2. Badgering", "3. Argumentative", "4. Compound"],
+            answer: "D",
+            explanation: "A compound question asks multiple questions at once, making it difficult or confusing for the witness to answer clearly."
+        },
+        {
+            question: "An attorney keeps asking the same question even though the witness already answered it. What is the objection?",
+            options: ["1. Asked and Answered", "2. Speculation", "3. Leading", "4. Foundation"],
+            answer: "A",
+            explanation: "Asked and answered is used to stop repetitive questioning that has already been addressed by the witness."
+        },
+        {
+            question: "A witness begins to describe someone’s personality to imply guilt in the case. What’s the objection?",
+            options: ["1. Narrative", "2. Relevance", "3. Improper Character Evidence", "4. Hearsay"],
+            answer: "C",
+            explanation: "Improper character evidence involves using a person's character traits to suggest guilt or innocence without proper relevance."
+        },
+        {
+            question: "An attorney’s question doesn’t seem to connect to any issue in the trial. What is the objection?",
+            options: ["1. Relevance", "2. Speculation", "3. Hearsay", "4. Foundation"],
+            answer: "A",
+            explanation: "Relevance is when the evidence or testimony does not relate to any material fact in the case."
+        },
+        {
+            question: "A witness tries to interpret what the law means instead of stating facts. What should opposing counsel object to?",
+            options: ["1. Calls for Legal Conclusion", "2. Narrative", "3. Speculation", "4. Argumentative"],
+            answer: "A",
+            explanation: "Calls for a legal conclusion occur when a witness is asked to give a legal opinion rather than factual testimony."
+        },
+        {
+            question: "An attorney asks a question that misrepresents what a witness said earlier. What is the proper objection?",
+            options: ["1. Hearsay", "2. Leading", "3. Misstates the Evidence", "4. Argumentative"],
+            answer: "C",
+            explanation: "Misstates the evidence is objected to when a lawyer incorrectly paraphrases or misrepresents a witness's prior statements."
+        },
+        {
+            question: "A question implies facts not already in evidence. What’s the objection?",
+            options: ["1. Foundation", "2. Assumes Facts Not in Evidence", "3. Compound", "4. Relevance"],
+            answer: "B",
+            explanation: "Assumes facts not in evidence means the question presumes unproven facts that have not been introduced yet."
+        },
+        {
+            question: "The opposing attorney asks a witness about information discussed privately with their lawyer. What’s the correct objection?",
+            options: ["1. Relevance", "2. Speculation", "3. Hearsay", "4. Attorney-Client Privilege"],
+            answer: "D",
+            explanation: "Attorney-client privilege protects confidential communications between a lawyer and their client."
+        },
+        {
+            question: "The question suggests that the witness is lying or being dishonest rather than seeking information. What’s the objection?",
+            options: ["1. Argumentative", "2. Badgering", "3. Relevance", "4. Speculation"],
+            answer: "A",
+            explanation: "Argumentative questions are objectionable because they challenge or provoke the witness instead of asking for factual information."
+        },
+        {
+            question: "A non-expert witness is asked to give an opinion about something that requires specialized knowledge. What is the objection?",
+            options: ["1. Narrative", "2. Improper Opinion", "3. Relevance", "4. Speculation"],
+            answer: "B",
+            explanation: "Improper opinion occurs when a witness is asked to give an opinion that they are not qualified to give."
+        },
+        {
+            question: "An attorney tries to enter a copy of a document into evidence even though the original is available. What’s the objection?",
+            options: ["1. Foundation", "2. Authentication", "3. Hearsay", "4. Best Evidence Rule"],
+            answer: "D",
+            explanation: "The best evidence rule requires the original document to be submitted as evidence unless a valid exception applies."
+        },
+        {
+            question: "A witness begins giving testimony about events they clearly did not observe firsthand. What’s the objection?",
+            options: ["1. Lack of Personal Knowledge", "2. Speculation", "3. Narrative", "4. Relevance"],
+            answer: "A",
+            explanation: "Lack of personal knowledge occurs when a witness testifies about something they did not directly observe."
+        },
+        {
+            question: "A question asks the witness about multiple events with one answer required. What should you object to?",
+            options: ["1. Compound", "2. Argumentative", "3. Speculation", "4. Hearsay"],
+            answer: "A",
+            explanation: "Compound questions combine multiple questions into one, making it difficult for the witness to answer clearly."
+        },
+        {
+            question: "A lawyer asks a question that requires the witness to choose between two unfair or incomplete options. What’s the objection?",
+            options: ["1. Compound", "2. Misleading Question", "3. Argumentative", "4. Narrative"],
+            answer: "B",
+            explanation: "A misleading question is objectionable because it forces the witness into a false or unfair choice."
+        },
+        {
+            question: "A witness begins to tell the jury what another witness said during a break. What is the objection?",
+            options: ["1. Relevance", "2. Narrative", "3. Speculation", "4. Hearsay"],
+            answer: "D",
+            explanation: "Hearsay objections apply when a witness reports what someone else said outside of court to prove the truth of that statement."
+        },
+        {
+            question: "An attorney is asking questions about evidence that hasn’t been introduced yet. What is the objection?",
+            options: ["1. Argumentative", "2. Lack of Foundation", "3. Hearsay", "4. Speculation"],
+            answer: "B",
+            explanation: "Lack of foundation is objected to when evidence is discussed before it has been properly introduced and verified."
+        },
+        {
+            question: "The attorney asks about a witness’s prior bad acts to suggest they are lying, without proper basis. What’s the objection?",
+            options: ["1. Improper Character Evidence", "2. Narrative", "3. Relevance", "4. Speculation"],
+            answer: "A",
+            explanation: "Improper character evidence occurs when past bad acts are used to suggest guilt without relevance to the current facts."
+        },
+        {
+            question: "The question asked by counsel assumes an answer to a previous question not yet addressed. What’s the objection?",
+            options: ["1. Compound", "2. Foundation", "3. Assumes Facts Not in Evidence", "4. Argumentative"],
+            answer: "C",
+            explanation: "Assumes facts not in evidence occurs when a question presumes unproven facts that have not yet been introduced."
+        },
+        {
+            question: "A witness gives an answer that includes irrelevant commentary beyond the question. What’s the objection?",
+            options: ["1. Speculation", "2. Non-Responsive", "3. Narrative", "4. Relevance"],
+            answer: "B",
+            explanation: "Non-responsive objections are used when a witness's answer goes beyond the question asked or introduces unrelated information."
+        }
+    ];
+
+    let pool = [...objectionTerms];
+
+    // --- AUDIO FUNCTIONS ---
+
+    function playGavelSound() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.1);
+        } catch(e) {}
+    }
+
+    function playObjectionSound() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        } catch(e) {}
+    }
+
+    function playErrorSound() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            // Low, dissonant buzzing sound
+            osc.frequency.setValueAtTime(110, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(55, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        } catch(e) {}
+    }
+
+    // --- GAME LOGIC ---
+
+    function updateCareerData(finalScore) {
+        if (hasSavedPoints || Number(finalScore) <= 0) return;
+        const rawData = localStorage.getItem("FBLA_CAREER_DATA");
+        let data = rawData ? JSON.parse(rawData) : { completed: [], totalScore: 0, scorePerCareer: {"Computer Scientist":0, "Chemist": 0, "Stock Trader":0, "Judge":0, "Lawyer":0} };
+        data.totalScore = (Number(data.totalScore) || 0) + finalScore;
+        data.scorePerCareer["Lawyer"] = (Number(data.scorePerCareer["Lawyer"]) || 0) + finalScore;
+        localStorage.setItem("FBLA_CAREER_DATA", JSON.stringify(data));
+        hasSavedPoints = true;
+    }
+
+    const exitAction = () => {
+        const rawData = localStorage.getItem("FBLA_CAREER_DATA");
+        let data = rawData ? JSON.parse(rawData) : {completed: [], totalScore: 0, scorePerCareer: {"Computer Scientist":0, "Chemist": 0, "Stock Trader":0, "Judge":0, "Lawyer":0} };
+        let status = data.completed.includes("Lawyer") ? "Quest Complete" : "Quest Incomplete";
+        if (confirm(`Exit? Current Status: ${status}`)) {
+            updateCareerData(Math.floor(score/5));
+            window.location.href = "../index.html";
+        }
+    };
+
+    
+    function startGame() {
+        gameActive = true;
+        document.getElementById('startScreen').style.display = 'none';
+        loadNewCase();
+    }
+
+    function updateHUD() {
+        document.getElementById('scoreText').textContent = `Score: ${score}`;
+        document.getElementById('trustBar').style.width = reputation + '%';
+        document.getElementById('casesCompletedText').textContent = `Cases Handled: ${casesCompletedCount}/${objectionTerms.length}`;
+        document.getElementById('casesSolvedText').textContent = `Win Rate: ${casesSolvedCount}/${objectionTerms.length}`;
+        
+        let rank = "Associate";
+        if (score >= 8) rank = "Junior Partner";
+        if (score >= 15) rank = "Senior Partner";
+        if (score >= 20) rank = "Managing Partner";
+        document.getElementById('rankText').textContent = `Rank: ${rank}`;
+
+        if (reputation <= 0) {
+          alert("DISBARRED! Your professional reputation has collapsed.");
+          updateCareerData(Math.floor(score / 5));
+          setTimeout(() => { location.reload(); }, 2000)
+        }
+    }
+
+    function checkPromo(key, msg) {
+        if (!promotions[key]) {
+            promotions[key] = true;
+            if (key === "p1") reputation = Math.min(100, reputation + 5);
+            else if (key === "p2") reputation = Math.min(100, reputation + 10);
+            else if (key === "p3") reputation = Math.min(100, reputation + 20);
+            alert(msg)
+        }
+    }
+    function checkDemo(key, msg) {
+        if (promotions[key]) {
+            promotions[key] = false;
+            if (key === "p1") reputation = Math.max(0, reputation - 5);
+            else if (key === "p2") reputation = Math.max(0, reputation - 10);
+            else if (key === "p3") reputation = Math.max(0, reputation - 20);
+            alert(msg)
+        }
+    }
+    function loadNewCase() {
+        if (pool.length === 0) {
+            alert("RETIRED! You had a distinguished legal career.");
+            updateCareerData(score / 5);
+            location.reload();
+            return;
+        }
+
+        const jBub = document.getElementById('judgeBubble');
+        jBub.classList.remove('sustained', 'overruled'); 
+        document.getElementById('lawyerBubble').style.display = 'none';
+        jBub.style.display = 'none';
+        document.getElementById('nextBtn').style.display = 'none';
+        
+        currentCase = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+        
+        document.getElementById('caseTitle').textContent = `SCENARIO: LEGAL OBJECTION`;
+        document.getElementById('caseContent').textContent = currentCase.question;
+        document.getElementById('timerBar').style.width = "100%";
+        const ids = ['btnA', 'btnB', 'btnC', 'btnD'];
+        ids.forEach((id, i) => {
+            const btn = document.getElementById(id);
+            btn.textContent = currentCase.options[i];
+            btn.disabled = false;
+        });
+
+        document.getElementById('explanationText').textContent = "Listen to the statement...";
+        startTimer();
+        updateHUD();
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            timeLeft -= 1.2;
+            document.getElementById('timerBar').style.width = timeLeft + '%';
+            if (timeLeft <= 0) handleChoice(null);
+        }, 100);
+    }
+
+    function handleChoice(choice) {
+        timeLeft = 100;
+        clearInterval(timerInterval);
+        const ids = ['btnA', 'btnB', 'btnC', 'btnD'];
+        ids.forEach(id => document.getElementById(id).disabled = true);
+
+        const lBub = document.getElementById('lawyerBubble');
+        const jBub = document.getElementById('judgeBubble');
+
+        lBub.style.display = 'block';
+        lBub.textContent = choice ? "OBJECTION!" : "Uhh...";
+        if(choice) playObjectionSound();
+
+        const isCorrect = (choice === currentCase.answer);
+
+        setTimeout(() => {
+            jBub.style.display = 'block';
+            jBub.classList.remove('sustained', 'overruled'); 
+
+            if (isCorrect) {
+                jBub.textContent = "SUSTAINED!";
+                jBub.classList.add('sustained');
+                score++;
+                casesSolvedCount++;
+                reputation = Math.min(100, reputation + 5);
+                document.getElementById('explanationText').innerHTML = `<span style="color:var(--positive); font-weight:bold;">EXCELLENT.</span><br><br>${currentCase.explanation}`;
+                playGavelSound();
+
+                if (score >= 8) checkPromo('p1', "Promotion: Junior Partner!");
+                if (score >= 15) checkPromo('p2', "Promotion: Senior Partner!");
+                if (score >= 22) checkPromo('p3', "Promotion: Managing Partner!");
+            } else {
+                if (lBub.textContent === "Uhh...") jBub.textContent = "Quiet down!";
+                else { jBub.textContent = "OVERRULED!"; }
+                
+                jBub.classList.add('overruled');
+                if (score > 0) score--;
+                reputation -= 20;
+                document.getElementById('explanationText').innerHTML = `<span style="color:var(--danger); font-weight:bold;">MISTAKE.</span><br><br>${currentCase.explanation}`;
+                playErrorSound();
+            }
+            casesCompletedCount++;
+            updateHUD();
+            document.getElementById('nextBtn').style.display = 'block';
+        }, 600);
+    }
+</script>
+</body>
+</html>
