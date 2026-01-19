@@ -2,407 +2,810 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Stock Trader</title>
+    <title>Stock Trader - FBLA Challenge</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* 1. IMPORT RETRO FONT */
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        :root {
+            --pixel-bg: #1a2a6c;
+            --pixel-border: #ffffff;
+            --pixel-gold: #ffd54f;
+            --pixel-blue: #1976d2;
+            --pixel-green: #00ff9d;
+            --pixel-red: #ff5252;
+        }
+
+        /* 2. DYNAMIC GRADIENT BACKGROUND */
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background: linear-gradient(135deg, #409c8e, #1f6b5b);
-            color: #f1f1f1;
-        }
-
-        h1 {
-            color: #ffffff;
-            text-align: center;
-        }
-
-        h2 {
-            font-weight: 400;
-            text-align: center;
-            color: #e0e7ff;
-        }
-        h3 {
-            text-align: center;
-            color: #000000
-        }
-        button {
-            background: #2563eb;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 14px;
-            margin: 4px;
+            background: radial-gradient(circle at center, #1a2a6c, #b21f1f, #fdbb2d);
+            background-attachment: fixed;
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            font-family: 'Press Start 2P', cursive;
             color: white;
-            cursor: pointer;
-            font-size: 0.95rem;
-            transition: background 0.2s ease, transform 0.1s ease;
+            margin: 0;
+            padding: 20px;
+            font-size: 11px;
+            line-height: 1.6;
+            text-align: center; 
         }
 
-        button:hover {
-            background: #1e40af;
-            transform: translateY(-2px);
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        #return {
-            position: absolute;
-            top: 10px;
-            right: 0;
-            background: none;
+        /* 3. CRT SCANLINE OVERLAY */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            z-index: 9999;
+            background-size: 100% 2px, 2px 100%;
+            pointer-events: none;
+        }
+
+        header {
+            margin-bottom: 30px;
+        }
+
+        h1 { 
+            font-size: 1.8rem;
+            text-shadow: 4px 4px var(--pixel-blue);
+            margin: 10px 0;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            background: rgba(0, 0, 0, 0.5);
+            display: block;
+            padding: 10px;
+            border: 2px solid var(--pixel-blue);
+            border-radius: 8px;
+            margin: 5px;
+        }
+
+        .goal-banner {
+            margin-top: 10px;
+            font-weight: bold;
+            color: var(--pixel-gold);
+        }
+
+        /* CENTERED CONTROLS AREA */
+        .controls-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0 40px 0;
+        }
+
+        #stockSearch {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px;
+            background: #000;
+            border: 3px solid var(--pixel-blue);
+            color: var(--pixel-green);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            outline: none;
+            text-align: center;
+        }
+
+        /* UNIFIED BUTTON STYLE (EXCLUDING INFO) */
+        button:not(#infoBtn) {
+            font-family: 'Press Start 2P', cursive;
+            padding: 10px 15px;
+            background: #2196F3;
+            color: white;
             border: none;
-            color: #ff0000;
-            text-decoration: underline;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 10px;
+            box-shadow: 0 3px 0 #0d47a1; 
+            margin: 5px;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
         }
 
+        button:not(#infoBtn):hover { 
+            transform: translateY(-3px); 
+            filter: brightness(1.2);
+            box-shadow: 0 6px 0 #0d47a1; 
+        }
+
+        button:not(#infoBtn):active { 
+            transform: translateY(1px); 
+            box-shadow: 0 1px 0 #0d47a1; 
+        }
+
+        /* START CHALLENGE BUTTON - SPECIFIC LIGHTENING */
+        #startChallengeButton { 
+            background: var(--pixel-green); 
+            color: #004d40; 
+            box-shadow: 0 3px 0 #00796b; 
+            font-size: 12px;
+            padding: 15px 25px;
+        }
+        #startChallengeButton:hover { 
+            filter: brightness(1.1); 
+            box-shadow: 0 6px 0 #00796b; 
+        }
+        #startChallengeButton:active { box-shadow: 0 1px 0 #00796b; }
+
+        /* EXIT/RETURN BUTTON - RESTORED TO RED */
+        #return {
+    position: absolute;
+    top: 10px;
+    right: 8px;
+    background: #ef1111 !important;
+    box-shadow: 0 3px 0 #990000 !important;
+    z-index: 100;
+  }
+  #return:hover {
+            background: #ff5555 !important;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 #990000 !important;
+        }
+
+        #return:active { box-shadow: 0 1px 0 #880e4f; }
+
+        .cancel-x {
+            background: var(--pixel-red);
+            padding: 2px 5px;
+            box-shadow: 0 2px 0 #880e4f;
+            margin: 0;
+            cursor: pointer;
+        }
+        .cancel-x:hover { box-shadow: 0 4px 0 #880e4f; }
+
+        /* 5. SCOREBOARD STAT CARDS - FLOATING STYLE */
         #financeSummary {
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
-            gap: 16px;
-            margin: 20px auto;
-            max-width: 900px;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
         }
 
-        #financeSummary p {
-            flex: 1 1 200px;
-            margin: 0;
-            padding: 14px 18px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            font-weight: 600;
-            font-size: 1.05rem;
-            color: #f1f5f9;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            backdrop-filter: blur(6px);
+        .stat-card {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid white;
+            padding: 15px;
+            min-width: 180px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4); 
+            transition: transform 0.3s ease;
         }
 
-        #financeSummary p:nth-of-type(1) { border-top: 4px solid #16a34a; }
-        #financeSummary p:nth-of-type(2) { border-top: 4px solid #f59e0b; }
-        #financeSummary p:nth-of-type(3) { border-top: 4px solid #2563eb; }
-        #financeSummary p:nth-of-type(4) { border-top: 4px solid #dc2626; }
-
-        h4 {
-            margin-top: 20px;
-            margin-bottom: 6px;
-            color: #fefefe;
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
 
-        p {
-            margin: 6px 0;
+        .stat-label { font-size: 8px; color: #aaa; margin-bottom: 8px; }
+        .stat-value { font-size: 10px; color: var(--pixel-gold); }
+
+        /* 6. STOCK CARDS & CHARTS */
+        #stockContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            text-align: left;
         }
-        .orderRow {
+
+        .stock-card {
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid var(--pixel-blue);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .price-display {
+            font-size: 1.2rem;
+            margin: 10px 0;
+            text-shadow: 2px 2px #000;
+        }
+
+        .chart-box {
+            background: #fff; 
+            border: 2px solid #000;
+            margin: 10px 0;
+            height: 120px;
+        }
+
+        #timer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--pixel-gold);
+            color: #000;
+            padding: 15px;
+            border: 3px solid white;
+            font-size: 1.2rem;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3); 
+            z-index: 10001;
+        }
+
+        .bankrupt-msg { color: var(--pixel-red); animation: blink 0.5s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .order-item {
+            background: rgba(25, 118, 210, 0.2);
+            padding: 5px;
+            margin-top: 5px;
+            font-size: 7px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
         }
 
-        .orderRow p {
-            margin: 0;
+        /* INFO BUTTON - UNCHANGED */
+        #infoBtn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 35px;
+            height: 35px;
+            background: #1976d2;
+            color: white;
+            border: 2px solid #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+            z-index: 1500;
+        }
+        #infoBtn:hover {
+            background: #2196f3; 
+            transform: translate(-1px, -1px);
+            box-shadow: 5px 5px 0 rgba(0,0,0,0.6);
+        }
+        #infoBtn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 rgba(0,0,0,0.5);
         }
 
-    </style>
+        /* MODAL STYLING - UNCHANGED */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 3000;
+            left: 0; top: 0; 
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6); 
+            backdrop-filter: blur(4px); 
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            margin: 2% auto; 
+            padding: 35px;
+            border-radius: 15px;
+            width: 60%;
+            max-height: 80vh; 
+            overflow-y: auto; 
+            position: relative;
+            text-align: left;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            font-family: Arial, Helvetica, sans-serif; 
+            color: #000000; 
+            line-height: 1.6;
+            font-size: 14px; 
+        }
+
+        .modal-content h2, .modal-content h3 {
+            color: #000000;
+            margin-top: 0;
+            text-shadow: none; 
+        }
+
+        .modal-content::-webkit-scrollbar { width: 8px; }
+        .modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .modal-content::-webkit-scrollbar-thumb { background: #1976d2; border-radius: 10px; }
+
+        .close-btn {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 28px; font-weight: bold; cursor: pointer;
+            color: #000; 
+        }
+
+        @media (max-width: 900px) {
+            #financeSummary { grid-template-columns: 1fr 1fr; }
+            #timer { font-size: 1.5rem; }
+        }
+</style>
 </head>
 <body>
-    <button id="return">Return to main page</button>
-    <h1>Stock Trading</h1>
-    <h2>Welcome to the Stock Market! Here you can buy and sell stocks, and your goal is to make a profit!</h2>
-    <h2>You will start with $100,000, and you must try to predict the stock prices and buy what you think will help you the most! Enjoy!</h2>
-    <h3>Note: We have imposed a maximum of 1 buy and 1 sell limit order per company. Any new limit orders will replace previous ones.</h3>
-    <main></main>
+  <div id="infoBtn" title="How to Play">?</div>
+
+<div id="infoModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>📜 CAREER QUEST: STOCK TRADING</h2> <!-- Information and directions -->
+        <hr>
+        
+        <h3>CHALLENGE GOAL</h3>
+        <ul style="font-size: 1.0rem;"><li><p>Make at least $50,000 in 5 minutes</p></li></ul>
+
+        <h3>How to Play</h3>
+        <ul style="font-size: 1.0rem;">
+        <li><p>You can trade different stocks for practice before starting the challenge, but it will not contribute towards your score or certify you</p></li>
+        <li><p>Use Market Buy to buy at the current price, Limit Buy to buy automatically at a certain price, Market Sell to sell at the current price, and Limit Sell to sell automatically at a certain price</p></li>
+        <li><p>Once you start the challenge, all your progress will be reset and the timer will begin</p></li>
+        <li><p>Every $10,000 in profit will earn you 1 point towards your score</p>
+        </ul>
+        <h3>CONTROLS</h3>
+        <ul style="font-size: 1.0rem;">
+          <li><p>Use the <strong>MOUSE</strong> to select any buttons</p></li>
+          <li><p>Press <strong>ESC</strong> to exit the game.</p></li>
+        </ul>
+    </div>
+</div>
+
+    <button id="return"> EXIT</button>
+    
+    <header>
+        <h1>EQUITY ELITE</h1>
+        <p class="subtitle">Stock Market Simulator</p>
+        <p class="subtitle">Buy and sell stocks to make money! When you feel ready, begin the challenge!</p>
+        <div class="goal-banner">Challenge Goal: Increase Net Worth by $50,000</div>
+    </header>
+
+    <div class="controls-container">
+        <input type="text" id="stockSearch" placeholder="🔍 Search stocks..." onkeyup="filterStocks()">
+        <button id="startChallengeButton">Begin Challenge</button>
+    </div>
+
+    <div id="timer">5:00</div>
+    
+    <div id="financeSummary">
+        <div class="stat-card">
+            <div class="stat-label">Cash</div>
+            <div class="stat-value" id="moneyLeft">$100,000.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Portfolio Value</div>
+            <div class="stat-value" id="stocksValue">$0.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Net Worth</div>
+            <div class="stat-value" id="netWorthDisplay">$100,000.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Profit</div>
+            <div class="stat-value" id="changeInNetWorth">$0.00</div>
+        </div>
+    </div>
+
+    <main id="stockContainer"></main>
 
     <script>
+        const infoBtn = document.getElementById('infoBtn');
+            const infoModal = document.getElementById('infoModal');
+        const closeBtn = document.querySelector('.close-btn');
+
+        infoBtn.onclick = function() {
+            infoModal.style.display = "block";
+        }
+        closeBtn.onclick = function() {
+            infoModal.style.display = "none";
+        }
+        // Close modal if user clicks outside of it
+        window.onclick = function(event) {
+            if (event.target == infoModal) {
+                infoModal.style.display = "none";
+            }
+        }
         let money = 100000.00;
-        let netWorth = money;
+        let netWorth = 100000.00;
+        let timeLeft = 300; 
+        let timerInterval = null;
+        let badgeAlertedThisRound = false;
+        let hasSavedPoints = false;
+        let challengeStarted = false;
         const stocks = [
-            { name: "NVIDIA(NVDA)", price: parseFloat((Math.random()*150 + 50).toFixed(2)), shares: 0, bankrupt: false },
-            { name: "MICROSOFT(MSFT)", price: parseFloat((Math.random()*150 + 50).toFixed(2)), shares: 0, bankrupt: false },
-            { name: "APPLE(AAPL)", price: parseFloat((Math.random()*150 + 50).toFixed(2)), shares: 0, bankrupt: false },
-            { name: "ALPHABET(GOOGL/GOOG)", price: parseFloat((Math.random()*150 + 50).toFixed(2)), shares: 0, bankrupt: false },
-            { name: "AMAZON(AMZN)", price: parseFloat((Math.random()*150 + 50).toFixed(2)), shares: 0, bankrupt: false },
-            { name: "TESLA(TSLA)", price: parseFloat((Math.random()*150 + 50).toFixed(2)), shares: 0, bankrupt: false }
+            { name: "NVIDIA (NVDA)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "MICROSOFT (MSFT)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "APPLE (AAPL)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "ALPHABET (GOOGL)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "AMAZON (AMZN)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "TESLA (TSLA)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "META (META)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "AMD (AMD)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "NETFLIX (NFLX)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "WALMART (WMT)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "COSTCO (COST)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "COCA-COLA (KO)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "MCDONALD'S (MCD)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "STARBUCKS (SBUX)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "NIKE (NKE)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "VISA (V)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "JPMORGAN (JPM)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "DISNEY (DIS)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "BERKSHIRE (BRK.B)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "PFIZER (PFE)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "ADOBE (ADBE)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "PALANTIR (PLTR)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "SALESFORCE (CRM)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "SPOTIFY (SPOT)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "EXXON MOBIL (XOM)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "BOEING (BA)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "AIRBNB (ABNB)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "UBER (UBER)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "ASML (ASML)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
+            { name: "MASTERCARD (MA)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 }
         ];
 
-        function changePrice(stockName) {
-            if (stockName.bankrupt) return;
-            let change = parseFloat((Math.random()*20+0.01).toFixed(2));
-            if (Math.random() <=0.55) {
-                stockName.price += change;
-            } else {
-                stockName.price = Math.max(0, stockName.price-change);
-                if (stockName.price == 0) {
-                    stockName.bankrupt = true;
+        stocks.forEach(s => {
+            const startPrice = Math.round((Math.random()*300 + 100)*100)/100;
+            s.price = startPrice;
+            s.sessionStartPrice = s.price;
+            s.history = [startPrice]
+        })
+        const moneyDisplay = document.getElementById('moneyLeft');
+        const portfolioValue = document.getElementById('stocksValue');
+        const netWorthDisplayElem = document.getElementById('netWorthDisplay');
+        const profitDisplay = document.getElementById('changeInNetWorth');
+        const timerDisplay = document.getElementById('timer');
+        const container = document.getElementById("stockContainer");
+        const formatCurrency = (num) => {
+            return num.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+        function updateUI() {
+            moneyDisplay.textContent = `$${formatCurrency(money)}`;
+            let currentStockValue = 0;
+            stocks.forEach(s => currentStockValue += Math.round(s.price * s.shares * 100)/100);
+            netWorth = money + currentStockValue;
+            netWorthDisplayElem.textContent = `$${formatCurrency(netWorth)}`;
+            portfolioValue.textContent = `$${formatCurrency(currentStockValue)}`;
+            profitDisplay.textContent = `$${formatCurrency(netWorth-100000)}`;
+        }
+
+        function changePrice(stock) {
+            if (stock.bankrupt) return;
+            
+            let isUp = Math.random() < 0.57; // 53% Upward Bias
+            let movement = (Math.random() * 3.9) + 0.1; // 0.1% to 4.0% swing
+
+            if (Math.random() < 0.02) {
+                movement = (Math.random() * 5) + 10;
+            }
+
+            let multiplier = movement / 100;
+            if (isUp) { stock.price *= (1 + multiplier); } 
+            else { stock.price *= (1 - multiplier); }
+
+            stock.price = Math.round(stock.price*100)/100;
+            
+            if (stock.price < 1.00){
+                stock.bankrupt = true; stock.price = 0.00;
+                if(stock.buyLimit !== null) alert(`BUY LIMIT ORDER ON ${stock.name} CANCELED DUE TO COMPANY BANKRUPTCY`);
+                if(stock.sellLimit !== null) alert(`SELL LIMIT ORDER ON ${stock.name} CANCELED DUE TO COMPANY BANKRUPTCY`);
+                stock.buyLimit = null; stock.sellLimit = null;
+            }
+            stock.history.push(stock.price);
+            if(stock.history.length > 20) stock.history.shift();
+            checkLimitOrders(stock);
+        }
+
+        function checkLimitOrders(stock) {
+            if (stock.bankrupt) return;
+            if (stock.buyLimit) {
+                let cost = stock.buyLimit.shares * stock.price;
+                if (money<cost) {
+                    alert(` BUY LIMIT ORDER CANCELED: Insufficient funds for ${stock.name}`);
+                    stock.buyLimit = null;
+                } else if (stock.price <= stock.buyLimit.price) {
+                    money -= cost;
+                    stock.cashInvested+=cost;
+                    stock.shares += stock.buyLimit.shares;
+                    alert(`BUY LIMIT ORDER TRIGGERED: Bought ${stock.buyLimit.shares} shares of ${stock.name} at $${stock.price.toFixed(2)}`);
+                    stock.buyLimit = null;
                 }
+                renderStocks();
+            }
+            if (stock.sellLimit) {
+                if(stock.shares<stock.sellLimit.shares) {
+                    alert(`SELL LIMIT ORDER FAILED: Insufficient shares for ${stock.name}`);
+                    stock.sellLimit = null;
+                } else if (stock.price >= stock.sellLimit.price) {
+                    if (stock.shares >= stock.sellLimit.shares) {
+                        money += stock.sellLimit.shares * stock.price;
+                        stock.shares -= stock.sellLimit.shares;
+                        if(stock.shares === 0) stock.cashInvested = 0;
+                        alert(`SELL LIMIT ORDER TRIGGERED: Sold ${stock.sellLimit.shares} shares of ${stock.name} at $${stock.price.toFixed(2)}`);
+                        stock.sellLimit = null;
+                    }
+                }
+                renderStocks();
             }
         }
 
-        function cashDifference() {
-            changeInCash.textContent = `Change in CASH: $${(money - 100000).toFixed(2)}`;
+        function filterStocks() {
+            const query = document.getElementById('stockSearch').value.toUpperCase();
+            stocks.forEach((stock, index) => {
+                const card = document.getElementById(`stock-card-${index}`);
+                if (card) {
+                    if (stock.name.toUpperCase().includes(query)) {
+                        card.style.display = "";
+                    } else {
+                        card.style.display = "none";
+                    }
+                }
+            });
         }
 
-        function netWorthDifference() {
-            changeInNetWorth.textContent = `Change in NET WORTH: $${(netWorth - 100000).toFixed(2)}`;
+        function renderStocks() {
+            stocks.forEach((stock, index) => {
+                let card = document.getElementById(`stock-card-${index}`);
+                
+                if (!card) {
+                    card = document.createElement('div');
+                    card.id = `stock-card-${index}`;
+                    card.className = "stock-card";
+                    card.innerHTML = `
+                        <div class="stock-header">
+                            <div>
+                                <h4 class="stock-name" style="margin:0;">${stock.name}</h4>
+                                <div class="price-display" id="price-${index}">$${stock.price.toFixed(2)}</div>
+                            </div>
+                            <div id="bankrupt-${index}"></div>
+                        </div>
+                        <div style="font-size:0.8rem; display:flex; gap:15px;">
+                            <p>Shares: <strong id="shares-${index}">${stock.shares}</strong></p>
+                            <p id="average-price-${index}" style="color:#94a3b8;"></p>
+                        </div>
+                        <div class="chart-box">
+                            <canvas id="chart-${index}"></canvas>
+                        </div>
+                        <div class="btns">
+                            <button id="buy-btn-${index}" onclick="buyStock(${index})">Market Buy</button>
+                            <button id="sell-btn-${index}" onclick="sellStock(${index})">Market Sell</button>
+                            <button class="limit-btn" id="blimit-btn-${index}" onclick="setLimit(${index}, 'buy')">Buy Limit</button>
+                            <button class="limit-btn" id="slimit-btn-${index}" onclick="setLimit(${index}, 'sell')">Sell Limit</button>
+                        </div>
+                        <div class="orderRow" id="orderRow-${index}"></div>
+                    `;
+                    container.appendChild(card);
+                }
+
+                document.getElementById(`shares-${index}`).textContent = stock.shares;
+                document.getElementById(`price-${index}`).textContent = `$${stock.price.toFixed(2)}`;
+                document.getElementById(`price-${index}`).style.color = stock.price >= stock.sessionStartPrice ? '#22c55e' : '#ef4444';
+                document.getElementById(`bankrupt-${index}`).innerHTML = stock.bankrupt ? '<span class="bankrupt-msg">LIQUIDATED</span>' : '';
+                document.getElementById(`average-price-${index}`).textContent = stock.shares>0 ? `AVG COST: $${(stock.cashInvested/stock.shares).toFixed(2)}`: '';
+                
+                const btns = [`buy-btn-${index}`, `sell-btn-${index}`, `blimit-btn-${index}`, `slimit-btn-${index}`];
+                btns.forEach(id => document.getElementById(id).disabled = stock.bankrupt);
+
+                const orderRow = document.getElementById(`orderRow-${index}`);
+                orderRow.innerHTML = `
+                    ${stock.buyLimit ? `<div class="order-item"><span>Limit Buy: ${stock.buyLimit.shares} @ $${stock.buyLimit.price.toFixed(2)}</span> <button class="cancel-x" onclick="cancelLimit(${index}, 'buy')">X</button></div>` : ''}
+                    ${stock.sellLimit ? `<div class="order-item"><span>Limit Sell: ${stock.sellLimit.shares} @ $${stock.sellLimit.price.toFixed(2)}</span> <button class="cancel-x" onclick="cancelLimit(${index}, 'sell')">X</button></div>` : ''}
+                `;
+
+                updateChart(index);
+            });
+            filterStocks();
+            updateUI();
         }
 
-        const container = document.querySelector("main");
+        let chartInstances = [];
 
-        const financeSummary = document.createElement('div');
-        financeSummary.id = "financeSummary";
-        container.appendChild(financeSummary);
+        function updateChart(i) {
+            const canvas = document.getElementById(`chart-${i}`);
+            if (!canvas) return;
+            
+            const baseline = stocks[i].sessionStartPrice || stocks[i].history[0];
+            const currentPrice = stocks[i].price;
+            const chartColor = currentPrice >= baseline ? '#22c55e' : '#ef4444';
 
-        const moneyLeft = document.createElement('p');
-        moneyLeft.textContent = `Starting money: $${money.toFixed(2)}`;
-        financeSummary.appendChild(moneyLeft);
-
-        const changeInCash = document.createElement('p');
-        changeInCash.textContent = `Change in CASH: $${(100000 - money).toFixed(2)}`;
-        financeSummary.appendChild(changeInCash);
-
-        const netWorthDisplay = document.createElement('p');
-        netWorthDisplay.textContent = `Net worth: $${netWorth.toFixed(2)}`;
-        financeSummary.appendChild(netWorthDisplay);
-
-        const changeInNetWorth = document.createElement('p');
-        changeInNetWorth.textContent = `Change in NET WORTH: $${(netWorth - 100000).toFixed(2)}`;
-        financeSummary.appendChild(changeInNetWorth);
-
-        stocks.forEach(stock => {
-            const stock_info = document.createElement('h4');
-            container.appendChild(stock_info);
-            stock_info.textContent = stock.name;
-
-            const buy_button = document.createElement('button');
-            container.appendChild(buy_button);
-            buy_button.textContent = "Buy";
-
-            const sell_button = document.createElement('button');
-            sell_button.textContent = "Sell";
-            const limitOrderBuy_button = document.createElement('button');
-            limitOrderBuy_button.textContent = "Buy limit order";
-            buy_button.insertAdjacentElement('afterend', limitOrderBuy_button);
-            limitOrderBuy_button.insertAdjacentElement('afterend', sell_button);
-
-            const limitOrderSell_button = document.createElement('button');
-            limitOrderSell_button.textContent = "Sell limit order";
-            sell_button.insertAdjacentElement('afterend', limitOrderSell_button);
-            const buyOrderContainer = document.createElement('div');
-            container.appendChild(buyOrderContainer);
-
-            buyOrderContainer.className = "orderRow";
-
-            const placedBuyLimitOrders = document.createElement('p');
-            buyOrderContainer.appendChild(placedBuyLimitOrders);
-
-            const cancelBuyLimitOrder = document.createElement('button');
-            cancelBuyLimitOrder.textContent = "Cancel Buy Limit Order";
-            cancelBuyLimitOrder.style.display = "none";
-            buyOrderContainer.appendChild(cancelBuyLimitOrder);
-
-            const sellOrderContainer = document.createElement('div');
-            sellOrderContainer.className = "orderRow";
-            container.appendChild(sellOrderContainer);
-
-            const placedSellLimitOrders = document.createElement('p');
-            sellOrderContainer.appendChild(placedSellLimitOrders);
-
-            const cancelSellLimitOrder = document.createElement('button');
-            cancelSellLimitOrder.textContent = "Cancel Sell Limit Order";
-            cancelSellLimitOrder.style.display = "none";
-            sellOrderContainer.appendChild(cancelSellLimitOrder);
-            const stock_price = document.createElement('p');
-            container.appendChild(stock_price);
-            const sharesOfStock = document.createElement('p');
-            container.appendChild(sharesOfStock);
-            const stockBankrupt = document.createElement('p');
-            container.appendChild(stockBankrupt);
-            buy_button.addEventListener("click", function() {
-                let numShares = parseFloat(prompt("How many shares would you like to buy? "));
-                if (isNaN(numShares) || numShares <= 0) {
-                    alert("Please enter a valid number of shares!");
-                } else {
-                    if (money >= numShares*stock.price) {
-                        money -= numShares*stock.price;
-                        moneyLeft.textContent = `Money left: $${money.toFixed(2)}`;
-                        cashDifference();
-                        stock.shares += numShares;
-                        sharesOfStock.textContent = `Number of shares of ${stock.name}: ${stock.shares}`;
-                    } else {
-                        alert(`You don't have enough money to purchase ${numShares} shares of ${stock.name}!`);
-                    }
-                }           
-            });
-            sell_button.addEventListener("click", function() {
-                let sellNumShares = parseFloat(prompt("How many shares would you like to sell? "));
-                if (isNaN(sellNumShares) || sellNumShares <= 0) {
-                    alert("Please enter a valid number of shares!");
-                } else {
-                    if (stock.shares >= sellNumShares) {
-                        stock.shares -= sellNumShares;
-                        money += sellNumShares*stock.price;
-                        moneyLeft.textContent = `Money left: $${money.toFixed(2)}`;
-                        cashDifference();
-                        if (stock.shares == 0) {
-                            sharesOfStock.textContent = '';
-                        } else {
-                            sharesOfStock.textContent = `Number of shares of ${stock.name}: ${stock.shares}`;
-                        }
-                    } else {
-                        alert(`You don't have enough shares to sell ${sellNumShares} shares of ${stock.name}!`);
-                    }
-                }
-            });
-            limitOrderBuy_button.addEventListener("click", function() {
-                let limitPrice = parseFloat(prompt("At what maximum price would you like to buy this share? "));
-                if (isNaN(limitPrice) || limitPrice <= 0) {
-                    alert("Please enter a valid price!");
-                } else {
-                    let limitShares = parseFloat(prompt("How many shares would you like to buy? "));
-                    if (isNaN(limitShares) || limitShares <= 0) {
-                        alert("Please enter a valid number of shares!");
-                    } else {
-                        if (money >= limitShares*limitPrice) {
-                            placedBuyLimitOrders.textContent = `Buy limit order for ${limitShares} shares of ${stock.name} at $${limitPrice}.`
-                            cancelBuyLimitOrder.style.display = "inline-block";
-                            const buyInterval = setInterval(() => {
-                                if(!stock.bankrupt) {
-                                    if (money >= limitShares*limitPrice) {
-                                        if (stock.price <= limitPrice) {
-                                            money -= limitShares*stock.price;
-                                            moneyLeft.textContent = `Money left: $${money.toFixed(2)}`;
-                                            cashDifference();
-                                            stock.shares += limitShares;
-                                            sharesOfStock.textContent = `Number of shares of ${stock.name}: ${stock.shares}`;
-                                            alert(`Bought ${limitShares} shares of ${stock.name} at $${stock.price.toFixed(2)}!`);
-                                            clearInterval(buyInterval);
-                                            cancelBuyLimitOrder.style.display = "none";
-                                            placedBuyLimitOrders.textContent = "";
-                                        }
-                                    } else {
-                                        setTimeout(() => {
-                                            alert(`Your buy limit order on ${stock.name} has been canceled. You no longer have enough money to buy ${limitShares} shares of ${stock.name} at $${limitPrice.toFixed(2)}.`);
-                                            cancelBuyLimitOrder.style.display = "none";
-                                            placedBuyLimitOrders.textContent = "";
-                                        }, 500)
-                                        clearInterval(buyInterval);
-                                    }
-                                }
-                            }, 1000);
-                            cancelBuyLimitOrder.addEventListener("click", function() {
-                                if(confirm(`Are you sure you would like to cancel your buy limit order on ${stock.name}? This action cannot be undone.`)) {
-                                    cancelBuyLimitOrder.style.display = "none";
-                                    placedBuyLimitOrders.textContent = "";
-                                    clearInterval(buyInterval);
-                                }
-                            });
-                        } else {
-                            alert(`You don't have enough money to place this buy limit order.`);
+            if (!chartInstances[i]) {
+                const ctx = canvas.getContext('2d');
+                chartInstances[i] = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: stocks[i].history.map(() => ""),
+                        datasets: [{
+                            data: [...stocks[i].history],
+                            borderColor: chartColor,
+                            backgroundColor: chartColor + '10',
+                            borderWidth: 3,
+                            pointRadius: 0,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: false,
+                        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                        scales: { 
+                            x: { display: false }, 
+                            y: { 
+                                grid: { color: 'rgba(255, 255, 255, 0.03)', drawBorder: false },
+                                ticks: { color: '#64748b', font: { size: 10 }, callback: v => '$' + Number(v).toFixed(2) }
+                            } 
                         }
                     }
-                }
-            });
-            limitOrderSell_button.addEventListener("click", function() {
-                let limitPrice = parseFloat(prompt("At what minimum price would you like to sell this share? "));
-                if (isNaN(limitPrice) || limitPrice <= 0) {
-                    alert("Please enter a valid price!");
-                } else {
-                    let limitShares = parseFloat(prompt("How many shares would you like to sell? "));
-                    if (isNaN(limitShares) || limitShares <= 0) {
-                        alert("Please enter a valid number of shares!");
-                    } else {
-                        if (stock.shares >= limitShares) {
-                            placedSellLimitOrders.textContent = `Sell limit order for ${limitShares} shares of ${stock.name} at $${limitPrice}.`
-                            cancelSellLimitOrder.style.display = "inline-block";
-                            const sellInterval = setInterval(() => {
-                                if(!stock.bankrupt){
-                                    if (stock.shares >= limitShares) {
-                                        if (stock.price >= limitPrice) {
-                                            money += limitShares*stock.price;
-                                            moneyLeft.textContent = `Money left: $${money.toFixed(2)}`;
-                                            cashDifference();
-                                            stock.shares -= limitShares;
-                                            if (stock.shares == 0) {
-                                                sharesOfStock.textContent = '';
-                                            } else {
-                                                sharesOfStock.textContent = `Number of shares of ${stock.name}: ${stock.shares}`;
-                                            }
-                                            alert(`Sold ${limitShares} shares of ${stock.name} at $${stock.price.toFixed(2)}!`);
-                                            clearInterval(sellInterval);
-                                            cancelSellLimitOrder.style.display = "none";
-                                            placedSellLimitOrders.textContent = "";
-                                        }
-                                    } else {
-                                        setTimeout(() => {
-                                            alert(`Your sell limit order on ${stock.name} has been canceled. You no longer have enough shares ${limitShares} shares of ${stock.name}.`);
-                                            cancelSellLimitOrder.style.display = "none";
-                                            placedSellLimitOrders.textContent = "";
-                                        }, 500);
-                                        clearInterval(sellInterval);
-                                    }
-                                }
-                            }, 1000);
-                            cancelSellLimitOrder.addEventListener("click", function() {
-                                if(confirm(`Are you sure you would like to cancel your sell limit order on ${stock.name}? This action cannot be undone.`)) {
-                                    cancelSellLimitOrder.style.display = "none";
-                                    placedSellLimitOrders.textContent = "";
-                                    clearInterval(sellInterval);
-                                }
-                            });
-                        } else {
-                            alert(`You don't have enough shares to place this sell limit order.`);
-                        }
-                    }
-                }
-            });           
-            changePrice(stock);
-            if (stock.bankrupt) {
-                cancelSellLimitOrder.remove();
-                cancelBuyLimitOrder.remove();
-                placedBuyLimitOrders.textContent="";
-                placedSellLimitOrders.textContent="";
-                buy_button.disabled = true;
-                sell_button.disabled = true;
-                limitOrderBuy_button.disabled = true;
-                limitOrderSell_button.disabled = true;
-                stockBankrupt.innerHTML = `${stock.name} has gone bankrupt!<br>${stock.name} is no longer available for purchase.`;
-                stock_price.textContent = "$0.00";
-                stock.price = 0.00;
-                sharesOfStock.textContent = "";
-            } else {
-                stock_price.textContent = `Stock Price: $${stock.price.toFixed(2)}`;
-            }
-            setInterval(() => {
-                changePrice(stock);
-                if (stock.bankrupt) {
-                    cancelSellLimitOrder.remove();
-                    cancelBuyLimitOrder.remove();
-                    placedBuyLimitOrders.textContent="";
-                    placedSellLimitOrders.textContent="";
-                    buy_button.disabled = true;
-                    sell_button.disabled = true;
-                    limitOrderBuy_button.disabled = true;
-                    limitOrderSell_button.disabled = true;
-                    stockBankrupt.innerHTML = `${stock.name} has gone bankrupt! Their stock price has reached $0.00.<br>${stock.name} is no longer available for purchase.`;
-                    stock_price.textContent = "$0.00";
-                    stock.price = 0.00;
-                    sharesOfStock.textContent = "";
-                } else {
-                    stock_price.textContent = `Stock Price: $${stock.price.toFixed(2)}`;
-                }
-                stocks.forEach(stock => {
-                    netWorth += stock.price*stock.shares;
-                    netWorthDisplay.textContent = `Net worth: $${netWorth.toFixed(2)}`;
-                    netWorthDifference();
                 });
-                netWorth = money;
-            }, 5000);
-        });
+            } else {
+                const chart = chartInstances[i];
+                chart.data.labels = stocks[i].history.map(() => "");
+                chart.data.datasets[0].data = [...stocks[i].history];
+                chart.data.datasets[0].borderColor = chartColor;
+                chart.data.datasets[0].backgroundColor = chartColor + '10';
+                chart.update('none');
+            }
+        }
 
-        const returnButton = document.getElementById("return");
-        returnButton.addEventListener("click", function () {
-            if(confirm("Are you sure you would like to leave this page? Your progress will not be saved.")) {
+        window.buyStock = (i) => {
+            let inputQty = prompt(`How many shares of ${stocks[i].name}?`);
+            if (inputQty === null) return;
+            let qty = parseFloat(inputQty);
+            if (isNaN(qty) || qty <= 0) {
+                alert("Please enter a valid positive number.");
+                return;
+            }
+            if (qty > 0 && money >= qty * stocks[i].price) {
+                money -= qty * stocks[i].price;
+                stocks[i].cashInvested += Math.round(qty*stocks[i].price*100)/100;
+                stocks[i].shares += qty;
+                renderStocks();
+            }
+            else if (money < qty * stocks[i].price) { alert("Insufficient funds."); }
+        };
+
+        window.sellStock = (i) => {
+            let inputQty = prompt(`How many shares to sell?`);
+            if (inputQty === null) return;
+            let qty = parseFloat(inputQty);
+            if (isNaN(qty) || qty<=0) {
+                alert("Please enter a valid positive number.");
+                return;
+            }
+            if (qty > 0 && stocks[i].shares >= qty) {
+                money += qty * stocks[i].price;
+                stocks[i].shares -= qty;
+                if(stocks[i].shares === 0) stocks[i].cashInvested = 0;
+                renderStocks();
+            }
+            else if (stocks[i].shares<qty) { alert("Not enough shares."); }
+        };
+
+        window.setLimit = (i, type) => {
+            let inputP = prompt(`Target price to ${type}?`);
+            if (inputP === null) return;
+            let p = parseFloat(inputP);
+            if (isNaN(p) || p<=0) { alert("Please enter a valid positive number."); return; }
+            let inputQ = prompt(`Quantity of shares?`);
+            if (inputQ === null) return;
+            let q = parseInt(inputQ);
+            if (isNaN(q) || q<=0) { alert("Please enter a valid positive number."); return; }
+            if (type === 'buy') {
+                if (money >= p*q) { stocks[i].buyLimit = { price: p, shares: q }; alert("BUY LIMIT ORDER PLACED SUCCESSFULLY"); }
+                else alert(`BUY LIMIT ORDER FAILED: Insufficient funds for ${stocks[i].name}`)
+            } else {
+                if (stocks[i].shares >= q) { stocks[i].sellLimit = { price: p, shares: q }; alert('SELL LIMIT ORDER PLACED SUCCESSFULLY'); }
+                else alert(`SELL LIMIT ORDER FAILED: Insufficient shares for ${stocks[i].name}`)
+            }
+            renderStocks();
+        };
+
+        window.cancelLimit = (i, type) => {
+            if (type === 'buy') stocks[i].buyLimit = null;
+            else stocks[i].sellLimit = null;
+            renderStocks();
+        };
+
+        const startChallengeButton = document.getElementById("startChallengeButton");
+        startChallengeButton.onclick = () => {
+            if (confirm("Reset everything and start the 5-minute challenge?")) {
+                challengeStarted = true;
+                startChallengeButton.style.display = "none";
+                container.innerHTML = ""; 
+                chartInstances.forEach(instance => instance?.destroy());
+                chartInstances = [];
+                money = 100000; timeLeft = 300; badgeAlertedThisRound = false; hasSavedPoints = false;
+                stocks.forEach(s => {
+                    s.shares = 0; s.bankrupt = false; s.buyLimit = null; s.sellLimit = null;
+                    const startPrice = Math.round((Math.random()*300 + 100)*100)/100;
+                    s.price = startPrice; s.sessionStartPrice = s.price; s.history = [s.price];
+                });
+                renderStocks();
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    
+                    stocks.forEach(changePrice);
+                    renderStocks();
+
+                    let mins = Math.floor(timeLeft / 60);
+                    let secs = timeLeft % 60;
+                    timerDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                    
+                    let currentProfit = netWorth - 100000;
+                    if (currentProfit >= 50000 && !badgeAlertedThisRound) {
+                        badgeAlertedThisRound = true;
+                        handleImmediateWin(currentProfit);
+                    }
+
+                    if (timeLeft <= 0) {
+                        timerDisplay.textContent = '0:00'; clearInterval(timerInterval);
+                        updateCareerData(Math.floor(profit/10000));
+                        setTimeout(() => { alert("Time is up!"); timerDisplay.textContent = '5:00'; startChallengeButton.style.display = "inline-block"; }, 50);
+                    }
+                }, 1000);
+            }
+        };
+
+        function handleImmediateWin(profit) {
+            const rawData = localStorage.getItem("FBLA_CAREER_DATA");
+            let data = rawData ? JSON.parse(rawData) : { completed: [], totalScore: 0, scorePerCareer: {"Computer Scientist":0, "Chemist": 0, "Stock Trader":0, "Judge":0, "Lawyer":0} };
+            
+            if (!data.completed.includes("Stock Trader")) {
+                data.completed.push("Stock Trader");
+                localStorage.setItem('FBLA_CAREER_DATA', JSON.stringify(data));
+            }
+            
+            if (confirm(`CERTIFIED!\nProfit: $${profit.toLocaleString()}\n\nYou have unlocked the Stock Trader badge! Return to the Career Hub now?`)) {
+                updateCareerData(Math.floor(profit / 10000));
                 window.location.href = "../index.html";
             }
+        }
+
+        function updateCareerData(finalScore) {
+            if(hasSavedPoints || Number(finalScore)<= 0) return;
+            const rawData = localStorage.getItem("FBLA_CAREER_DATA");
+            let data = rawData ? JSON.parse(rawData) : { completed: [], totalScore: 0, scorePerCareer: {"Computer Scientist":0, "Chemist": 0, "Stock Trader":0, "Judge":0, "Lawyer":0} };
+            const currentScore = Number(data.totalScore) || 0;
+            const sessionPoints = Number(finalScore) || 0;
+            data.totalScore = currentScore+sessionPoints;
+            let stockTraderTotal = Number(data.scorePerCareer["Stock Trader"]) || 0;
+            data.scorePerCareer["Stock Trader"] = stockTraderTotal + sessionPoints;
+            localStorage.setItem("FBLA_CAREER_DATA", JSON.stringify(data));
+            hasSavedPoints = true;
+        }
+
+        function handleExit() {
+            const rawData = localStorage.getItem('FBLA_CAREER_DATA');
+            let data = rawData ? JSON.parse(rawData) : { completed: [], totalScore: 0, scorePerCareer: {"Computer Scientist":0, "Chemist": 0, "Stock Trader":0, "Judge":0, "Lawyer":0} };
+            let status = data.completed.includes("Stock Trader") ? "Quest Complete" : "Quest Incomplete";
+            if (confirm(`Exit? Current status: ${status}`)) {
+                if(challengeStarted) {
+                    updateCareerData(Math.floor(profit/10000));
+                }
+                window.location.href = "../index.html";
+            }
+        }
+
+        document.getElementById("return").addEventListener("click", handleExit);
+
+        window.addEventListener("keydown", e => {
+            if(e.key === "Escape") {
+                handleExit();
+            }
         });
+
+        // Background market movement (idle)
+        setInterval(() => {
+            if(!timerInterval) {
+               stocks.forEach(changePrice);
+               renderStocks();
+            }
+        }, 1000);
+
+        renderStocks();
     </script>
 </body>
 </html>

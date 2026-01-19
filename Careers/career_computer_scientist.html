@@ -3,54 +3,341 @@
 <head>
   <meta charset="utf-8" />
   <title>Computer Scientist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/blockly@9.3.3/blockly.min.js"></script>
   <style>
-    body { background: linear-gradient(120deg,#f0f3f8,#e3e8f6 80%); font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; color:#222; margin:0;padding:20px;text-align:center;}
-    h2{color:#1976d2;}
-    h3{color:#1976d2;}
-    #container{display:flex;gap:18px;justify-content:center;align-items:flex-start;flex-wrap:wrap;}
-    #blocklyDiv{width:560px;height:520px;border:3px solid #1976d2;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.07);background:white;}
-    #rightCol{width:420px;text-align:center;}
-    canvas{border:3px solid #1976d2;background-color:#fff;display:block;margin:12px auto;border-radius:14px;box-shadow:0 2px 10px #1976d21c;}
-    button{background:#1976d2;color:white;border:none;border-radius:7px;padding:12px 18px;font-size:1rem;cursor:pointer;transition:background 0.16s;}
-    button:disabled, button.disabled-button {
-      opacity: 0.5;
+    /* 1. COMPACT GAMIFIED BACKGROUND */
+    body { 
+      background: radial-gradient(circle at center, #1a2a6c, #b21f1f, #fdbb2d);
+      background-attachment: fixed;
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      font-family: 'Press Start 2P', cursive;
+      color: white; 
+      margin: 0; 
+      padding: 10px; 
+      text-align: center;
+      overflow-x: hidden;
+      font-size: 11px;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    body::before {
+      content: " ";
+      display: block;
+      position: fixed;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+      z-index: 9999;
+      background-size: 100% 2px, 2px 100%;
+      pointer-events: none;
+    }
+
+    h2 { 
+      font-size: 1.4rem; 
+      text-shadow: 3px 3px #1976d2; 
+      margin: 10px 0;
+      color: white;
+      text-transform: uppercase;
+    }
+    p {
+      font-size: 1.0rem;
+    }
+    .challenge-goal { 
+      background: rgba(0, 0, 0, 0.5);
+      display: inline-block;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: normal; 
+      max-width: 800px; 
+      margin: 0 auto 15px auto; 
+      border: 2px solid #1976d2;
+      line-height: 1.6;
+      font-size: 10px;
+    }
+
+    .scoreboard { 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      gap: 15px; 
+      margin-bottom: 15px; 
+    }
+    .timer { 
+      background: #ffd54f; 
+      color: #000; 
+      padding: 8px 15px; 
+      border-radius: 5px; 
+      box-shadow: 4px 4px 0px #8a6d00;
+      border: 2px solid white;
+    }
+    .score { 
+      background: #69f0ae; 
+      color: #004d40; 
+      padding: 8px 15px; 
+      border-radius: 5px; 
+      box-shadow: 4px 4px 0px #00796b;
+      border: 2px solid white;
+    }
+
+    #container { 
+      display: flex; 
+      gap: 20px; 
+      justify-content: center; 
+      align-items: flex-start; 
+      flex-wrap: wrap; 
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    #blocklyDiv { 
+      width: 500px; 
+      height: 450px; 
+      border: 4px solid #1976d2; 
+      border-radius: 10px; 
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); 
+      background: rgba(255, 255, 255, 0.9); 
+    }
+
+    #rightCol { 
+      width: 400px; 
+      background: rgba(0, 0, 0, 0.8); 
+      padding: 15px; 
+      border-radius: 10px; 
+      border: 3px solid #1976d2; 
+    }
+
+    canvas { 
+      border: 4px solid #fff; 
+      background-color: #fff; 
+      display: block; 
+      margin: 10px auto; 
+      border-radius: 4px; 
+      width: 320px; 
+      height: 320px;
+    }
+
+    #infoBtn {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      width: 35px;
+      height: 35px;
+      background: #1976d2;
+      color: white;
+      border: 2px solid #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 18px;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+      z-index: 1500;
+    }
+
+    #infoBtn:hover {
+      background: #2196f3;
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0 rgba(0,0,0,0.6);
+    }
+
+    #infoBtn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+    }
+
+    /* Modal Styling */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 3000;
+      left: 0; top: 0; 
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.6); 
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      background-color: #ffffff;
+      margin: 5vh auto; 
+      padding: 0; /* Changed to 0 to allow sticky header to touch edges */
+      border-radius: 15px;
+      width: 60%;
+      max-height: 80vh; 
+      overflow-y: auto; 
+      position: relative;
+      text-align: left;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      font-family: Arial, Helvetica, sans-serif;
+      color: #000000;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    /* STICKY HEADER STYLES */
+    .modal-header {
+      position: sticky;
+      top: 0;
+      background: #ffffff;
+      padding: 20px 35px;
+      border-bottom: 2px solid #eeeeee;
+      z-index: 10;
+      border-radius: 15px 15px 0 0;
+    }
+
+    .modal-body {
+      padding: 20px 35px 35px 35px;
+    }
+
+    .modal-header h2 {
+      color: #000000;
+      margin: 0;
+      text-shadow: none;
+      font-size: 1.2rem;
+    }
+
+    /* Custom scrollbar styling */
+    .modal-content::-webkit-scrollbar { width: 8px; }
+    .modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+    .modal-content::-webkit-scrollbar-thumb { background: #1976d2; border-radius: 10px; }
+
+    .close-btn {
+      position: absolute;
+      top: 15px; right: 20px;
+      font-size: 28px; font-weight: bold; cursor: pointer;
+      color: #000;
+    }
+
+    .blocklyTreeLabel {
+      font-family: 'Press Start 2P', cursive !important;
+      font-size: 11px !important;
+    }
+
+    .blocklyToolboxContents div:nth-child(1) .blocklyTreeLabel { color: #000000 !important; }
+    .blocklyToolboxContents div:nth-child(2) .blocklyTreeLabel { color: #000000 !important; }
+
+    @media screen and (max-width: 960px) {
+      #periodicTable { transform: scale(0.8); transform-origin: top center; margin-bottom: -110px; }
+    }
+    @media screen and (max-width: 480px) {
+      #periodicTable { transform: scale(0.4); margin-bottom: -320px; }
+    }
+
+    button { 
+      font-family: 'Press Start 2P', cursive;
+      background: #2196F3;
+      color: white; 
+      border: none; 
+      padding: 10px 15px; 
+      font-size: 10px; 
+      cursor: pointer; 
+      text-transform: uppercase;
+      transition: all 0.2s ease; 
+      box-shadow: 0 3px 0 #0d47a1; 
+      margin: 5px;
+    }
+
+    /* Universal Hover: Lift and Lighten */
+    button:hover:not(:disabled), #infoBtn:hover {
+      transform: translateY(-3px);
+      filter: brightness(1.2);
+    }
+
+    button:active:not(:disabled), #infoBtn:active { 
+      transform: translateY(0px); 
+      box-shadow: 0 1px 0 #0d47a1 !important; 
+    }
+    
+    button:disabled { 
+      background: #777 !important; 
+      box-shadow: none !important;
+      opacity: 0.6; 
       cursor: default;
+      transform: none !important;
+    }
+button:hover:not(:disabled) {
+      box-shadow: 0 6px 0 #0d47a1;
     }
     #return {
       position: absolute;
-      top: 20px;
-      right: 32px;
+      top: 10px;
+      right: 8px;
+      background: #ef1111;
+      box-shadow: 0 3px 0 #990000;
       z-index: 100;
     }
-    #hint{font-size:0.9rem;color:#444;margin-top:6px;}
-    .scoreboard{display:flex;justify-content:center;align-items:center;gap:32px;margin-bottom:8px;font-size:1.1rem;font-weight:bold;letter-spacing:0.02em;}
-    .timer{background:#ffe082;color:#333;padding:6px 16px;border-radius:18px;border:1px solid #ffd54f;}
-    .score{background:#c8e6c9;color:#1b5e20;padding:6px 18px;border-radius:18px;border:1px solid #a5d6a7;}
-    #notify { color: #2c7a17; font-size: 1.04rem; min-height: 24px; margin-bottom: 9px; transition: opacity 0.3s;}
+#return:hover {
+            background: #ff5555;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 #990000;
+        }
+        #return:active { box-shadow: 0 1px 0 #990000 !important; }
+    #hint { font-size: 7px; color: #aaa; margin-top: 15px; line-height: 1.8; }
+    #notify { color: #69f0ae; font-size: 9px; min-height: 20px; margin-bottom: 5px; }
   </style>
 </head>
 <body>
-  <button id="return">Return to main page</button>
-  <h2>Welcome to the career world of a computer scientist!</h2>
-  <h3>You must use the blocks provided to move the red circle to the green circle! You will have 120 seconds to complete as many challenges as possible! Have fun!</h3>
+  <div id="infoBtn" title="How to Play">?</div>
+
+  <div id="infoModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="close-btn">&times;</span>
+        <h2>📜 CAREER QUEST: COMPUTER SCIENCE</h2>
+      </div>
+      
+      <div class="modal-body">
+        <h3>CHALLENGE GOAL</h3>
+        <ul><li><p>Complete at least 5 challenges in 2 minutes</p></li></ul>
+
+        <h3>How to Play</h3>
+        <ul>
+          <li><p>Use the Movement Blocks to move the red circle to the green circle</p></li>
+          <li><p>Use the Loop Block to repeat a set of commands a certain amount of times</p></li>
+          <li><p>Avoid running into the black circles or walls</p></li>
+          <li><p>Each challenge you complete earns you 1 point towards your total score</p></li>
+        </ul>
+
+        <h3>CONTROLS</h3>
+        <ul>
+          <li><p>Use the <strong>MOUSE</strong> to select elements and buttons</p></li>
+          <li><p>Press <strong>ENTER</strong> to submit your answer</p></li>
+          <li><p>Press <strong>BACKSPACE</strong> to erase the last element you selected</p></li>
+          <li><p>Press <strong>ESC</strong> to exit the game.</p></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <button id="return">EXIT</button>
+  <h2>COMPUTER SCIENTIST LAB</h2>
+  <h3 class="challenge-goal">Finish at least 5 challenges in 120 seconds!</h3>
+  
   <div id="container">
     <div id="blocklyDiv"></div>
     <div id="rightCol">
       <div class="scoreboard">
-        <span class="timer" id="timer">⏳ Time: 120</span>
-        <span class="score" id="score">Score: 0</span>
+        <div class="timer" id="timer">2:00</div>
+        <div class="score" id="score">Score: 0</div>
       </div>
       <p id="notify"></p>
       <canvas id="gameCanvas" width="400" height="400"></canvas>
       <div>
-        <button id="runBtn">Run</button>
-        <button id="stopBtn" disabled>Reset</button>
-        <button id="playAgainBtn" style="display:none;">Play Again</button>
+        <button id="runBtn">RUN CODE</button>
+        <button id="stopBtn" disabled>RESET</button>
+        <button id="playAgainBtn" style="display:none;">REPLAY</button>
       </div>
-      <div id="hint">Tip: Use <strong>Reset</strong> to try again if stuck. Drag movement blocks and use loops to solve challenges!</div>
+      <div id="hint">Drag blocks and use loops! Use RESET if you get stuck.</div>
     </div>
   </div>
+
   <xml id="toolbox" style="display:none">
     <category name="Movement" colour="#2E7D32">
       <block type="move_north"></block>
@@ -66,25 +353,125 @@
       </block>
     </category>
   </xml>
+
   <script>
+    /* JAVASCRIPT REMAINS UNTOUCHED */
+    let moveUp, moveDown, moveRight, moveLeft;
+    let hasSavedPoints = false; 
+    let badgeAlertedThisRound = false;
+    let score = 0;
+
+    // --- SOUND EFFECT LOGIC ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSuccessSound() {
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      notes.forEach((freq, i) => {
+        setTimeout(() => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.1);
+        }, i * 60);
+      });
+    }
+
+    function playCrashSound() {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.4);
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.4);
+    }
+
+    // --- 1. CORE SAVE LOGIC ---
+    function updateCareerData(finalScore) {
+        if (hasSavedPoints || finalScore <= 0) return;
+        const rawData = localStorage.getItem('FBLA_CAREER_DATA');
+        let data = rawData ? JSON.parse(rawData) : { completed: [], totalScore: 0, scorePerCareer: {"Computer Scientist":0, "Chemist": 0, "Stock Trader":0, "Judge":0, "Lawyer":0} };
+        let currentTotal = Number(data.totalScore) || 0;
+        let sessionPoints = Number(finalScore) || 0;
+        data.totalScore = currentTotal + sessionPoints;
+        let compSciTotal = Number(data.scorePerCareer["Computer Scientist"]) || 0;
+        data.scorePerCareer["Computer Scientist"] = compSciTotal + sessionPoints;
+        localStorage.setItem('FBLA_CAREER_DATA', JSON.stringify(data));
+        hasSavedPoints = true; 
+    }
+
+    // --- 2. EXIT HANDLERS ---
     const returnButton = document.getElementById("return");
-    returnButton.addEventListener("click", function () {
-        if(confirm("Are you sure you would like to leave this page? Your progress will not be saved.")) {
-            window.location.href = "../index.html"
+    returnButton.addEventListener("click", () => {
+        const rawData = localStorage.getItem('FBLA_CAREER_DATA');
+        let data = rawData ? JSON.parse(rawData) : { completed: [], totalScore: 0, scorePerCareer: {"Computer Scientist":0, "Chemist": 0, "Stock Trader":0, "Judge":0, "Lawyer":0} };
+        let status = data.completed.includes("Computer Scientist") ? "Quest Complete" : "Quest Incomplete";
+        
+        if(confirm(`Exit? Current Status: ${status}`)) {
+            updateCareerData(score);
+            window.location.href = "../index.html";
         }
     });
+
+    window.addEventListener('keydown', e => {
+        if (e.key === "Escape") {
+          const rawData = localStorage.getItem('FBLA_CAREER_DATA');
+          let data = rawData ? JSON.parse(rawData) : { completed: [], totalScore: 0, scorePerCareer: {"Computer Scientist":0, "Chemist": 0, "Stock Trader":0, "Judge":0, "Lawyer":0} };
+          let status = data.completed.includes("Computer Scientist") ? "Quest Complete" : "Quest Incomplete";
+        
+          if(confirm(`Exit? Current Status: ${status}`)) {
+            updateCareerData(score);
+            window.location.href = "../index.html";
+          }
+        }
+    });
+
+    // --- 3. GAME LOGIC ---
     window.onload = function() {
+      const infoBtn = document.getElementById('infoBtn');
+      const infoModal = document.getElementById('infoModal');
+      const closeBtn = document.querySelector('.close-btn');
+
+      infoBtn.onclick = function() {
+        infoModal.style.display = "block";
+        clearInterval(timerInterval);
+      }
+      closeBtn.onclick = function() {
+        infoModal.style.display = "none";
+        if (gameActive && timer > 0) {
+            startTimer();
+        }
+      }
+      window.onclick = function(event) {
+        if (event.target == infoModal) {
+            infoModal.style.display = "none";
+            if (gameActive && timer > 0) {
+                startTimer();
+            }
+        }
+      }
+
       const workspace = Blockly.inject('blocklyDiv', { toolbox: document.getElementById('toolbox'), scrollbars:true, trashcan:true });
       Blockly.defineBlocksWithJsonArray([
-        { "type": "move_north", "message0": "moveNorth()", "previousStatement": null, "nextStatement": null, "colour": 120 },
-        { "type": "move_south", "message0": "moveSouth()", "previousStatement": null, "nextStatement": null, "colour": 120 },
-        { "type": "move_east",  "message0": "moveEast()",  "previousStatement": null, "nextStatement": null, "colour": 120 },
-        { "type": "move_west",  "message0": "moveWest()",  "previousStatement": null, "nextStatement": null, "colour": 120 }
+        { "type": "move_north", "message0": "moveUp()", "previousStatement": null, "nextStatement": null, "colour": 120 },
+        { "type": "move_south", "message0": "moveDown()", "previousStatement": null, "nextStatement": null, "colour": 120 },
+        { "type": "move_east",  "message0": "moveRight()",  "previousStatement": null, "nextStatement": null, "colour": 120 },
+        { "type": "move_west",  "message0": "moveLeft()",  "previousStatement": null, "nextStatement": null, "colour": 120 }
       ]);
-      Blockly.JavaScript['move_north'] = () => 'moveNorth();\n';
-      Blockly.JavaScript['move_south'] = () => 'moveSouth();\n';
-      Blockly.JavaScript['move_east'] = () => 'moveEast();\n';
-      Blockly.JavaScript['move_west'] = () => 'moveWest();\n';
+      Blockly.JavaScript['move_north'] = () => 'moveUp();\n';
+      Blockly.JavaScript['move_south'] = () => 'moveDown();\n';
+      Blockly.JavaScript['move_east'] = () => 'moveRight();\n';
+      Blockly.JavaScript['move_west'] = () => 'moveLeft();\n';
 
       const cols = 10, rows = 10, gridSize = 40, canvasSize = 400;
       const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
@@ -92,26 +479,41 @@
 
       let startPlayer = {}, startIngredient = {}, startObstacles = [];
       let player = {}, ingredient = {}, obstacleCoords = [];
-      let playerActive = true, ingredientActive = true, timer = 120, score = 0, gameActive = false, timerInterval = null, isRunning = false, timerStarted = false;
+      let playerActive = true, ingredientActive = true, timer = 120, gameActive = false, timerInterval = null, isRunning = false
       let justCollected = false;
 
-      function getRandomSetup() {
-        let available = [];
-        for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) available.push({ x, y });
-        for (let i = available.length - 1; i > 0; i--) {
-          let j = Math.floor(Math.random() * (i + 1));
-          [available[i], available[j]] = [available[j], available[i]];
-        }
-        let player = available.pop();
-        let ingredient = available.pop();
-        const blockCount = 12 + Math.floor(Math.random() * 5);
-        let obstacles = [];
-        while (obstacles.length < blockCount && available.length > 0) {
-          obstacles.push(available.pop());
-        }
-        return { player, ingredient, obstacles };
-      }
+function getRandomSetup() {
+    let p = { x: Math.floor(Math.random() * 10), y: Math.floor(Math.random() * 10) };
+    let ing = { x: Math.floor(Math.random() * 10), y: Math.floor(Math.random() * 10) };
 
+    while (Math.abs(ing.x - p.x) + Math.abs(ing.y - p.y) < 4) {
+        ing.x = Math.floor(Math.random() * 10);
+        ing.y = Math.floor(Math.random() * 10);
+    }
+
+    let obstacles = [];
+    let attempts = 0;
+    const maxObstacles = 12;
+
+    while (obstacles.length < maxObstacles && attempts < 100) {
+        attempts++;
+        let testX = Math.floor(Math.random() * 10);
+        let testY = Math.floor(Math.random() * 10);
+        let distP = Math.abs(testX - p.x) + Math.abs(testY - p.y);
+        let distI = Math.abs(testX - ing.x) + Math.abs(testY - ing.y);
+        if (distP < 2 || distI < 2) continue;
+
+        let tooClose = obstacles.some(ob => {
+            let d = Math.abs(testX - ob.x) + Math.abs(testY - ob.y);
+            return d < 3; 
+        });
+
+        if (!tooClose) {
+            obstacles.push({ x: testX, y: testY });
+        }
+    }
+    return { player: p, ingredient: ing, obstacles: obstacles };
+}
       function setChallengePositions(newSetup) {
         startPlayer = { ...newSetup.player };
         startIngredient = { ...newSetup.ingredient };
@@ -126,10 +528,8 @@
         ingredientActive = true;
         justCollected = false;
         draw();
-
         runBtn.disabled = false;
         runBtn.classList.remove('disabled-button');
-
         stopBtn.disabled = true;
       }
       function draw() {
@@ -155,73 +555,80 @@
       function showNotify(msg) {
         notify.textContent = msg;
         notify.style.opacity = '1';
-        setTimeout(() => { notify.style.opacity = '0.64'; }, 1200);
       }
-      function startTimerIfNeeded() {
-        if (!timerStarted) {
-          timerStarted = true;
-          timer = 120;
-          document.getElementById('timer').textContent = "⏳ Time: " + timer;
-          if (timerInterval) clearInterval(timerInterval);
-          timerInterval = setInterval(() => {
+      
+      function startTimer() {
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+          if (timer > 0) {
             timer--;
-            document.getElementById('timer').textContent = "⏳ Time: " + timer;
-            if (timer <= 0) {
-              clearInterval(timerInterval); gameActive = false;
-              showNotify(`Time's up! Collected: ${score}`);
-
+            let mins = Math.floor(timer/60);
+            let secs = timer%60;
+            document.getElementById('timer').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+          }else {
+            clearInterval(timerInterval);
+            gameActive = false;
+            showNotify(`Time's up! Collected: ${score}`);
+              updateCareerData(score); 
               runBtn.disabled = true;
               runBtn.classList.add('disabled-button');
-
+              stopBtn.disabled = true;
               document.getElementById('playAgainBtn').style.display = "inline-block";
               isRunning = false;
-              timerStarted = false;
-
-              stopBtn.disabled = false;
-            }
-          }, 1000);
-        }
+          }
+        }, 1000);
       }
 
       function checkCollision() {
         if (player.x < 0 || player.x >= cols || player.y < 0 || player.y >= rows) {
-          showNotify("Error: Out of bounds!");
+          showNotify("OUT OF BOUNDS!");
+          playCrashSound(); 
           isRunning = false;
-
           runBtn.disabled = true;
           runBtn.classList.add('disabled-button');
-
           stopBtn.disabled = false;
           return false;
         }
         if (checkBlocked(player.x, player.y)) {
-          showNotify("Crashed into a blocked tile! Please reset.");
+          showNotify("CRASHED!");
+          playCrashSound(); 
           isRunning = false;
-
           runBtn.disabled = true;
           runBtn.classList.add('disabled-button');
-
           stopBtn.disabled = false;
           return false;
         }
         if (ingredientActive && player.x === ingredient.x && player.y === ingredient.y) {
           justCollected = true;
+          playSuccessSound(); 
           draw();
           setTimeout(() => {
             justCollected = false;
             ingredientActive = false;
             score++;
             document.getElementById('score').textContent = "Score: " + score;
-            showNotify(`🎉 You collected an ingredient!`);
+
+            if (score === 5 && !badgeAlertedThisRound) {
+              badgeAlertedThisRound = true; 
+              const rawData = localStorage.getItem('FBLA_CAREER_DATA');
+              let data = rawData ? JSON.parse(rawData) : { completed: [], totalScore: 0, scorePerCareer: {"Computer Scientist":0, "Chemist": 0, "Stock Trader":0, "Judge":0, "Lawyer":0} };
+              
+              if (!data.completed.includes('Computer Scientist')) {
+                data.completed.push('Computer Scientist');
+                localStorage.setItem('FBLA_CAREER_DATA', JSON.stringify(data));
+                setTimeout(() => { alert("Great job! You are now certified as a Computer Scientist! Keep playing to increase your total score!"); }, 50);
+              }
+            }
+
+            showNotify(`SUCCESS!`);
             setTimeout(() => {
               if (gameActive && timer > 0) {
+                stopBtn.click();
                 setChallengePositions(getRandomSetup());
                 isRunning = false;
-
                 runBtn.disabled = false;
                 runBtn.classList.remove('disabled-button');
-
-                stopBtn.disabled = false;
+                stopBtn.disabled = true;
               }
             }, 340);
           }, 180);
@@ -239,56 +646,48 @@
         while (moveQueue.length > 0 && isRunning && gameActive) {
           const fn = moveQueue.shift();
           fn();
-          if (!checkCollision()) {
-            break;
-          }
+          if (!checkCollision()) { break; }
           draw();
           await delay(300);
         }
         processing = false;
-        if (!isRunning || !gameActive) {
-          runBtn.disabled = true;
-          runBtn.classList.add('disabled-button');
-
-          stopBtn.disabled = false;
-        }
       }
       function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
       function attemptMove(dx, dy) {
         const nx = player.x + dx, ny = player.y + dy;
         if (checkBlocked(nx, ny)) {
-          showNotify("Blocked! Take a detour.");
+          showNotify("BLOCKED!");
+          playCrashSound(); 
           isRunning = false;
           moveQueue.length = 0;
-
           runBtn.disabled = true;
-          runBtn.classList.add('disabled-button');
-
           return false;
         }
         player.x = nx; player.y = ny;
         return true;
       }
-      function moveEast()  { enqueueMove(() => { if (!attemptMove(1, 0)) moveQueue.length = 0; }); }
-      function moveWest()  { enqueueMove(() => { if (!attemptMove(-1, 0)) moveQueue.length = 0; }); }
-      function moveNorth() { enqueueMove(() => { if (!attemptMove(0, -1)) moveQueue.length = 0; }); }
-      function moveSouth() { enqueueMove(() => { if (!attemptMove(0, 1)) moveQueue.length = 0; }); }
 
-      const runBtn = document.getElementById('runBtn'),
-            stopBtn = document.getElementById('stopBtn'),
-            playAgainBtn = document.getElementById('playAgainBtn');
+      moveRight = () => { enqueueMove(() => { if (!attemptMove(1, 0)) moveQueue.length = 0; }); }
+      moveLeft = () => { enqueueMove(() => { if (!attemptMove(-1, 0)) moveQueue.length = 0; }); }
+      moveUp = () => { enqueueMove(() => { if (!attemptMove(0, -1)) moveQueue.length = 0; }); }
+      moveDown = () => { enqueueMove(() => { if (!attemptMove(0, 1)) moveQueue.length = 0; }); }
+
+      const runBtn = document.getElementById('runBtn')
+      const stopBtn = document.getElementById('stopBtn')
+      const playAgainBtn = document.getElementById('playAgainBtn');
 
       runBtn.addEventListener('click', () => {
         if (isRunning || timer <= 0) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         isRunning = true; gameActive = true;
         runBtn.disabled = true;
         runBtn.classList.add('disabled-button');
         stopBtn.disabled = false; playAgainBtn.style.display = "none";
         notify.textContent = "";
-        startTimerIfNeeded();
+        startTimer();
         const code = Blockly.JavaScript.workspaceToCode(workspace);
-        try { eval(`(async()=>{${code}})();`); } catch (e) { showNotify("Code error! " + e); }
+        try { eval(`(async()=>{${code}})();`); } catch (e) { showNotify("ERROR!"); }
       });
 
       stopBtn.addEventListener('click', () => {
@@ -302,28 +701,24 @@
       });
 
       playAgainBtn.addEventListener('click', () => {
+        hasSavedPoints = false; 
+        badgeAlertedThisRound = false; 
         moveQueue.length = 0; processing = false; isRunning = false; gameActive = false;
         setChallengePositions(getRandomSetup());
         workspace.clear(); notify.textContent = "";
+        score = 0; 
         document.getElementById('score').textContent = "Score: 0";
         document.getElementById('playAgainBtn').style.display = "none";
         runBtn.disabled = false;
         runBtn.classList.remove('disabled-button');
         stopBtn.disabled = true;
-        timerStarted = false;
-        timer = 120; document.getElementById('timer').textContent = "⏳ Time: 120";
+        timer = 120;
+        let mins = Math.floor(timer/60);
+        let secs = timer%60;
+        document.getElementById('timer').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
         if (timerInterval) clearInterval(timerInterval);
+        startTimer();
       });
-
-      window.addEventListener('keydown', e => { if (e.ctrlKey && e.key === 'Enter') { runBtn.click(); } });
-
-      Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(`
-        <xml xmlns="http://www.w3.org/1999/xhtml">
-          <block type="controls_repeat_ext" x="20" y="20">
-            <value name="TIMES"><shadow type="math_number"><field name="NUM">3</field></shadow></value>
-            <statement name="DO"><block type="move_east"></block></statement>
-          </block>
-        </xml>`), workspace);
 
       setChallengePositions(getRandomSetup());
     };
