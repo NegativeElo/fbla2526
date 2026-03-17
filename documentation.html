@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Quest - Technical Documentation</title>
+
+    <style>
+        /* ==========================================
+           1. FONTS & ROOT VARIABLES
+           ========================================== */
+        @font-face {
+            font-family: 'Press Start 2P';
+            src: url('lib/PressStart2P-Regular.ttf') format('truetype');
+        }
+
+        :root {
+            --pixel-blue: #1976d2;
+            --pixel-green: #00ff9d;
+            --pixel-gold: #ffd54f;
+            --pixel-red: #ef1111;
+            --bg-dark: rgba(0, 0, 0, 0.9);
+            --panel-border: 4px solid #fff;
+        }
+
+        /* ==========================================
+           2. GLOBAL STYLES & ANIMATED BACKGROUND
+           ========================================== */
+
+        body {
+            background: radial-gradient(circle at center, #1a2a6c, #b21f1f, #fdbb2d);
+            background-attachment: fixed;
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            font-family: 'Press Start 2P', cursive;
+            color: white;
+            margin: 0;
+            padding: 40px 20px;
+            font-size: 11px;
+            line-height: 1.8;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* CRT Scanline Overlay */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            z-index: 9999;
+            background-size: 100% 2px, 2px 100%;
+            pointer-events: none;
+        }
+
+        /* ==========================================
+           3. DOCUMENT LAYOUT
+           ========================================== */
+        #doc-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--bg-dark);
+            border: var(--panel-border);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+            position: relative;
+            z-index: 1000;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            text-shadow: 1px 4px var(--pixel-blue);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            color: var(--pixel-gold);
+            font-size: 1.2rem;
+            border-bottom: 2px solid var(--pixel-blue);
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+
+        .doc-body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 15px;
+            color: #e0e0e0;
+        }
+
+        /* ==========================================
+           4. NAVIGATION & EXIT BUTTONS
+           ========================================== */
+
+        a { 
+            font-family: 'Press Start 2P', cursive;
+            background: #2196F3;
+            color: white; 
+            border: none; 
+            padding: 10px 15px; 
+            font-size: 10px; 
+            cursor: pointer; 
+            text-transform: uppercase;
+            transition: all 0.2s ease; 
+            box-shadow: 0 3px 0 #0d47a1; 
+            margin: 5px;
+        }
+
+        #return {
+            position: absolute;
+            top: 10px;
+            right: 8px;
+            background: #ef1111;
+            box-shadow: 0 3px 0 #990000;
+            z-index: 100;
+        }
+
+        #return:hover {
+            background: #ff5555;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 #990000;
+        }
+
+        #return:active {
+            box-shadow: 0 1px 0 #990000 !important;
+            transform: translateY(0px);
+        }
+
+        /* ==========================================
+           5. MODAL SYSTEM
+           ========================================== */
+        #retro-exit-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            border: 4px solid var(--pixel-blue, #1976d2);
+            padding: 30px;
+            color: white;
+            box-shadow: 0 0 20px rgba(25, 118, 210, 0.5);
+            text-align: center;
+            min-width: 350px;
+        }
+
+        #exit-status-text {
+            margin-bottom: 60px;
+            text-transform: uppercase;
+            font-size: 20px;
+            line-height: 1.6;
+            color: var(--pixel-gold, #ffd54f);
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .modal-btn-container {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+        }
+
+        .exit-btn {
+            font-family: 'Press Start 2P', cursive;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 10px;
+            text-transform: uppercase;
+            border: none;
+            transition: all 0.1s;
+        }
+
+        #confirm-exit-btn {
+            background: var(--pixel-blue, #1976d2);
+            color: white;
+            box-shadow: 0 4px 0 #0d47a1;
+        }
+
+        button:focus {
+        outline: 3px solid white !important;
+        outline-offset: 2px;
+        }
+
+        #cancel-exit-btn {
+            background: #ef1111;
+            color: white;
+            box-shadow: 0 4px 0 #990000;
+        }
+
+        .exit-btn:hover { transform: translateY(-2px); }
+        .exit-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 0 0 transparent !important;
+        }
+    </style>
+</head>
+
+<body>
+    <a id="return" onclick="handleExit()">EXIT</a>
+
+    <div id="doc-container">
+
+        <div id="retro-exit-modal">
+            <div class="modal-content">
+                <p id="exit-status-text">Terminate current session?<br>Unsaved progress will be lost.</p>
+                <div class="modal-btn-container">
+                    <button id="confirm-exit-btn" class="exit-btn" onclick="executeExit()">YES</button>
+                    <button id="cancel-exit-btn" class="exit-btn" onclick="closeExitModal()">NO</button>
+                </div>
+            </div>
+        </div>
+
+        <h1>> SYSTEM ANALYSIS: CAREER QUEST</h1>
+
+        <div class="doc-body">
+            <h2>Tools and Technologies</h2>
+            <ul>
+        <li><strong>Unified Web Framework (HTML5, CSS3, JavaScript):</strong> The architecture uses a modular approach where six distinct career simulations are unified by a central <code>index.html</code> hub. This structure leverages the <strong>LocalStorage API</strong> to maintain a persistent global state (scores and certifications) across different browser sessions without requiring a backend.</li>
+        <li><strong>Dynamic Rendering (p5.js Library):</strong> Different rendering paradigms are applied across the labs. The <strong>Chemist</strong> and <strong>Pianist</strong> modules use p5.js for procedural visual generation, while the <strong>Computer Scientist</strong> and <strong>Stock Trader</strong> labs utilize the Canvas API for real-time data visualization and matrix-style "code rain" effects.</li>
+        <li><strong>Mathematical Audio Synthesis (DSP):</strong> Instead of static audio files, the <strong>Pianist</strong> lab utilizes the <code>p5.PolySynth</code> engine to generate audio frequencies in real-time using the chromatic scale formula. The <strong>Computer Scientist</strong> lab features synthesized 8-bit sound effects to reinforce the retro aesthetic.</li>
+        <li><strong>Retro-Futurist Design Suite:</strong> Visual sophistication is achieved through advanced CSS3. Custom <strong>CRT Scanline Emulation</strong> is implemented via linear-gradient overlays and <code>::before</code> pseudo-elements, paired with <code>@keyframes</code> animations to simulate authentic screen flicker and "glow" effects.</li>
+    </ul>
+
+    <h2>Technical Complexity and Sophistication</h2>
+    <ul>
+        <li><strong>Algorithmic Diversity:</strong> The project demonstrates a wide technical range by implementing different logic models. For example:
+            <ul>
+                <li><strong>Stock Trader:</strong> Implements a stochastic algorithm with slight market growth to emulate the real world market.</li>
+                <li><strong>Chemist:</strong> Employs logic-based identification and property-matching algorithms to simulate molecular analysis and chemical composition.</li>
+                <li><strong>Judge:</strong> Uses arrays of objects to simulate randomized case files with user input being compared against the "Verdict" attribute.</li>
+            </ul>
+        </li>
+        <li><strong>Global State Management:</strong> The implementation manages a complex JSON object within <code>localStorage</code>. This ensures that a certification earned in any of the career is immediately updated and reflected in the main menu, demonstrating sophisticated data synchronization.</li>
+        <li><strong>Procedural Asset Generation:</strong> By generating graphics and audio programmatically rather than loading external media, the application minimizes HTTP requests and remains lightweight. This shows a high level of optimization for web-based performance.</li>
+    </ul>
+
+    <h2>Evaluation of Effectiveness and Improvements</h2>
+    <ul>
+        <li><strong>Effectiveness:</strong> The modular architecture is highly effective for a multi-career simulation. It allows each lab to use the programming paradigm best suited for its subject.</li>
+        <li><strong>Evaluation of Sophistication:</strong> The move away from static assets toward procedural generation (audio/visual) marks a transition from basic web design to advanced software engineering.</li>
+        <li><strong>Possible Improvement (Architectural Abstraction):</strong> Currently, some CSS and timer logic is repeated across files. A future improvement would be to abstract these into a single "Core Game Engine" JS/CSS file to improve maintainability.</li>
+        <li><strong>Possible Improvement (Dynamic Difficulty Scaling):</strong> The implementation could be further enhanced by adding an adaptive difficulty algorithm that monitors user response times and increases the speed of the stock market or the complexity of chemical compounds accordingly.</li>
+    </ul>
+    <h2>More Information</h2>
+    <p>A full Technical Manual with citations and further information is included as a PDF in the project root folder.</p>
+</div>
+    </div>
+
+    <script>
+        /**
+         * Opens the exit confirmation modal and focuses the confirmation button.
+         */
+        function handleExit() {
+            document.getElementById('exit-status-text').textContent = "Exit?"
+            document.getElementById('retro-exit-modal').style.display = "block";
+            const yesBtn = document.getElementById('confirm-exit-btn');
+            if (yesBtn) {
+                yesBtn.focus();
+            }
+        }
+
+        /**
+         * Redirects the user back to the hub/index page.
+         */
+        function executeExit() {
+            window.location.href = "index.html";
+        }
+
+        /**
+         * Hides the exit confirmation modal.
+         */
+        function closeExitModal() {
+            document.getElementById('retro-exit-modal').style.display = "none";
+        }
+
+        /**
+         * Global Keyboard Listeners:
+         * - Escape: Triggers the exit modal.
+         */
+        window.addEventListener("keydown", e => {
+            if (e.key === "Escape") handleExit();
+        });
+    </script>
+</body>
+
+</html>
