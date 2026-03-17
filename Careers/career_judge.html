@@ -1,23 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>Judge Career Simulator | FBLA Edition</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
+    <meta charset="utf-8">
+    <title>Judge</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <style>
-        /* Style sheets for judge career */
+        /* --- 1. FONTS & GLOBAL VARIABLES --- */
+        @font-face {
+            font-family: 'Press Start 2P';
+            src: url('../lib/PressStart2P-Regular.ttf') format('truetype');
+        }
+
+        * {
+            font-family: 'Press Start 2P', system-ui;
+        }
+
         :root {
-            --accent: #ffcc00;
-            --danger: #ff4d4d;
-            --positive: #2ecc71;
+            --gold: #ffcc00;
+            --red: #ff4d4d;
+            --green: #2ecc71;
             --panel-bg: #2c3e50; 
             --hud-bg: #1a252f;
-            --primary: #3498db;
+            --blue: #3498db;
+            --pixel-blue: #1976d2;
+            --pixel-gold: #ffd54f;
         }
-        /* Body of the page where case and outcome are shown */
+        
+        /* --- 2. GLOBAL LAYOUT & BACKGROUNDS --- */
         body, html {
-            margin: 0; padding: 0; height: 100%; width: 100%;
+            margin: 0;
+            padding: 0; height: 100%; width: 100%;
             font-family: 'Press Start 2P', monospace;
             background-color: #111;
             color: #fff;
@@ -29,15 +41,17 @@
             height: 100vh;
             width: 100vw;
         }
-        /* Center of game where background is shown */
+        
+        /* Left side: Visual Courtroom representation */
         #courtroomView {
             flex: 1.5;
             background: #222 url('judgebackground.jpg') center center no-repeat;
             background-size: 100% 100%; 
-            border-right: 5px solid var(--primary);
+            border-right: 5px solid var(--blue);
             position: relative;
         }
 
+        /* Right side: Game Interface & HUD */
         #interfaceSide {
             flex: 1;
             background: var(--panel-bg);
@@ -47,11 +61,11 @@
             z-index: 10;
         }
 
-        /* HUD Styling */
+        /* --- 3. HUD & STATS DISPLAY --- */
         #hud {
             background: var(--hud-bg);
             padding: 20px;
-            border-bottom: 4px solid var(--primary);
+            border-bottom: 4px solid var(--blue);
             font-size: 10px;
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -59,10 +73,28 @@
             position: relative;
         }
 
-        .stat-box { display: flex; flex-direction: column; gap: 8px; }
-        #trustBarWrap { width: 100%; height: 14px; background: #444; border: 2px solid #fff; margin-top: 5px; }
-        #trustBar { width: 100%; height: 100%; background: var(--positive); transition: width 0.5s; }
+        .stat-box { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px;
+        }
 
+        /* Public Trust Bar Styling */
+        #trustBarWrap { 
+            width: 100%; 
+            height: 14px; 
+            background: #444; 
+            border: 2px solid #fff;
+            margin-top: 5px; 
+        }
+        #trustBar { 
+            width: 100%; 
+            height: 100%; 
+            background: var(--green);
+            transition: width 0.5s; 
+        }
+
+        /* Exit Button Styling */
         .panel-return-btn {
             position: absolute;
             top: 10px;
@@ -85,7 +117,7 @@
             box-shadow: 0 6px 0 #990000;
         }
 
-        /* SPEECH BUBBLES - UPDATED TO MATCH LAWYER STYLE */
+        /* --- 4. SPEECH BUBBLES --- */
         .speech-bubble {
             position: absolute;
             padding: 10px;
@@ -111,51 +143,56 @@
             border-style: solid;
         }
 
-        /* COORDINATES LOCKED TO IDS */
+        /* Character Specific Bubble Positioning */
         #judgeBubble { 
-            top: 15%; 
+            top: 18%;
             left: 43%; 
             transform: translateX(-50%); 
-            background-color: var(--primary);
+            background-color: var(--blue);
         }
-        #judgeBubble::after { border-color: var(--primary) transparent; }
+        #judgeBubble::after { border-color: var(--blue) transparent; }
 
         #defenseBubble { 
-            top: 20%; 
+            top: 23%;
             left: 4%; 
-            background-color: var(--primary);
+            background-color: var(--blue);
         }
-        #defenseBubble::after { border-color: var(--primary) transparent; }
+        #defenseBubble::after { border-color: var(--blue) transparent; }
 
         #plaintiffBubble { 
-            top: 20%; 
+            top: 23%;
             right: 15%; 
-            background-color: var(--danger);
+            background-color: var(--red);
         }
-        #plaintiffBubble::after { border-color: var(--danger) transparent; }
+        #plaintiffBubble::after { border-color: var(--red) transparent; }
 
-        /* VERDICT MODIFIERS */
-        .bubble-correct { background-color: var(--positive) !important; }
-        .bubble-correct::after { border-color: var(--positive) transparent !important; }
+        /* Bubble States (Correct/Wrong) */
+        .bubble-correct { background-color: var(--green) !important; }
+        .bubble-correct::after { border-color: var(--green) transparent !important; }
         
-        .bubble-wrong { background-color: var(--danger) !important; }
-        .bubble-wrong::after { border-color: var(--danger) transparent !important; }
+        .bubble-wrong { background-color: var(--red) !important; }
+        .bubble-wrong::after { border-color: var(--red) transparent !important; }
 
-        /* TIMER */
+        /* --- 5. TIMER & GAME CONTENT --- */
         #timerContainer {
             background: #000;
             padding: 10px 25px;
             border-bottom: 2px solid #555;
         }
         #timerWrap { 
-            width: 100%; 
+            width: 100%;
             height: 15px; 
             background: #222; 
             border: 2px solid #fff; 
             border-radius: 4px;
             overflow: hidden;
         }
-        #timerBar { height: 100%; width: 100%; background: var(--primary); transition: width 0.1s linear; }
+        #timerBar { 
+            height: 100%; 
+            width: 100%; 
+            background: var(--blue); 
+            transition: width 0.1s linear;
+        }
 
         #gameContentArea {
             padding: 25px;
@@ -166,7 +203,7 @@
         }
 
         .panel-header {
-            color: var(--accent);
+            color: var(--gold);
             font-size: 13px;
             margin-bottom: 20px;
             border-bottom: 2px solid rgba(255,255,255,0.1);
@@ -179,10 +216,17 @@
             line-height: 1.8;
             margin-bottom: 25px;
         }
-        /* Button and styling */
-        .btn-container { display: flex; flex-direction: column; gap: 12px; }
+        
+        /* --- 6. INTERACTIVE BUTTONS --- */
+        .btn-container { 
+            display: flex;
+            flex-direction: column; 
+            gap: 12px; 
+        }
+
         button {
-            font-family: 'Press Start 2P', cursive; cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+            cursor: pointer;
             border: none; padding: 18px; font-size: 10px; border-radius: 4px;
             transition: transform 0.1s, filter 0.2s;
             box-shadow: 0 4px 0 rgba(0,0,0,0.3);
@@ -190,14 +234,50 @@
         button:hover { filter: brightness(1.1); }
         button:active { transform: translateY(3px); box-shadow: none; }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            filter: brightness(1.2); 
+        }
+        
+        #defendantLost { background: var(--red); color: white; }
+        #defendantWon { background: var(--green); color: white; }
+        
+        #nextBtn {
+            background: var(--blue);
+            color: #fff;
+            display: none;
+            margin-top: 15px;
+            padding: 18px 24px;
+            width: 100%;
+            text-align: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            box-shadow: 0 3px 0 #0d75a1;
+            transition: transform 0.1s, filter 0.2s;
+        }
 
-        /* Outcome/end result of cases styling */
-        #defendantLost { background: var(--danger); color: white; }
-        #defendantWon { background: var(--positive); color: white; }
-        #nextBtn { background: var(--primary); color: white; display: none; margin-top: 15px; }
+        #nextBtn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            filter: brightness(1.2);
+        }
 
+        #nextBtn:active:not(:disabled) {
+            transform: translateY(3px);
+            box-shadow: none;
+        }
+
+        #nextBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* --- 7. START SCREEN --- */
         #startScreen {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            position: fixed;
+            inset: 0; background: rgba(0,0,0,0.95);
             z-index: 10000; display: flex; flex-direction: column;
             justify-content: center; align-items: center; text-align: center;
         }
@@ -213,6 +293,8 @@
             border: 2px solid #fff;
             cursor: pointer;
         }
+        
+        /* Info Button */
         #infoBtn {
             position: fixed;
             top: 10px;
@@ -229,50 +311,65 @@
             font-size: 18px;
             cursor: pointer;
             box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
-            z-index: 20000;
+            z-index: 15000;
         }
         #infoBtn:hover {
             background: #2196f3;
             transform: translate(-1px, -1px);
             box-shadow: 5px 5px 0 rgba(0,0,0,0.6);
         }
-
         #infoBtn:active {
             transform: translate(2px, 2px);
             box-shadow: 1px 1px 0 rgba(0,0,0,0.5);
         }
-        /* Modal Styling */
+        
+        /* --- 8. MODAL SYSTEMS --- */
         .modal {
             display: none;
             position: fixed;
-            z-index: 3000;
-            left: 0; top: 0; 
-            width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.6); 
-            backdrop-filter: blur(4px); 
-            z-index: 20000;
+            z-index: 15000;
+            inset: 0;
+            overflow: hidden;
+            justify-content: center;
+            align-items: center;
         }
 
-        .modal-content {
+        .modal::before {
+            content: "";
+            display: block;
+            position: fixed; 
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .info-modal-content {
             background-color: #ffffff;
-            margin: 2% auto; 
+            margin: 2% auto 4% auto; 
             border-radius: 15px;
             width: 60%;
-            max-height: 80vh; 
-            overflow-y: auto; 
+            max-height: 93vh; 
             position: relative;
             text-align: left;
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            font-family: Arial, Helvetica, sans-serif; 
             color: #000000; 
             line-height: 1.6;
             font-size: 14px; 
             display: flex;
             flex-direction: column;
+            overflow-y: auto;
         }
+        .info-modal-content h3 { font-size: 0.8rem; }
+        .info-modal-content p { font-size: 11px; }
 
         .modal-header {
-            position: sticky;
+            position: relative;
             top: 0;
             background: #ffffff;
             padding: 20px 35px;
@@ -285,6 +382,8 @@
 
         .modal-body {
             padding: 20px 35px 35px 35px;
+            max-height: none;
+            overflow-y: visible;
         }
 
         .modal-content h2, .modal-content h3 {
@@ -293,27 +392,22 @@
             text-shadow: none; 
         }
 
-        .modal-content::-webkit-scrollbar {
-            width: 8px;
-        }
-        .modal-content::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        .modal-content::-webkit-scrollbar-thumb {
-            background: #1976d2;
-            border-radius: 10px;
-        }
+        /* Scrollbar Styling */
+        .info-modal-content::-webkit-scrollbar { width: 8px; }
+        .info-modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .info-modal-content::-webkit-scrollbar-thumb { background: #1976d2; border-radius: 10px; }
 
         .close-btn {
-            font-size: 28px; 
+            font-size: 28px;
             font-weight: bold; 
             cursor: pointer;
             color: #000; 
             line-height: 1;
+            margin-top: -20px;
+            margin-right: -20px;
         }
 
-        /* Mobile Scaling */
+        /* Responsive Breakpoints */
         @media screen and (max-width: 960px) {
             #periodicTable { transform: scale(0.8); transform-origin: top center; margin-bottom: -110px; }
         }
@@ -322,48 +416,186 @@
             .modal-content { width: 90%; }
             .modal-header, .modal-body { padding: 15px; }
         }
+
+        /* Exit Confirmation Modal */
+        #retro-exit-modal {
+            display: none;
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.85); 
+            z-index: 20000;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            margin: 4% auto; 
+            border-radius: 15px;
+            width: 60%;
+            max-height: 80vh; 
+            overflow-y: auto; 
+            position: relative;
+            text-align: left;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            color: #000000; 
+            line-height: 1.6;
+            font-size: 14px; 
+            display: flex;
+            flex-direction: column;
+            position: absolute; 
+            top: 30%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            background: #000; 
+            border: 4px solid var(--pixel-blue, #1976d2); 
+            padding: 30px; 
+            color: white; 
+            box-shadow: 0 0 20px rgba(25, 118, 210, 0.5);
+            text-align: center; 
+            min-width: 350px;
+        }
+
+        #exit-status-text {
+            margin-bottom: 60px;
+            text-transform: uppercase; 
+            font-size: 20px;
+            line-height: 1.6;
+            color: var(--pixel-gold, #ffd54f);
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .modal-btn-container {
+            display: flex; 
+            justify-content: space-around;
+            gap: 20px;
+        }
+
+        .exit-btn {
+            font-family: 'Press Start 2P', cursive;
+            padding: 12px 20px; 
+            cursor: pointer; 
+            font-size: 10px;
+            text-transform: uppercase;
+            border: none;
+            transition: all 0.1s;
+            border-radius: 0px;
+        }
+
+        #confirm-exit-btn {
+            background: var(--pixel-blue, #1976d2);
+            color: white; 
+            box-shadow: 0 4px 0 #0d47a1 !important;
+        }
+        
+        button:focus {
+            outline: 3px solid white !important;
+            outline-offset: 2px;
+        }
+
+        #cancel-exit-btn {
+            background: #ef1111 !important;
+            box-shadow: 0 3px 0 #990000 !important;
+        }
+
+        .exit-btn:hover { transform: translateY(-2px) !important; }
+        .exit-btn:active { transform: translateY(2px) !important; box-shadow: 0 0 0 transparent !important; }
+
+        /* Judge Message / Alert Modal */
+        #judgeMessageModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 21000;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .judge-message-modal-content {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            border: 4px solid var(--pixel-blue, #1976d2);
+            padding: 30px;
+            color: white;
+            text-align: center;
+            min-width: 350px;
+            box-shadow: 0 0 20px rgba(25, 118, 210, 0.5);
+        }
+
+        #judgeMessageText {
+            margin-bottom: 40px;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .judge-message-btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
     </style>
 </head>
 <body>
+    
     <div id="infoBtn" title="How to Play">?</div>
 
     <div id="infoModal" class="modal">
-        <div class="modal-content">
+        <div class="info-modal-content">
             <div class="modal-header">
-                <h2>📜 CAREER QUEST: JUDGE</h2>
+                <h2 style="font-size: 1.1rem; margin-bottom: -10px;">🧑‍⚖️ CAREER QUEST: JUDGE</h2>
                 <span class="close-btn">&times;</span>
             </div>
+    
             <div class="modal-body">
                 <h3>CHALLENGE GOAL</h3>
-                <ul><li><p style="font-size: 1.0rem;">End the game with a final score of 20 or more</p></li></ul>
+                <ul><li><p>End the game with a final score of 20 or more to certify.</p></li></ul>
 
-                <h3>How to Play</h3>
+                <h3>HOW TO PLAY</h3>
                 <ul style="font-size: 1.0rem;">
-                <li><p>Analyze the case description and evidence provided</p></li>
-                <li><p>Choose the correct verdict based on the law to earn points</p></li>
-                <li><p>Maintain your Public Trust bar; incorrect rulings will penalize your career</p></li>
-                <li><p>Every 5 points your score increases by will earn you 1 point towards your total score</p></li>
+                    <li><p>Analyze the case description and evidence provided.</p></li>
+                    <li><p>Choose the correct verdict based on the law to earn points.</p></li>
+                    <li><p>Maintain your Public Trust bar; incorrect rulings will penalize your career.</p></li>
+                    <li><p>Read the Verdict Analysis to understand why the right verdict is correct.</p></li>
+                    <li><p>Every 5 points your score increases by will earn you 1 point towards your total score</p></li>
                 </ul>
                 <h3>CONTROLS</h3>
                 <ul style="font-size: 1.0rem;">
                   <li><p>Use the <strong>MOUSE</strong> to select your verdict</p></li>
                   <li><p>Press <strong>ENTER</strong> to move to the next case</p></li>
                   <li><p>Press <strong>ESC</strong> to exit the game</p></li>
-                </ul>
+               </ul>
             </div>
         </div>
     </div>
 
     <div id="startScreen">
-        <button class="starting-panel-return-btn" onclick="exitAction()">EXIT</button>
-        <h1 style="font-size: 32px; color: var(--primary); margin-bottom: 25px;">JUDGE SIMULATOR</h1>
+        <button class="starting-panel-return-btn" onclick="handleExit()">EXIT</button>
+        <h1 style="font-size: 32px; color: var(--blue); margin-bottom: 25px;">JUDGE SIMULATOR</h1>
         <p style="margin-bottom: 45px; line-height: 2; font-size: 12px;">Protect the Constitution.<br>Uphold the Law.</p>
-        <button onclick="startGame()" style="font-size: 20px; padding: 30px 60px; background: var(--primary); color: #000;">GAVEL IN</button>
+        <p style="margin-bottom: 45px; line-height: 1.8; font-size: 12px; background: rgba(25, 118, 210, 0.2); 
+            border: 2px dashed #1976d2; 
+            border-radius: 10px; 
+            padding: 15px 25px;
+            box-shadow: inset 0 0 10px rgba(25, 118, 210, 0.3), 0 0 15px rgba(25, 118, 210, 0.2);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+            <span style="font-size: 20px; margin-right: 6px; line-height: 0; position: relative; top: 1px;">
+            ↖️</span> Select the info button in the top-left corner for more information!</p>
+        <button onclick="startGame()" style="font-size: 20px;
+            padding: 30px 60px; background: var(--blue); color: #fff; border:none; cursor:pointer; font-family:inherit;
+            box-shadow: 0 3px 0 #0d75a1;">GAVEL IN</button>
     </div>
 
     <div class="main-wrapper">
         <div id="courtroomView">
-            <div class="panel-return-btn" onclick="exitAction()">EXIT</div>
+            <div class="panel-return-btn" onclick="handleExit()">EXIT</div>
             <div id="judgeBubble" class="speech-bubble"></div>
             <div id="defenseBubble" class="speech-bubble"></div>
             <div id="plaintiffBubble" class="speech-bubble"></div>
@@ -385,6 +617,7 @@
             <div id="timerContainer">
                 <div id="timerWrap"><div id="timerBar"></div></div>
             </div>
+            
             <div id="gameContentArea">
                 <div id="caseSection">
                     <div class="panel-header" id="caseTitle">Establishing Court...</div>
@@ -403,135 +636,237 @@
             </div>
         </div>
     </div>
+    
+    <div id="retro-exit-modal">
+        <div class="modal-content">
+            <p id="exit-status-text">Terminate current session?<br>Unsaved progress will be lost.</p>
+            <div class="modal-btn-container">
+                <button id="confirm-exit-btn" class="exit-btn" onclick="executeExit()">YES</button>
+                <button id="cancel-exit-btn" class="exit-btn" onclick="closeExitModal()" style="color:#fff">NO</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="judgeMessageModal">
+        <div class="judge-message-modal-content">
+            <p id="judgeMessageText"></p>
+            <div class="judge-message-btn-container">
+                <button id="judgeMessageOkBtn" class="exit-btn">OK</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
+
 <script>
-    const infoBtn = document.getElementById('infoBtn');
-const infoModal = document.getElementById('infoModal');
-const closeBtn = document.querySelector('.close-btn');
-const dLost = document.getElementById('defendantLost');
-const dWin = document.getElementById('defendantWon');
-
-// Track if the game was running before we opened the modal
-let wasGameActiveBeforeModal = false;
-let gameActive = false;
-
-infoBtn.onclick = function() {
-    infoModal.style.display = "block";
-    
-    // If the game is running, pause it
-    if (gameActive) {
-        wasGameActiveBeforeModal = true; 
-        gameActive = false; // This "closes" the safety gate for keydown events
-        clearInterval(timerInterval);
-        
-        // Disable buttons so they can't be clicked while modal is open
-        dLost.disabled = true;
-        dWin.disabled = true;
-    } else {
-        wasGameActiveBeforeModal = false;
-    }
-}
-
-// Create a reusable close function
-function closeModal() {
-    infoModal.style.display = "none";
-    
-    // Only resume if the game was actually in progress
-    if (wasGameActiveBeforeModal) {
-        gameActive = true; // Re-open the safety gate
-        
-        // Re-enable buttons if a choice hasn't been made yet
-        // (Assuming you have logic elsewhere to keep them disabled if verdict is shown)
-        if (document.getElementById("nextBtn").style.display !== 'block') {
-            dLost.disabled = false;
-            dWin.disabled = false;
-            startTimer();
+    /* --- GAME EXIT LOGIC --- */
+    function handleExit() {
+        const rawData = localStorage.getItem('FBLA_CAREER_DATA');
+        let data = rawData ? JSON.parse(rawData) : { completed: [], totalScore: 0, scorePerCareer: {"Computer Scientist":0, "Chemist": 0, "Stock Trader":0, "Judge":0, "Lawyer":0, "Pianist": 0 } };
+        let status = data.completed.includes("Judge") ? "Quest Complete" : "Quest Incomplete";
+        document.getElementById('exit-status-text').textContent = `EXIT? STATUS: ${status}`;
+        document.getElementById('retro-exit-modal').style.display = 'block';
+        const yesBtn = document.getElementById('confirm-exit-btn');
+        if (yesBtn) {
+            yesBtn.focus();
+        }
+        if (gameActive) {
+            wasGameActiveBeforeExit = true;
+            gameActive = false; 
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            dLost.disabled = true;
+            dWin.disabled = true;
+        } else {
+            wasGameActiveBeforeExit = false;
         }
     }
-}
 
-closeBtn.onclick = closeModal;
+    function executeExit() {
+        updateCareerData(Math.floor(score/5));
+        window.location.href = "../index.html";
+    }
 
-window.onclick = function(event) {
-    if (event.target == infoModal) {
-        closeModal();
+    function closeExitModal() {
+        document.getElementById('retro-exit-modal').style.display = 'none';
+        if (wasGameActiveBeforeExit) {
+            gameActive = true;
+            if (document.getElementById("nextBtn").style.display === 'none') {
+                dLost.disabled = false;
+                dWin.disabled = false;
+                if (!timerInterval && timeLeft > 0) {
+                    startTimer();
+                }
+            }
+        }
     }
-}
-window.addEventListener("keydown", e => {
-    if (e.key === "Escape") {
-        exitAction();
+
+    /* --- VARIABLES & INITIALIZATION --- */
+    const infoBtn = document.getElementById('infoBtn');
+    const infoModal = document.getElementById('infoModal');
+    const closeBtn = document.querySelector('.close-btn');
+    const dLost = document.getElementById('defendantLost');
+    const dWin = document.getElementById('defendantWon');
+    let gavelsoundInterval;
+    let wasGameActiveBeforeInfo = false;
+    let wasGameActiveBeforeExit = false;
+    let gameActive = false;
+    let wasGameActiveBeforeJudgeMessage = false;
+
+    /* --- INFO MODAL LOGIC --- */
+    infoBtn.onclick = function() {
+        infoModal.style.display = "flex";
+        if (gameActive) {
+            wasGameActiveBeforeInfo = true; 
+            gameActive = false;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            dLost.disabled = true;
+            dWin.disabled = true;
+        } else {
+            wasGameActiveBeforeInfo = false;
+        }
     }
-    
-    if (!gameActive) {
-        // This gate now correctly blocks "1" and "2" while modal is open
-        if (e.key === "Enter" && infoModal.style.display !== "block") {
-            // Check if we are on the start screen or just paused
-            if (document.getElementById('startScreen').style.display !== 'none') {
+
+    function closeModal() {
+        infoModal.style.display = "none";
+        if (wasGameActiveBeforeInfo) {
+            gameActive = true;
+            if (document.getElementById("nextBtn").style.display === 'none') {
+                dLost.disabled = false;
+                dWin.disabled = false;
+                if (!timerInterval && timeLeft > 0) {
+                    startTimer();
+                }
+            }
+        }
+    }
+
+    closeBtn.onclick = closeModal;
+    window.onclick = function(event) {
+        if (event.target == infoModal) {
+            closeModal();
+        }
+    }
+
+    /* --- JUDGE MESSAGE MODAL LOGIC --- */
+    function showJudgeMessage(message, callback) {
+        const modal = document.getElementById('judgeMessageModal');
+        const msgEl = document.getElementById('judgeMessageText');
+        const okBtn = document.getElementById('judgeMessageOkBtn');
+        msgEl.textContent = message;
+        modal.style.display = 'block';
+
+        wasGameActiveBeforeJudgeMessage = gameActive;
+        if (gameActive) {
+            gameActive = false;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            dLost.disabled = true;
+            dWin.disabled = true;
+            document.getElementById("nextBtn").disabled = true;
+        }
+
+        function onClose() {
+            modal.style.display = 'none';
+            okBtn.removeEventListener('click', onClose);
+            document.getElementById('nextBtn').disabled = false;
+            
+            if (wasGameActiveBeforeJudgeMessage && document.getElementById('nextBtn').style.display === "none") {
+                gameActive = true;
+                if (document.getElementById("nextBtn").style.display !== 'block') {
+                    dLost.disabled = false;
+                    dWin.disabled = false;
+                }
+                if (timeLeft > 0 && !timerInterval) {
+                    startTimer();
+                }
+            }
+
+            if (typeof callback === 'function') {
+                callback();
+            }
+        }
+
+        okBtn.addEventListener('click', onClose);
+    }
+
+    /* --- KEYBOARD INPUT HANDLERS --- */
+    window.addEventListener("keydown", e => {
+        if (e.key === "Escape") {
+            handleExit();
+        }
+        
+        if (!gameActive) {
+            if (e.key === "Enter" && 
+                infoModal.style.display !== "flex" && 
+                document.getElementById("retro-exit-modal").style.display !== "block" &&
+                document.getElementById("judgeMessageModal").style.display !== "block") {
                 startGame();
             }
-        }
-    } else {
-        if (!dLost.disabled) {
-            if (e.key === "1") handleChoice('lost');
-            if (e.key === "2") handleChoice('won');
-        }
-        
-        if (e.key === "Enter" && document.getElementById("nextBtn").style.display === 'block') {
-            if(!document.getElementById("nextBtn").disabled) {
-                e.preventDefault();
-                loadNewCase();
+        } else {
+            if (!dLost.disabled) {
+                if (e.key === "1") handleChoice('lost');
+                if (e.key === "2") handleChoice('won');
+            }
+            if (e.key === "Enter" && document.getElementById("nextBtn").style.display === 'block') {
+                if(!document.getElementById("nextBtn").disabled) {
+                    gameActive = true;
+                    e.preventDefault();
+                    loadNewCase();
+                }
             }
         }
+    });
+
+    /* --- DATA PERSISTENCE & SOUNDS --- */
+    let hasSavedPoints = false;
+
+    function updateCareerData(finalScore) {
+        if (hasSavedPoints || Number(finalScore) <= 0) return;
+        const rawData = localStorage.getItem("FBLA_CAREER_DATA");
+        let data = rawData ? JSON.parse(rawData) : { completed: [], totalScore: 0, scorePerCareer: {"Computer Scientist":0, "Chemist": 0, "Stock Trader":0, "Judge":0, "Lawyer":0, "Pianist":0 } };
+        const currentScore = Number(data.totalScore) || 0;
+        const sessionPoints = Number(finalScore) || 0;
+        data.totalScore = currentScore+sessionPoints;
+        let judgeTotal = Number(data.scorePerCareer["Judge"]) || 0;
+        data.scorePerCareer["Judge"] = judgeTotal+sessionPoints;
+        localStorage.setItem("FBLA_CAREER_DATA", JSON.stringify(data));
+        hasSavedPoints = true;
     }
-});
 
-
-let hasSavedPoints = false;
-
-    // Updating global career variables
-  function updateCareerData(finalScore) {
-    if (hasSavedPoints || Number(finalScore) <= 0) return;
-    const rawData = localStorage.getItem("FBLA_CAREER_DATA");
-    let data = rawData ? JSON.parse(rawData) : { completed: [], totalScore: 0, scorePerCareer: {"Computer Scientist":0, "Chemist": 0, "Stock Trader":0, "Judge":0, "Lawyer":0} };
-    const currentScore = Number(data.totalScore) || 0;
-    const sessionPoints = Number(finalScore) || 0;
-    data.totalScore = currentScore+sessionPoints;
-    let judgeTotal = Number(data.scorePerCareer["Judge"]) || 0;
-    data.scorePerCareer["Judge"] = judgeTotal+sessionPoints;
-    localStorage.setItem("FBLA_CAREER_DATA", JSON.stringify(data));
-    hasSavedPoints = true;
-  }
-    // Declaration of exit action
-    const exitAction = () => {
-      const rawData = localStorage.getItem("FBLA_CAREER_DATA");
-      // Adding to total game completion
-      let data = rawData ? JSON.parse(rawData) : { completed: [], totalScore: 0, scorePerCareer: {"Computer Scientist": 0, "Chemist": 0, "Stock Trader":0, "Judge":0, "Lawyer":0} };
-      let status = data.completed.includes("Judge") ? "Quest Complete" : "Quest Incomplete"
-        if (confirm(`Exit? Current Status: ${status}`)) {
-            updateCareerData(Math.floor(score/5));
-            window.location.href = "../index.html";
-        }
-    };
-// --- REST OF YOUR CODE (STAYS THE SAME) ---
-
-    // Audio sounds declaration
     function playGavelSound() {
+        let i =0;
         try {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
-            gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.1);
+            gavelsoundInterval = setInterval(() => {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.1);
+                i++;
+                if (i === 3) {
+                    clearInterval(gavelsoundInterval);
+                    i = 0;
+                }
+            }, 300)
         } catch(e) {}
     }
+
     function playCorrectSound() {
         try {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -548,13 +883,13 @@ let hasSavedPoints = false;
             osc.stop(audioCtx.currentTime + 0.15);
         } catch(e) {}
     }
+
     function playErrorSound() {
         try {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'sawtooth';
-            // Low, dissonant buzzing sound
             osc.frequency.setValueAtTime(110, audioCtx.currentTime);
             osc.frequency.linearRampToValueAtTime(55, audioCtx.currentTime + 0.3);
             gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
@@ -565,36 +900,37 @@ let hasSavedPoints = false;
             osc.stop(audioCtx.currentTime + 0.3);
         } catch(e) {}
     }
-    // Possible cases for user to experience
+    
+    /* --- CASE DATABASE --- */
     const judgeCases = [
         { caseName: "Search of Backpack", evidence: "Police searched Alex's backpack without a warrant and found illegal substances.", accuserArgument: "The drugs were found in Alex's possession, which by itself is proof of guilt. Excluding evidence just because of a technical error would let criminals escape justice.", defendantArgument: "The Constitution protects me against unreasonable searches. If police can ignore that, then no one's rights are safe.", flaw: "prosecutor downplayed the Fourth Amendment as a 'technicality,' when it was a core protection.", correctVerdict: "Not Guilty" },
         { caseName: "Public Protest", evidence: "Jamie was arrested while peacefully protesting in a public park.", accuserArgument: "The First Amendment didn't allow people to disrupt public order. Businesses nearby suffered financial losses because of the protest.", defendantArgument: "Public parks are traditional forums for free speech. Peaceful protest, even if inconvenient, was protected by the First Amendment.", flaw: "prosecutor stretched 'disorderly conduct' to cover peaceful protest, which courts consistently protected.", correctVerdict: "Not Guilty" },
         { caseName: "Drug Possession", evidence: "Police searched the defendant's house with a valid warrant and found illegal substances.", accuserArgument: "The search was lawful and the drugs were found in plain sight. Claiming ignorance of what was in the bag didn't excuse possession.", defendantArgument: "I borrowed the bag. If I didn't know drugs were inside, I shouldn't be punished for someone else's actions.", flaw: "defendant argued lack of knowledge, but possession laws still applied when drugs were in one's control.", correctVerdict: "Guilty" },
         { caseName: "Environmental Protection", evidence: "Factory released toxic chemicals into a river without a permit.", accuserArgument: "This wasn't just about private property. Pollution entered public waterways, which the Clean Water Act regulated for everyone's safety.", defendantArgument: "My company owned the land where waste was dumped. Private property rights should have allowed us to dispose of materials without government interference.", flaw: "defendant misused property rights — environmental law overrode them when public waterways were harmed.", correctVerdict: "Guilty" },
         { caseName: "Product Liability", evidence: "Customer slipped on spilled juice in a grocery store.", accuserArgument: "The store failed to keep its floors safe, so it should be liable for the accident.", defendantArgument: "We maintain regular cleaning schedules and posted warning signs. The accident happened despite reasonable precautions.", flaw: "plaintiff assumed the store's reasonable safety measures were insufficient without proving negligence.", correctVerdict: "Not Liable" },
-        { caseName: "Copyright Infringement", evidence: "Casey uploaded a movie online without permission from the copyright holder.", accuserArgument: "Even if Casey didn't profit, uploading to the internet distributed the movie to thousands, violating copyright law.", defendantArgument: "I wasn't selling or profiting — sharing online was no different than letting a friend borrow a DVD.", flaw: "defendant oversimplified — digital uploads distributed at massive scale, unlike lending a physical copy.", correctVerdict: "Guilty" },
-        { caseName: "Insider Trading", evidence: "Finnian sold stock after receiving confidential financial information.", accuserArgument: "Using secret company knowledge to avoid losses undermined fair markets and violated securities law.", defendantArgument: "I didn't share the information with anyone — I simply made personal financial decisions, which should have been my right.", flaw: "defendant reframed insider trading as 'personal choice,' but the law prohibited trading on confidential information regardless.", correctVerdict: "Guilty" },
+        { caseName: "Copyright Infringement", evidence: "Casey uploaded a movie online without permission from the copyright holder.", accuserArgument: "Even if Casey didn't profit, uploading to the internet distributed the movie to thousands, violating copyright law.", defendantArgument: "I wasn't selling or profiting – sharing online was no different than letting a friend borrow a DVD.", flaw: "defendant oversimplified digital uploads distributed at massive scale, unlike lending a physical copy.", correctVerdict: "Guilty" },
+        { caseName: "Insider Trading", evidence: "Finnian sold stock after receiving confidential financial information.", accuserArgument: "Using secret company knowledge to avoid losses undermined fair markets and violated securities law.", defendantArgument: "I didn't share the information with anyone; I simply made personal financial decisions, which should have been my right.", flaw: "defendant reframed insider trading as personal choice, but the law prohibited trading on confidential information regardless.", correctVerdict: "Guilty" },
         { caseName: "Workplace Safety", evidence: "Defendant's factory had no protective equipment for workers.", accuserArgument: "Federal law required employers to provide safe working conditions. Cost didn't excuse ignoring worker safety.", defendantArgument: "My employees knew the risks and chose to work here. They accepted the conditions voluntarily.", flaw: "defendant tried to shift responsibility to workers, but OSHA placed the duty squarely on employers.", correctVerdict: "Guilty" },
         { caseName: "Breach of Contract", evidence: "Client showed proof that project deadlines were missed.", accuserArgument: "The company didn't finish work on time, causing losses for the client.", defendantArgument: "Delays were caused by client-supplied resources and were communicated. We fulfilled contractual obligations to the best of our ability.", flaw: "plaintiff ignored evidence showing delays were not the company's fault.", correctVerdict: "Not Liable" },
-        { caseName: "False Advertising", evidence: "Company claimed its product cured illnesses with no scientific proof.", accuserArgument: "The Federal Trade Commission prohibited deceptive marketing, and false health claims endangered consumers.", defendantArgument: "Our ads were just exaggerations — everyone knows marketing uses strong language.", flaw: "defendant trivialized false claims, but the law specifically prohibited misleading health-related advertising.", correctVerdict: "Liable" },
-        { caseName: "Tax Evasion", evidence: "Defendant failed to report large sums of income.", accuserArgument: "The Internal Revenue Code required accurate reporting. Hiding income directly violated tax law.", defendantArgument: "The tax code was too complicated; mistakes shouldn't be treated as crimes.", flaw: "defendant portrayed deliberate concealment as 'mistakes,' but evidence showed intentional fraud.", correctVerdict: "Guilty" },
+        { caseName: "False Advertising", evidence: "Company claimed its product cured illnesses with no scientific proof.", accuserArgument: "The Federal Trade Commission prohibited deceptive marketing, and false health claims endangered consumers.", defendantArgument: "Our ads were just exaggerations – everyone knows marketing uses strong language.", flaw: "defendant trivialized false claims, but the law specifically prohibited misleading health-related advertising.", correctVerdict: "Liable" },
+        { caseName: "Tax Evasion", evidence: "Defendant failed to report large sums of income.", accuserArgument: "The Internal Revenue Code required accurate reporting. Hiding income directly violated tax law.", defendantArgument: "The tax code was too complicated – mistakes shouldn't be treated as crimes.", flaw: "defendant portrayed deliberate concealment as mistakes, but evidence showed intentional fraud.", correctVerdict: "Guilty" },
         { caseName: "Defamation Lawsuit", evidence: "Taylor publicly accused someone of crimes without evidence.", accuserArgument: "Free speech didn't cover false statements that harmed reputations. Defamation was unlawful.", defendantArgument: "The First Amendment allowed me to share my opinion, even if others disagreed.", flaw: "defendant conflated opinion with false factual claims, which weren't protected.", correctVerdict: "Liable" },
         { caseName: "Whistleblower Retaliation", evidence: "Employee was fired after reporting safety violations.", accuserArgument: "Federal whistleblower protections made it illegal to fire someone for reporting violations.", defendantArgument: "The company had the right to manage staff and terminate employees for performance issues.", flaw: "plaintiff disguised retaliation as performance management, but evidence showed the firing followed reporting.", correctVerdict: "Liable" },
         { caseName: "Trespassing", evidence: "Defendant entered a restricted military zone without authorization.", accuserArgument: "Military areas were clearly marked, and unauthorized entry posed security risks.", defendantArgument: "I was exercising my right to travel freely in public spaces.", flaw: "defendant misapplied free travel rights to restricted zones where national security laws applied.", correctVerdict: "Guilty" },
-        { caseName: "Wire Fraud", evidence: "Defendant sent emails to trick victims into sending money.", accuserArgument: "Wire fraud statutes made it illegal to use electronic communication to defraud others.", defendantArgument: "The victims should have been more careful — I didn't force them to send money.", flaw: "defendant shifted blame to victims, but fraud law prohibited intentional deception regardless of victim caution.", correctVerdict: "Guilty" },
-        { caseName: "Advertising Complaint", evidence: "Efficiency claims were misleading compared to real-world performance.", accuserArgument: "The ads exaggerated the product benefits, misleading customers.", defendantArgument: "All claims were backed by independent testing and disclaimers were included. Advertising was accurate and compliant.", flaw: "plaintiff assumed exaggeration without considering variability in the products' efficiency and legal disclaimers.", correctVerdict: "Not Liable" },
+        { caseName: "Wire Fraud", evidence: "Defendant sent emails to trick victims into sending money.", accuserArgument: "Wire fraud statutes made it illegal to use electronic communication to defraud others.", defendantArgument: "The victims should have been more careful – I didn't force them to send money.", flaw: "defendant shifted blame to victims, but fraud law prohibited intentional deception regardless of victim caution.", correctVerdict: "Guilty" },
+        { caseName: "Advertising Complaint", evidence: "Efficiency claims were misleading compared to real-world performance.", accuserArgument: "The ads exaggerated the product benefits, misleading customers.", defendantArgument: "All claims were backed by independent testing and disclaimers were included. Advertising was accurate and compliant.", flaw: "plaintiff assumed exaggeration without considering variability in the product's efficiency and legal disclaimers.", correctVerdict: "Not Liable" },
         { caseName: "Pirated Software", evidence: "Defendant distributed cracked software copies online.", accuserArgument: "Software piracy harms developers and violates copyright law.", defendantArgument: "I wasn't selling it, just sharing with others who couldn't afford the real thing.", flaw: "defendant reframed piracy as charity, but the law prohibited unauthorized distribution regardless of intent.", correctVerdict: "Guilty" },
         { caseName: "Premises Liability", evidence: "Customer tripped on uneven pavement outside the mall.", accuserArgument: "The mall is responsible for unsafe conditions on its property.", defendantArgument: "Inspections were performed regularly, and repairs were scheduled promptly. The accident was unforeseeable despite reasonable precautions.", flaw: "plaintiff assumed liability without proving the mall failed in its duty of care.", correctVerdict: "Not Liable" },
-        { caseName: "Bribery", evidence: "Defendant accepted money to influence official decisions.", accuserArgument: "Accepting payment for political favors violated anti-bribery statutes.", defendantArgument: "It was just a donation — politicians accepted money all the time.", flaw: "defendant blurred the line between donations and bribery, but evidence showed payment was tied to specific favors.", correctVerdict: "Guilty" },
+        { caseName: "Bribery", evidence: "Defendant accepted money to influence official decisions.", accuserArgument: "Accepting payment for political favors violated anti-bribery statutes.", defendantArgument: "It was just a donation – politicians accepted money all the time.", flaw: "defendant blurred the line between donations and bribery, but evidence showed payment was tied to specific favors.", correctVerdict: "Guilty" },
         { caseName: "Child Labor Violation", evidence: "Children under 14 were found working in the factory.", accuserArgument: "Federal labor law prohibited child labor under strict age requirements.", defendantArgument: "The kids wanted to help their families, and we paid them fairly.", flaw: "defendant appealed to sympathy but ignored strict prohibitions on child labor.", correctVerdict: "Guilty" },
         { caseName: "Hate Speech vs. Threats", evidence: "Defendant shouted racial slurs and threats at a public rally.", accuserArgument: "True threats and harassment weren't protected by the First Amendment.", defendantArgument: "Offensive words still counted as free speech. I never physically harmed anyone.", flaw: "defendant equated threats with mere offensive speech, but threats weren't protected.", correctVerdict: "Guilty" },
-        { caseName: "Second-Hand Smoke Ban", evidence: "Defendant allowed indoor smoking in their restaurant despite local bans.", accuserArgument: "Local law banned indoor smoking to protect public health.", defendantArgument: "It was my private business — customers could choose whether to come in.", flaw: "defendant treated health codes as optional, but the law applied to all businesses equally.", correctVerdict: "Guilty" },
+        { caseName: "Second-Hand Smoke Ban", evidence: "Defendant allowed indoor smoking in their restaurant despite local bans.", accuserArgument: "Local law banned indoor smoking to protect public health.", defendantArgument: "It was my private business – customers could choose whether to come in.", flaw: "defendant treated health codes as optional, but the law applied to all businesses equally.", correctVerdict: "Guilty" },
         { caseName: "Library Access Restriction", evidence: "School blocked access to certain online resources in the library.", accuserArgument: "Students need full access to all online content for research.", defendantArgument: "The school aimed to prevent exposure to harmful or inappropriate content.", flaw: "plaintiff assumed all restrictions automatically violated student rights without considering educational justification.", correctVerdict: "Not Liable" },
         { caseName: "Equal Pay Dispute", evidence: "An employee discovered they were being paid 20% less than a colleague in the same role with identical experience.", accuserArgument: "The Equal Pay Act mandates equal pay for equal work. Paying significantly less for the same responsibilities is clear discrimination.", defendantArgument: "The pay difference was based on initial salary negotiations at the time of hiring, not on any discriminatory intent.", flaw: "defendant argued that negotiation justified the gap, but the law focuses on the work performed, not the negotiation process.", correctVerdict: "Liable" },
-        { caseName: "Miranda Rights Claim", evidence: "A suspect confessed to a crime during questioning before being informed of their right to remain silent.", accuserArgument: "The confession was voluntary and the suspect never asked for a lawyer. The truth of the confession should outweigh a procedural delay.", defendantArgument: "The Fifth Amendment requires police to read my rights before interrogation. Without that warning, my statement cannot be used against me.", flaw: "prosecutor prioritized the 'voluntary' nature of the statement, ignoring the mandatory legal requirement of the Miranda warning.", correctVerdict: "Not Guilty" }
+        { caseName: "Miranda Rights Claim", evidence: "A suspect confessed to a crime during questioning before being informed of their right to remain silent.", accuserArgument: "The confession was voluntary and the suspect never asked for a lawyer. The truth of the confession should outweigh a procedural delay.", defendantArgument: "The Fifth Amendment requires police to read my rights before interrogation. Without that warning, my statement cannot be used against me.", flaw: "prosecutor prioritized the voluntary nature of the statement, ignoring the mandatory legal requirement of the Miranda warning.", correctVerdict: "Not Guilty" }
     ];
 
-    // Initial local variables
+    /* --- GAME STATE VARIABLES --- */
     let score = 0;
     let trust = 100;
     let casesSolvedCount = 0;
@@ -603,9 +939,9 @@ let hasSavedPoints = false;
     let currentCase = null;
     let timerInterval = null;
     let promotions = {p1: false, p2: false, p3: false};
-    let timeLeft = 100;
+    let timeLeft = 200;
 
-    // Game start lock screen hide
+    /* --- CORE GAMEPLAY FUNCTIONS --- */
     function startGame() {
         gameActive = true;
         document.getElementById('startScreen').style.display = 'none';
@@ -613,41 +949,37 @@ let hasSavedPoints = false;
     }
 
     function updateHUD() {
-        // Main screen updated as game progresses
         document.getElementById('scoreText').textContent = `Score: ${score}`;
-        document.getElementById('trustBar').style.width = trust < 0 ? '0%' : trust + "%";
         document.getElementById('casesCompletedText').textContent = `Cases Completed: ${casesCompletedCount}/${totalInitialCases}`;
         document.getElementById('casesSolvedText').textContent = `Cases Solved: ${casesSolvedCount}/${totalInitialCases}`;
-        
-        // Rank variable increase with score increase
+        document.getElementById('trustBar').style.width = trust + "%";
+       
         let rank;
         if (score < 5) rank = "Law Clerk";
         else if (score < 12) rank = "District Judge";
         else if (score < 20) rank = "Federal Judge";
         else rank = "Supreme Court Justice"
         
-        // Game fail outcome and global variable update
         document.getElementById('rankText').textContent = `Rank: ${rank}`;
         if (trust <= 0) {
-            alert("IMPEACHED! Public trust has bottomed out.");
             dLost.disabled = true;
             dWin.disabled = true;
             document.getElementById("nextBtn").disabled = true;
             updateCareerData(Math.floor(score/5));
-            setTimeout(() => {
-                location.reload();
+            showJudgeMessage("IMPEACHED! Public trust has bottomed out.", () => {
                 gameActive = false;
-            }, 1000);
+                location.reload();
+            });
         }
     }
-// Function to check promotion and add trust using nested if/ if-else statements
+
     function checkPromo(key, msg) {
         if (!promotions[key]) {
             promotions[key] = true;
             if (key === 'p1') trust = Math.min(100, trust + 5);
             else if (key === 'p2') trust = Math.min(100, trust + 10);
             else if (key === 'p3') trust = Math.min(100, trust + 20);
-            setTimeout(() => { alert(msg) }, 601);
+            setTimeout(() => { showJudgeMessage(msg); }, 601);
         }
     }
     function checkDemo(key, msg) {
@@ -656,40 +988,41 @@ let hasSavedPoints = false;
             if (key === 'p1') trust = Math.max(0, trust - 5);
             else if (key === 'p2') trust = Math.max(0, trust - 10);
             else if (key === 'p3') trust = Math.max(0, trust - 20);
-            alert(msg);
+            showJudgeMessage(msg);
         }
     }
+
     function loadNewCase() {
-        // All cases completed outcome
         if (judgeCases.length === 0) {
-            alert("RETIRED! You served a full career.");
-            location.reload();
+            updateCareerData(Math.floor(score/5));
+            showJudgeMessage("RETIRED! You served a full career.", () => {
+                location.reload();
+            });
             return;
         }
-
-        // Reset bubbles
+        setTimeout(() => {
+            if (gavelsoundInterval) clearInterval(gavelsoundInterval);
+        }, 100)
+        
         const bubbles = ['judgeBubble', 'plaintiffBubble', 'defenseBubble'];
         bubbles.forEach(id => {
             const b = document.getElementById(id);
             b.style.display = 'none';
             b.classList.remove('bubble-correct', 'bubble-wrong');
         });
-        // Reset timer
         document.getElementById("timerBar").style.width = "100%";
-        // Randomly assigning a case from list of possible cases
+        
         currentCase = judgeCases.splice(Math.floor(Math.random() * judgeCases.length), 1)[0];
         
-        // Current case info
         document.getElementById('caseTitle').textContent = `CASE: ${currentCase.caseName}`;
         document.getElementById('caseContent').innerHTML = `
             <p><strong>EVIDENCE:</strong> ${currentCase.evidence}</p>
             <p><strong>PROSECUTION:</strong> ${currentCase.accuserArgument}</p>
             <p><strong>DEFENSE:</strong> ${currentCase.defendantArgument}</p>
         `;
-        
-        // Outcome screen updates
         document.getElementById('explanationText').textContent = "Analyze the legal arguments...";
         document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('nextBtn').disabled = true;
         dLost.disabled = false;
         dWin.disabled = false;
         if (currentCase.correctVerdict.includes("Guilty")) {
@@ -699,34 +1032,31 @@ let hasSavedPoints = false;
             dLost.textContent = "1. Liable";
             dWin.textContent = "2. Not Liable";
         }
+        gameActive = true;
         startTimer();
         updateHUD();
     }
 
-    // Timer set and cleared
     function startTimer() {
         clearInterval(timerInterval);
         timerInterval = setInterval(() => {
+            if (!gameActive) return;
             timeLeft--;
-            document.getElementById('timerBar').style.width = timeLeft + '%';
+            document.getElementById('timerBar').style.width = timeLeft*1/2 + '%';
 
-            // If statement when time runs out
             if (timeLeft <= 0) {
                 document.getElementById('timerBar').style.width = '0%';
-                timeLeft = 100;
                 handleChoice(null);
             }
         }, 100);
     }
 
-
     function handleChoice(choice) {
         clearInterval(timerInterval);
-        timeLeft = 100;
+        timeLeft = 200;
         dLost.disabled = true;
         dWin.disabled = true;
 
-        // Constants updated after choices made
         const isGuiltyType = (currentCase.correctVerdict === "Guilty" || currentCase.correctVerdict === "Liable");
         const userPickedGuilty = (choice === 'lost');
         const isCorrect = (choice !== null && userPickedGuilty === isGuiltyType);
@@ -734,35 +1064,44 @@ let hasSavedPoints = false;
         const jBub = document.getElementById('judgeBubble');
         const pBub = document.getElementById('plaintiffBubble');
         const dBub = document.getElementById('defenseBubble');
-
-        // 1. JUDGE RULING FIRST
+        let badgeAlertedThisRound = false;
+      
         jBub.style.display = 'block';
         jBub.classList.remove('bubble-correct', 'bubble-wrong');
-        
         if (isCorrect) {
             jBub.textContent = (choice === 'lost') ? "GUILTY!" : "NOT GUILTY!";
             score++;
             casesSolvedCount++;
             trust = Math.min(100, trust + 5);
-            document.getElementById('explanationText').innerHTML = `<span style="color:var(--positive); font-weight:bold;">LEGALLY SOUND.</span><br><br>${currentCase.flaw}`;
-            playGavelSound();
-            
-            if (score >= 5) checkPromo('p1', "Promotion: District Judge!");
-            if (score >= 12) checkPromo('p2', "Promotion: Federal Judge!");
-            if (score >= 20) checkPromo('p3', "Promotion: Supreme Court Justice!");
+            document.getElementById('explanationText').innerHTML = `<span style="color:var(--green); font-weight:bold;">LEGALLY SOUND.</span><br><br>The ${currentCase.flaw}`;
+            setTimeout(() => {playGavelSound();}, 700);
+            if (score === 20 && !badgeAlertedThisRound) {
+                const rawData = localStorage.getItem("FBLA_CAREER_DATA");
+                let data = rawData ? JSON.parse(rawData) : { completed: [], totalScore: 0, scorePerCareer: {"Computer Scientist":0, "Chemist": 0, "Stock Trader":0, "Judge":0, "Lawyer":0, "Pianist": 0 } };
+                if (!data.completed.includes("Judge")) {
+                    data.completed.push("Judge");
+                    localStorage.setItem("FBLA_CAREER_DATA", JSON.stringify(data));
+                    setTimeout(() => {
+                        showJudgeMessage("Great job! You are now certified as a judge! Keep playing to increase your score!");
+                        badgeAlertedThisRound = true;
+                    }, 500);
+                }
+            }
+            if (score >= 8) checkPromo('p1', "Promotion: District Judge!");
+            if (score >= 15) checkPromo('p2', "Promotion: Federal Judge!");
+            if (score >= 22) checkPromo('p3', "Promotion: Supreme Court Justice!");
         } else {
             jBub.textContent = (choice === null) ? "Uhh..." : ((choice === 'lost') ? "GUILTY!" : "NOT GUILTY!");
             
             if (score > 0) score--;
-            if (score === 4) checkDemo('p1', "WARNING: You have been demoted to a Law Clerk");
-            else if (score === 11) checkDemo('p2', "WARNING: You have been demoted to a District Judge");
-            else if (score === 19) checkDemo('p3', "WARNING: You have been demoted to a Federal Judge");
+            if (score === 7) checkDemo('p1', "WARNING: You have been demoted to a Law Clerk");
+            else if (score === 14) checkDemo('p2', "WARNING: You have been demoted to a District Judge");
+            else if (score === 21) checkDemo('p3', "WARNING: You have been demoted to a Federal Judge");
             trust -= 20;
-            document.getElementById('explanationText').innerHTML = `<span style="color:var(--danger); font-weight:bold;">LEGAL ERROR.</span><br><br>${currentCase.flaw}`;
-            playGavelSound();
+            document.getElementById('explanationText').innerHTML = `<span style="color:var(--red); font-weight:bold;">LEGAL ERROR.</span><br><br>The ${currentCase.flaw}`;
+            setTimeout(() => {playGavelSound();}, 700);
         }
 
-        // 2. LAWYERS REACT AFTER 600ms DELAY
         setTimeout(() => {
             pBub.style.display = 'block';
             dBub.style.display = 'block';
@@ -784,16 +1123,18 @@ let hasSavedPoints = false;
                     else { pBub.textContent = "I'M SURPRISED I WON!"; dBub.textContent = "I'M APPEALING!"; }
                 }
                 else {
-                    pBub.textContent = "PICK A VERDICT!";
-                    dBub.textContent = "HURRY UP!";
+                    pBub.textContent = "PICK A VERDICT!"; dBub.textContent = "HURRY UP!";
                 }
             }
 
             casesCompletedCount++;
             updateHUD();
+            document.getElementById('nextBtn').disabled = false;
             document.getElementById('nextBtn').style.display = 'block';
         }, 600);
     }
+
+    /* --- EVENT LISTENERS --- */
     dLost.onclick = () => handleChoice('lost');
     dWin.onclick = () => handleChoice('won');
     document.getElementById('nextBtn').onclick = () => loadNewCase();
