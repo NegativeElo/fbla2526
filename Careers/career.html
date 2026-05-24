@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor</title>
+  <style>
+    /* ── 1. FONTS ── */
+    @font-face {
+      font-family: 'Press Start 2P';
+      src: url('../lib/PressStart2P-Regular.ttf') format('truetype');
+    }
+    * { font-family: 'Press Start 2P', system-ui; box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── 2. CSS VARIABLES ── */
+    :root {
+      --gold:  #ffd54f;
+      --blue:  #57abff;
+      --green: #69f0ae;
+      --red:   #ff5252;
+      --panel: rgba(0,0,0,0.75);
+      --border:#1976d2;
+    }
+
+    /* ── 3. BACKGROUND / CRT ── */
+    body {
+      background: radial-gradient(circle at center, #1a2a6c, #b21f1f, #fdbb2d);
+      background-attachment: fixed;
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: white;
+      min-height: 100vh;
+      padding: 10px;
+      text-align: center;
+      overflow-x: hidden;
+      font-size: 11px;
+    }
+    @keyframes gradientBG {
+      0%   { background-position: 0%   50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0%   50%; }
+    }
+    body::before {
+      content: " ";
+      display: block;
+      position: fixed; inset: 0;
+      background:
+        linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%),
+        linear-gradient(90deg, rgba(255,0,0,0.02), rgba(0,255,0,0.01), rgba(0,0,255,0.02));
+      background-size: 100% 2px, 2px 100%;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    /* ── 4. TYPOGRAPHY ── */
+    h2 {
+      font-size: 1.4rem;
+      text-shadow: 3px 3px #1976d2;
+      margin: 10px 0;
+      text-transform: uppercase;
+    }
+    p { font-size: 1rem; }
+    .challenge-goal {
+      background: var(--panel);
+      display: block;
+      padding: 12px;
+      border-radius: 10px;
+      max-width: 900px;
+      margin: 0 auto 12px auto;
+      border: 2px solid var(--border);
+      line-height: 1.6;
+      font-size: 11px;
+    }
+
+    /* ── 5. INFO BUTTON ── */
+    #infoBtn {
+      position: fixed;
+      top: 10px; left: 10px;
+      width: 35px; height: 35px;
+      background: #1976d2;
+      color: white;
+      border: 2px solid #fff;
+      display: flex; justify-content: center; align-items: center;
+      font-size: 18px;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+      z-index: 15000;
+      transition: all 0.2s ease;
+    }
+    #infoBtn:hover { background: #2196f3; transform: translate(-1px,-1px); box-shadow: 5px 5px 0 rgba(0,0,0,0.6); }
+    #infoBtn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
+
+    /* ── 6. EXIT BUTTON ── */
+    #return {
+      position: absolute;
+      top: 10px; right: 8px;
+      background: #ef1111;
+      box-shadow: 0 3px 0 #990000;
+      z-index: 100;
+    }
+    #return:hover { background: #ff5555; transform: translateY(-3px); box-shadow: 0 6px 0 #990000; }
+    #return:active { transform: translateY(0); box-shadow: 0 1px 0 #990000 !important; }
+
+    /* ── 7. SCOREBOARD ── */
+    .scoreboard {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    .timer {
+      background: var(--gold);
+      color: #000;
+      padding: 8px 15px;
+      border-radius: 5px;
+      box-shadow: 4px 4px 0 #8a6d00;
+      border: 2px solid white;
+    }
+    .score {
+      background: var(--green);
+      color: #004d40;
+      padding: 8px 15px;
+      border-radius: 5px;
+      box-shadow: 4px 4px 0 #00796b;
+      border: 2px solid white;
+    }
+
+    /* ── 8. BUTTONS ── */
+    button {
+      font-family: 'Press Start 2P', cursive;
+      background: #2196F3;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      font-size: 10px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s ease;
+      box-shadow: 0 3px 0 #0d47a1;
+      margin: 5px;
+    }
+    button:hover:not(:disabled) { transform: translateY(-3px); filter: brightness(1.2); box-shadow: 0 6px 0 #0d47a1; }
+    button:active:not(:disabled) { transform: translateY(0); box-shadow: 0 1px 0 #0d47a1 !important; }
+    button:disabled { background: #777 !important; box-shadow: none !important; opacity: 0.6; cursor: default; transform: none !important; }
+    button:focus { outline: 3px solid white !important; outline-offset: 2px; }
+
+    /* ── 9. START SCREEN ── */
+    #startScreen {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 10000;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      text-align: center;
+    }
+    .starting-panel-return-btn {
+      position: absolute; top: 20px; right: 20px;
+      background: transparent;
+      color: #fff;
+      padding: 12px 24px;
+      font-size: 10px;
+      border: 2px solid #fff;
+      cursor: pointer;
+      box-shadow: none;
+    }
+    .starting-panel-return-btn:hover { box-shadow: none !important; transform: none !important; filter: brightness(1.3); }
+
+    /* ── 10. MODALS (shared) ── */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 15000;
+      inset: 0;
+      overflow: hidden;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal::before {
+      content: "";
+      display: block;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: -1;
+      pointer-events: none;
+    }
+    .modal-content {
+      background: #fff;
+      margin: 2% auto;
+      border-radius: 15px;
+      width: 60%;
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+      text-align: left;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      font-size: 12px;
+      color: #000;
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-header {
+      background: #fff;
+      padding: 20px 35px;
+      border-bottom: 2px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 15px 15px 0 0;
+    }
+    .modal-header h2 { color: #000; text-shadow: none; font-size: 1.1rem; margin: 0; }
+    .modal-body { padding: 20px 35px 35px; }
+    .modal-content h3 { color: #000; font-size: 0.8rem; margin-top: 15px; margin-bottom: 5px; }
+    .modal-content p, .modal-content li { font-size: 11px; line-height: 1.6; }
+    .modal-content ul { padding-left: 5px; }
+    .modal-content::-webkit-scrollbar { width: 8px; }
+    .modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+    .modal-content::-webkit-scrollbar-thumb { background: #1976d2; border-radius: 10px; }
+    .close-btn { font-size: 28px; font-weight: bold; cursor: pointer; color: #000; line-height: 1; }
+
+    /* ── 11. EXIT CONFIRMATION MODAL ── */
+    #retro-exit-modal {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 20000;
+    }
+    .exit-modal-content {
+      position: absolute;
+      top: 30%; left: 50%;
+      transform: translate(-50%,-50%);
+      background: #000;
+      border: 4px solid var(--blue);
+      padding: 30px;
+      color: white;
+      min-width: 350px;
+      text-align: center;
+    }
+    #exit-status-text {
+      margin-bottom: 40px;
+      text-transform: uppercase;
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--gold);
+    }
+    .modal-btn-container { display: flex; justify-content: space-around; gap: 20px; }
+    .exit-btn { font-family: 'Press Start 2P', cursive; padding: 12px 20px; cursor: pointer; font-size: 10px; text-transform: uppercase; border: none; transition: all 0.1s; }
+    .exit-btn:hover { transform: translateY(-2px); }
+    .exit-btn:active { transform: translateY(2px); box-shadow: 0 0 0 transparent !important; }
+    #confirm-exit-btn { background: #1976d2; color: white; box-shadow: 0 4px 0 #0d47a1; }
+    #cancel-exit-btn  { background: #ef1111; color: white; box-shadow: 0 4px 0 #990000; }
+
+    /* ── 12. CERTIFICATION MODAL ── */
+    #cert-modal {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 21000;
+    }
+    .cert-modal-content {
+      position: absolute;
+      top: 30%; left: 50%;
+      transform: translate(-50%,-50%);
+      background: #000;
+      border: 4px solid var(--gold);
+      padding: 30px;
+      color: white;
+      min-width: 350px;
+      text-align: center;
+    }
+    .cert-modal-content p { font-size: 12px; line-height: 1.8; margin-bottom: 25px; }
+    #cert-close-btn { background: #1976d2; color: white; box-shadow: 0 4px 0 #0d47a1; padding: 12px 20px; border: none; cursor: pointer; font-family: 'Press Start 2P', cursive; font-size: 10px; text-transform: uppercase; }
+    #cert-close-btn:hover { transform: translateY(-2px); }
+    #cert-close-btn:active { transform: translateY(2px); box-shadow: 0 0 0 transparent !important; }
+
+    /* ── 13. GAME LAYOUT ── */
+    #game-container {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      max-width: 960px;
+      margin: 0 auto;
+      padding-top: 6px;
+    }
+
+    /* ── LEFT PANEL (patient + symptoms) ── */
+    #left-panel {
+      width: 320px;
+      background: var(--panel);
+      border: 3px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      position: relative;
+      min-height: 460px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    #patient-scene {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      height: 160px;
+      position: relative;
+    }
+    /* Exam table made with CSS */
+    .exam-table {
+      position: absolute;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 220px; height: 22px;
+      background: #8d6e63;
+      border-radius: 4px;
+      box-shadow: 0 4px 0 #5d4037;
+    }
+    .exam-table-leg {
+      position: absolute;
+      bottom: -30px;
+      width: 18px; height: 30px;
+      background: #795548;
+      border-radius: 0 0 3px 3px;
+    }
+    .exam-table-leg.left  { left: 20px; }
+    .exam-table-leg.right { right: 20px; }
+
+    /* Patient sprite (CSS art) */
+    #patient-sprite {
+      position: absolute;
+      bottom: 22px;
+      width: 70px; height: 110px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .patient-head {
+      width: 38px; height: 38px;
+      background: #ffccbc;
+      border-radius: 50%;
+      border: 2px solid #ff8a65;
+      position: relative;
+    }
+    .patient-head::before { /* hair */
+      content: '';
+      position: absolute;
+      top: -6px; left: 3px;
+      width: 32px; height: 14px;
+      background: #5d4037;
+      border-radius: 50% 50% 0 0;
+    }
+    .patient-head::after { /* face */
+      content: '😟';
+      position: absolute;
+      top: 8px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 18px;
+      line-height: 1;
+    }
+    .patient-body {
+      width: 50px; height: 55px;
+      background: #7986cb;
+      border-radius: 8px 8px 4px 4px;
+      border: 2px solid #3949ab;
+      margin-top: 2px;
+    }
+    .patient-legs {
+      display: flex;
+      gap: 6px;
+      margin-top: 2px;
+    }
+    .patient-leg {
+      width: 18px; height: 20px;
+      background: #5c6bc0;
+      border-radius: 0 0 4px 4px;
+    }
+
+    /* Speech bubble */
+    #speech-bubble {
+      background: white;
+      color: #111;
+      border: 2px solid #333;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 9px;
+      line-height: 1.7;
+      position: relative;
+      width: 100%;
+      text-align: left;
+      min-height: 80px;
+    }
+    #speech-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: 100%; left: 50%;
+      transform: translateX(-50%);
+      border: 8px solid transparent;
+      border-bottom-color: #333;
+    }
+    #speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: calc(100% - 2px); left: 50%;
+      transform: translateX(-50%);
+      border: 7px solid transparent;
+      border-bottom-color: white;
+    }
+    .symptom-title {
+      font-size: 9px;
+      color: #1976d2;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+    .symptom-line { margin-bottom: 3px; }
+
+    /* Mode badge */
+    #mode-badge {
+      font-size: 9px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      align-self: flex-start;
+    }
+
+    /* ── RIGHT PANEL (clipboard / answers) ── */
+    #right-panel {
+      width: 480px;
+      background: var(--panel);
+      border: 3px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 460px;
+    }
+
+    /* Scoreboard row inside right panel */
+    #right-panel .scoreboard { margin-bottom: 0; }
+
+    /* Clipboard area */
+    #clipboard-area {
+      background: #f5e9c9;
+      border: 3px solid #8d6e63;
+      border-radius: 8px;
+      padding: 14px 16px 16px;
+      position: relative;
+    }
+    /* Clipboard clip at top */
+    #clipboard-area::before {
+      content: '';
+      position: absolute;
+      top: -12px; left: 50%;
+      transform: translateX(-50%);
+      width: 50px; height: 14px;
+      background: #78909c;
+      border-radius: 4px 4px 0 0;
+      border: 2px solid #546e7a;
+    }
+
+    #clipboard-title {
+      font-size: 9px;
+      color: #4e342e;
+      margin-bottom: 12px;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    /* Option rows */
+    .option-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      border: 2px solid #bcaaa4;
+      border-radius: 6px;
+      background: #fffde7;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      position: relative;
+    }
+    .option-row:last-child { margin-bottom: 0; }
+    .option-row:hover:not(.locked) { background: #fff9c4; border-color: #f9a825; transform: translateX(3px); }
+    .option-row.locked { cursor: default; }
+
+    .option-checkbox {
+      width: 20px; height: 20px;
+      border: 2px solid #8d6e63;
+      border-radius: 3px;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 13px;
+      line-height: 1;
+    }
+    .option-label {
+      font-size: 10px;
+      color: #3e2723;
+      line-height: 1.3;
+    }
+    /* States */
+    .option-row.selected     { background: #e3f2fd; border-color: #1976d2; }
+    .option-row.correct      { background: #e8f5e9; border-color: #43a047; }
+    .option-row.wrong        { background: #ffebee; border-color: #e53935; }
+    .option-row.correct .option-checkbox { background: #43a047; color: white; }
+    .option-row.wrong   .option-checkbox { background: #e53935; color: white; }
+    .option-row.selected .option-checkbox { background: #1976d2; color: white; }
+
+    /* Reveal correct highlight when wrong */
+    .option-row.reveal-correct { background: #e8f5e9 !important; border-color: #43a047 !important; }
+    .option-row.reveal-correct .option-checkbox { background: #43a047 !important; color: white; }
+
+    /* Buttons row under clipboard */
+    #action-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Diagnose button */
+    #diagnose-btn {
+      background: #1976d2;
+      box-shadow: 0 3px 0 #0d47a1;
+      padding: 10px 20px;
+    }
+    #diagnose-btn:hover:not(:disabled) { background: #2196f3; box-shadow: 0 6px 0 #0d47a1; }
+
+    /* Next button */
+    #next-btn {
+      background: #43a047;
+      box-shadow: 0 3px 0 #2e7d32;
+    }
+    #next-btn:hover:not(:disabled) { background: #66bb6a; box-shadow: 0 6px 0 #2e7d32; }
+
+    /* Skip button */
+    #skip-btn {
+      background: #f57c00;
+      box-shadow: 0 3px 0 #e65100;
+    }
+    #skip-btn:hover:not(:disabled) { background: #fb8c00; box-shadow: 0 6px 0 #e65100; }
+
+    /* Play/start challenge button */
+    #play-btn {
+      background: var(--blue);
+      box-shadow: 0 3px 0 #0d75a1;
+      font-size: 11px;
+      padding: 12px 22px;
+    }
+    #play-btn:hover:not(:disabled) { background: #74c0ff; }
+
+    /* Feedback area */
+    #feedback {
+      font-size: 9px;
+      min-height: 18px;
+      text-align: center;
+      color: var(--green);
+      line-height: 1.6;
+    }
+
+    /* Explanation box (shown after 3rd wrong) */
+    #explanation-box {
+      display: none;
+      background: rgba(255,255,255,0.1);
+      border: 2px dashed rgba(255,255,255,0.3);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 9px;
+      color: #fff;
+      line-height: 1.7;
+      text-align: left;
+    }
+    #explanation-box strong { color: var(--gold); }
+
+    /* Hint line */
+    #hint { font-size: 7px; color: #aaa; margin-top: 4px; line-height: 1.8; text-align: center; }
+
+    /* Attempt pips */
+    #attempt-pips {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+    .pip {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.4);
+      transition: background 0.2s;
+    }
+    .pip.used-wrong   { background: var(--red); }
+    .pip.used-correct { background: var(--green); }
+
+    /* ── TRUST BAR ── */
+    #trust-bar-wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-self: stretch;
+    }
+    #trust-label {
+      font-size: 8px;
+      color: rgba(255,255,255,0.7);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #trust-track {
+      width: 100%;
+      height: 12px;
+      background: #333;
+      border: 2px solid #fff;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    #trust-fill {
+      height: 100%;
+      width: 100%;
+      background: var(--green);
+      transition: width 0.5s, background 0.4s;
+    }
+
+    /* ── PATIENT SPRITE IMAGE ── */
+    #patient-sprite {
+      position: absolute;
+      bottom: 22px;
+      width: 70px; height: 110px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #patient-img {
+      height: 110px;
+      width: auto;
+      image-rendering: pixelated;
+      object-fit: contain;
+    }
+
+    /* ── SPEECH BUBBLES on patient side ── */
+    #bubble-wrap {
+      position: relative;
+      width: 100%;
+      min-height: 46px;
+    }
+    .pat-bubble {
+      display: none;
+      position: relative;
+      border-radius: 10px;
+      padding: 8px 11px;
+      font-size: 8px;
+      line-height: 1.6;
+      text-align: center;
+      color: white;
+      pointer-events: none;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.3);
+    }
+    .pat-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -9px; left: 50%;
+      transform: translateX(-50%);
+      border: 9px solid transparent;
+      border-top-width: 0;
+      border-bottom-width: 9px;
+    }
+    /* point UP (arrow at bottom pointing down means bubble is above sprite) */
+    .pat-bubble.arrow-down::after {
+      border-top: 9px solid currentColor;
+      border-bottom: none;
+      bottom: -9px;
+    }
+    #bubble-correct { background: #2e7d32; }
+    #bubble-correct::after { border-top-color: #2e7d32; }
+    #bubble-wrong   { background: #c62828; }
+    #bubble-wrong::after { border-top-color: #c62828; }
+    #bubble-wait    { background: #1565c0; }
+    #bubble-wait::after { border-top-color: #1565c0; }
+
+    /* Doctor speech bubble (right side, appears under the clipboard title) */
+    #doctor-bubble {
+      display: none;
+      background: #0d47a1;
+      color: white;
+      border-radius: 10px;
+      padding: 7px 11px;
+      font-size: 8px;
+      line-height: 1.6;
+      text-align: center;
+      margin-bottom: 4px;
+      position: relative;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.3);
+    }
+    #doctor-bubble::before {
+      content: '';
+      position: absolute;
+      top: -9px; left: 30px;
+      border: 9px solid transparent;
+      border-bottom-color: #0d47a1;
+      border-top: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Info Button -->
+  <div id="infoBtn" title="HOW TO PLAY">?</div>
+
+  <!-- ── INFO MODAL ── -->
+  <div id="infoModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>🩺 CAREER QUEST: DOCTOR</h2>
+        <span class="close-btn" id="infoClose">&times;</span>
+      </div>
+      <div class="modal-body">
+        <h3>CHALLENGE GOAL</h3>
+        <ul><li><p>Earn at least 15 points in 2 minutes to get certified!</p></li></ul>
+
+        <h3>HOW TO PLAY</h3>
+        <ul>
+          <li><p>A patient will tell you their symptoms. Select the correct diagnosis from the 4 options on the clipboard, then click <strong>DIAGNOSE</strong>.</p></li>
+          <li><p><strong>Practice Mode:</strong> You have up to 3 attempts per question. After 3 wrong answers the correct answer and an explanation are revealed and a new patient arrives.</p></li>
+          <li><p><strong>Challenge Mode:</strong> Same rules, but a 2-minute timer runs. You may <strong>SKIP</strong> a question at any time (no points gained or lost for skipping).</p></li>
+          <li><p>Every 5 points earned certifies you as a Doctor.</p></li>
+        </ul>
+
+        <h3>POINT SYSTEM</h3>
+        <ul>
+          <li><p><strong>Correct on 1st try → +3 points</strong></p></li>
+          <li><p><strong>Correct on 2nd try → +2 points</strong> (−1 for the first wrong, +3 for correct = net +2)</p></li>
+          <li><p><strong>Correct on 3rd try → +1 point</strong> (−1 for each of 2 wrongs, +3 for correct = net +1)</p></li>
+          <li><p><strong>Wrong on 3rd try → 0 points</strong> (−1 for each wrong guess, shown in real time)</p></li>
+          <li><p>Each <strong>wrong guess immediately deducts 1 point</strong> from your score (score can go negative).</p></li>
+          <li><p>A correct answer is always worth <strong>+3 points</strong>, applied immediately.</p></li>
+        </ul>
+
+        <h3>CONTROLS</h3>
+        <ul>
+          <li><p>Use the <strong>MOUSE</strong> to select answers and click buttons.</p></li>
+          <li><p>Press <strong>ESC</strong> to exit the game.</p></li>
+          <li><p>Press <strong>ENTER</strong> on the start screen to begin.</p></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CERT MODAL ── -->
+  <div id="cert-modal">
+    <div class="cert-modal-content">
+      <p>Great job! You are now certified as a Doctor! Keep playing to increase your total score!</p>
+      <button id="cert-close-btn">OK</button>
+    </div>
+  </div>
+
+  <!-- ── START SCREEN ── -->
+  <div id="startScreen">
+    <button class="starting-panel-return-btn" onclick="handleExit()">EXIT</button>
+    <h1 style="font-size:28px; color:var(--blue); margin-bottom:25px;">DOCTOR SIMULATOR</h1>
+    <p style="margin-bottom:35px; line-height:2; font-size:12px;">Listen to your patient.<br>Diagnose their condition.</p>
+    <p style="margin-bottom:40px; line-height:1.8; font-size:12px;
+        background:rgba(25,118,210,0.2);
+        border:2px dashed #1976d2; border-radius:10px;
+        padding:15px 25px;
+        box-shadow:inset 0 0 10px rgba(25,118,210,0.3), 0 0 15px rgba(25,118,210,0.2);
+        text-shadow:1px 1px 2px rgba(0,0,0,0.5);">
+      <span style="font-size:20px; margin-right:6px; position:relative; top:1px;">↖️</span>
+      Select the info button in the top-left corner for more information!
+    </p>
+    <button id="startScreenBtn" style="font-size:18px; padding:28px 55px; background:var(--blue); box-shadow:0 3px 0 #0d75a1; color:#fff; border:none; cursor:pointer; font-family:inherit;">
+      SEE PATIENTS
+    </button>
+  </div>
+
+  <!-- ── EXIT MODAL ── -->
+  <div id="retro-exit-modal">
+    <div class="exit-modal-content">
+      <p id="exit-status-text"></p>
+      <div class="modal-btn-container">
+        <button id="confirm-exit-btn" class="exit-btn" onclick="executeExit()">YES</button>
+        <button id="cancel-exit-btn" class="exit-btn" onclick="closeExitModal()">NO</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EXIT BUTTON (top-right) ── -->
+  <button id="return">EXIT</button>
+
+  <!-- ── PAGE HEADER ── -->
+  <h2>DIAGNOSIS WARD</h2>
+  <p class="challenge-goal">Listen to the patient's symptoms and select the correct diagnosis!</p>
+  <p class="challenge-goal" style="margin-bottom:15px;">Earn 15 points in 2 minutes to get certified!</p>
+
+  <!-- ── MAIN GAME AREA ── -->
+  <div id="game-container">
+
+    <!-- LEFT: Patient + Symptoms -->
+    <div id="left-panel">
+      <div id="mode-badge">PRACTICE MODE</div>
+
+      <div id="patient-scene">
+        <div class="exam-table">
+          <div class="exam-table-leg left"></div>
+          <div class="exam-table-leg right"></div>
+        </div>
+        <div id="patient-sprite">
+          <!-- Sprite image — falls back to CSS art if image missing -->
+          <img id="patient-img"
+               src="../Sprites/patient.png"
+               onerror="this.style.display='none'; document.getElementById('patient-css-art').style.display='flex';"
+               alt="patient">
+          <div id="patient-css-art" style="display:none; flex-direction:column; align-items:center;">
+            <div class="patient-head"></div>
+            <div class="patient-body"></div>
+            <div class="patient-legs">
+              <div class="patient-leg"></div>
+              <div class="patient-leg"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Patient speech bubbles (correct / wrong / waiting) -->
+      <div id="bubble-wrap">
+        <div id="bubble-correct" class="pat-bubble arrow-down">✓ Thank you, Doctor!</div>
+        <div id="bubble-wrong"   class="pat-bubble arrow-down">✗ That doesn't sound right…</div>
+        <div id="bubble-wait"    class="pat-bubble arrow-down">Please diagnose me!</div>
+      </div>
+
+      <div id="speech-bubble">
+        <div class="symptom-title">PATIENT SAYS:</div>
+        <div id="symptom-lines"></div>
+      </div>
+
+      <!-- Trust bar -->
+      <div id="trust-bar-wrap">
+        <div id="trust-label">
+          <span>Patient Trust</span>
+          <span id="trust-pct">100%</span>
+        </div>
+        <div id="trust-track">
+          <div id="trust-fill"></div>
+        </div>
+      </div>
+
+      <!-- Attempt pips (3 circles = 3 tries) -->
+      <div id="attempt-pips">
+        <div class="pip" id="pip0"></div>
+        <div class="pip" id="pip1"></div>
+        <div class="pip" id="pip2"></div>
+      </div>
+
+      <div id="explanation-box"></div>
+    </div>
+
+    <!-- RIGHT: Clipboard + Controls -->
+    <div id="right-panel">
+      <div class="scoreboard">
+        <div class="timer" id="timerDisplay">2:00</div>
+        <div class="score"  id="scoreDisplay">Score: 0</div>
+      </div>
+
+      <p id="feedback"></p>
+
+      <!-- Doctor speech bubble -->
+      <div id="doctor-bubble"></div>
+
+      <div id="clipboard-area">
+        <div id="clipboard-title">📋 DIAGNOSIS CLIPBOARD</div>
+        <div id="options-container"></div>
+      </div>
+
+      <div id="action-row">
+        <button id="diagnose-btn" disabled>DIAGNOSE</button>
+        <button id="next-btn"     style="display:none;">NEXT PATIENT</button>
+        <button id="skip-btn"     style="display:none;">SKIP</button>
+        <button id="play-btn">START CHALLENGE</button>
+      </div>
+
+      <div id="hint">Select a diagnosis, then click DIAGNOSE. Press C to switch to Challenge Mode.</div>
+    </div>
+
+  </div><!-- /game-container -->
+
+<script>
+/* ═══════════════════════════════════════════════
+   DISEASE DATABASE
+═══════════════════════════════════════════════ */
+const diseaseList = [
+  { name:"Flu",             symptoms:["I have a high fever","My body aches all over","I have a dry cough"],            explanation:"Influenza causes sudden high fever, body aches, and a dry cough — all hallmarks of a systemic viral infection." },
+  { name:"Food Poisoning",  symptoms:["My stomach is cramping","I feel very nauseous","I've been vomiting"],           explanation:"Food poisoning from contaminated food leads to rapid-onset cramps, nausea, and vomiting as the body expels toxins." },
+  { name:"Allergies",       symptoms:["My eyes are itchy","I can't stop sneezing","My nose is runny"],                 explanation:"Allergic rhinitis triggers histamine release causing itchy eyes, sneezing, and nasal discharge." },
+  { name:"Migraine",        symptoms:["Light hurts my eyes","I have a pounding headache","I feel dizzy"],              explanation:"Migraines cause photophobia, intense throbbing head pain, and dizziness due to vascular and neurological changes." },
+  { name:"Common Cold",     symptoms:["I have a sore throat","My nose is stuffed up","I am sneezing a lot"],           explanation:"Rhinovirus infection inflames nasal passages causing congestion, sore throat, and sneezing." },
+  { name:"Bronchitis",      symptoms:["I'm coughing up thick mucus","My chest feels tight","I feel short of breath"],  explanation:"Bronchitis inflames bronchial tubes producing mucus, chest tightness, and breathlessness." },
+  { name:"Strep Throat",    symptoms:["It hurts a lot when I swallow","My tonsils look red and swollen","I have a fever"], explanation:"Streptococcal bacteria inflame the throat and tonsils, causing severe pain on swallowing and fever." },
+  { name:"Conjunctivitis",  symptoms:["My eyes are very red","There is a crusty discharge on my eyelids","My eyes feel gritty"], explanation:"Conjunctivitis (pink eye) inflames the eye lining, causing redness, discharge, and a gritty sensation." },
+  { name:"Asthma",          symptoms:["I am wheezing when I breathe","I have a persistent cough at night","My chest feels compressed"], explanation:"Asthma narrows airways causing wheezing, nocturnal cough, and chest tightness — often triggered by allergens or exercise." },
+  { name:"Vertigo",         symptoms:["The room feels like it is spinning","I am losing my balance","I feel like I'm tilting to one side"], explanation:"Vertigo arises from inner-ear disturbances (e.g., BPPV) causing the sensation of spinning and balance loss." },
+  { name:"Pneumonia",       symptoms:["I have sharp chest pain when I breathe","I'm coughing up green phlegm","I have the chills"], explanation:"Pneumonia infects lung tissue causing pleuritic chest pain, productive cough with purulent sputum, and rigors." },
+  { name:"Anxiety",         symptoms:["My heart is racing for no reason","My hands won't stop shaking","I feel a sense of impending doom"], explanation:"Anxiety activates the fight-or-flight response causing tachycardia, tremors, and feelings of dread." },
+  { name:"Gastroenteritis", symptoms:["I have watery diarrhea","I have a low-grade fever","My stomach feels bloated and crampy"], explanation:"Gastroenteritis (stomach flu) inflames the GI tract causing diarrhea, mild fever, and cramps." },
+  { name:"Hypoglycemia",    symptoms:["I feel suddenly shaky and weak","I am sweating profusely","I'm having trouble concentrating"], explanation:"Low blood sugar starves the brain, triggering shakiness, sweating, and cognitive impairment." },
+  { name:"Eczema",          symptoms:["My skin is extremely dry and scaly","The rash is itching uncontrollably","My skin looks red and inflamed"], explanation:"Eczema (atopic dermatitis) disrupts the skin barrier causing dryness, intense pruritus, and inflammation." },
+  { name:"Insomnia",        symptoms:["I lie awake for hours at night","I wake up feeling exhausted","I can't stay asleep during the night"], explanation:"Insomnia is difficulty initiating or maintaining sleep, leaving sufferers chronically fatigued." },
+  { name:"UTI",             symptoms:["I feel a burning sensation when I pee","I have a constant urge to go","My lower back is aching"], explanation:"Urinary tract infections inflame the bladder and urethra causing dysuria, urgency, and flank pain." },
+  { name:"Acid Reflux",     symptoms:["I have a burning feeling in my chest","There is a sour taste in my mouth","It's hard to swallow after eating"], explanation:"GERD allows stomach acid to reflux into the esophagus causing heartburn, regurgitation, and dysphagia." },
+  { name:"Sinusitis",       symptoms:["I have pressure behind my cheeks and eyes","My sense of smell is gone","I have thick yellow nasal discharge"], explanation:"Sinusitis inflames the sinus cavities causing facial pressure, anosmia, and purulent discharge." },
+  { name:"Mono",            symptoms:["I am extremely tired all the time","My neck glands are very swollen","I have a severe sore throat"], explanation:"Infectious mononucleosis (EBV) causes profound fatigue, lymphadenopathy, and exudative pharyngitis." },
+  { name:"Lyme Disease",    symptoms:["I have a bullseye-shaped rash","My joints are stiff and painful","I have a lingering headache"], explanation:"Lyme disease from Borrelia bacteria causes the pathognomonic bullseye rash, arthralgia, and headache." },
+  { name:"Shingles",        symptoms:["I have a painful, blistering rash on one side","My skin feels tingly and sensitive","I have a localized burning sensation"], explanation:"Shingles (reactivated varicella-zoster) follows a unilateral dermatomal distribution with blistering and neuralgia." },
+  { name:"Anemia",          symptoms:["I feel weak and short of breath","My skin looks very pale","My hands and feet are always cold"], explanation:"Anemia reduces red blood cells, diminishing oxygen delivery causing fatigue, pallor, and cold extremities." },
+  { name:"Kidney Stones",   symptoms:["I have sharp pain in my side and back","There is blood in my urine","I feel nauseous from the intense pain"], explanation:"Renal calculi cause colicky flank pain radiating to the groin, hematuria, and pain-induced nausea." },
+  { name:"Carpal Tunnel",   symptoms:["My thumb and fingers feel numb","I have a tingling 'pins and needles' sensation in my hand","I keep dropping things because of weakness"], explanation:"Median nerve compression in the carpal tunnel causes hand numbness, paresthesia, and grip weakness." },
+  { name:"Sleep Apnea",     symptoms:["My partner says I snore very loudly","I wake up gasping for air","I have a dry mouth in the morning"], explanation:"Sleep apnea causes repeated upper-airway collapse during sleep, producing loud snoring, apneic episodes, and morning dry mouth." },
+  { name:"Hyperthyroidism", symptoms:["I am losing weight without trying","I feel irritable and nervous","I can't stand being in the heat"], explanation:"Excess thyroid hormone accelerates metabolism causing weight loss, irritability, and heat intolerance." },
+  { name:"Gallstones",      symptoms:["I have sudden pain in the upper right abdomen","The pain spreads to my right shoulder","I feel sick after eating greasy food"], explanation:"Cholelithiasis causes right upper-quadrant biliary colic, referred shoulder pain, and postprandial nausea after fatty meals." },
+  { name:"Gout",            symptoms:["My big toe is red and swollen","The joint is excruciatingly tender to touch","The pain started suddenly at night"], explanation:"Gout from uric acid crystal deposition causes sudden, intensely painful, red, swollen first metatarsophalangeal joint." },
+  { name:"Psoriasis",       symptoms:["I have thick red patches with silvery scales","My skin is cracked and bleeding","My joints feel swollen and stiff"], explanation:"Psoriasis causes keratinocyte hyperproliferation producing plaques with silver scale, skin fissures, and psoriatic arthritis." }
+];
+
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+let gameMode       = 'practice';
+let challengeOn    = false;
+let score          = 0;
+let timer          = 10;
+let timerInterval  = null;
+let timerPaused    = false;
+
+let currentDisease  = null;
+let options         = [];
+let pendingAnswer   = null;
+let attemptCount    = 0;         // 0–2 (up to 3 attempts per question)
+let roundOver       = false;
+let hasSavedPoints  = false;
+let badgeAlerted    = false;
+
+// Trust bar (100 = full, 0 = empty). Only moves in challenge mode.
+let trust           = 100;
+
+/* ═══════════════════════════════════════════════
+   DOM
+═══════════════════════════════════════════════ */
+const timerEl      = document.getElementById('timerDisplay');
+const scoreEl      = document.getElementById('scoreDisplay');
+const feedbackEl   = document.getElementById('feedback');
+const optionsCon   = document.getElementById('options-container');
+const symptomLines = document.getElementById('symptom-lines');
+const explBox      = document.getElementById('explanation-box');
+const diagBtn      = document.getElementById('diagnose-btn');
+const nextBtn      = document.getElementById('next-btn');
+const skipBtn      = document.getElementById('skip-btn');
+const playBtn      = document.getElementById('play-btn');
+const modeBadge    = document.getElementById('mode-badge');
+const hintEl       = document.getElementById('hint');
+const pips         = [
+  document.getElementById('pip0'),
+  document.getElementById('pip1'),
+  document.getElementById('pip2')
+];
+const trustFill    = document.getElementById('trust-fill');
+const trustPct     = document.getElementById('trust-pct');
+const bubCorrect   = document.getElementById('bubble-correct');
+const bubWrong     = document.getElementById('bubble-wrong');
+const bubWait      = document.getElementById('bubble-wait');
+const doctorBub    = document.getElementById('doctor-bubble');
+
+/* ═══════════════════════════════════════════════
+   AUDIO
+═══════════════════════════════════════════════ */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playSound(freq, duration=0.2, type='triangle', gainVal=0.1){
+  if(audioCtx.state==='suspended') audioCtx.resume();
+  const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
+  osc.type=type;
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+duration);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime+duration);
+}
+
+function playSuccess(){
+  [523.25,659.25,783.99,1046.50].forEach((f,i)=>{
+    setTimeout(()=>playSound(f,0.12,'square',0.1), i*60);
+  });
+}
+
+function playCrash(){
+  const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
+  osc.type='sawtooth';
+  osc.frequency.setValueAtTime(220,audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(40,audioCtx.currentTime+0.4);
+  gain.gain.setValueAtTime(0.1,audioCtx.currentTime);
+  gain.gain.linearRampToValueAtTime(0,audioCtx.currentTime+0.4);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime+0.4);
+}
+
+/* ═══════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════ */
+function randInt(lo,hi){ return Math.floor(Math.random()*(hi-lo+1))+lo; }
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=randInt(0,i);
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function updateScore(delta){
+  score += delta;
+  scoreEl.textContent = 'Score: ' + score;
+}
+
+function setFeedback(msg, color='#69f0ae'){
+  feedbackEl.style.color = color;
+  feedbackEl.textContent = msg;
+}
+
+/* ── TRUST BAR ──
+   Only changes in challenge mode.
+   +10 on correct answer, -15 per wrong guess.
+   Clamped 0–100. Color shifts green → yellow → red. */
+function changeTrust(delta){
+  if(gameMode !== 'challenge') return;
+  trust = Math.max(0, Math.min(100, trust + delta));
+  trustFill.style.width = trust + '%';
+  trustPct.textContent  = trust + '%';
+  if(trust > 60)       trustFill.style.background = 'var(--green)';
+  else if(trust > 30)  trustFill.style.background = 'var(--gold)';
+  else                 trustFill.style.background = 'var(--red)';
+  if (trust <= 0) {
+    // If trust hits 0, end the challenge immediately
+    endChallenge();
+    setFeedback('Your patient has lost all trust in you. Challenge over.', '#ff5252');
+    showBubble('wrong');
+    showDoctorBubble('I can\'t trust you anymore. Please leave.');
+    pauseTimer();
+  }
+}
+
+/* ── SPEECH BUBBLES ──
+   showBubble('correct'|'wrong'|'wait'|'none')
+   showDoctorBubble(text|null) */
+function showBubble(which){
+  bubCorrect.style.display = 'none';
+  bubWrong.style.display   = 'none';
+  bubWait.style.display    = 'none';
+  if(which === 'correct') bubCorrect.style.display = 'block';
+  if(which === 'wrong')   bubWrong.style.display   = 'block';
+  if(which === 'wait')    bubWait.style.display    = 'block';
+}
+
+function showDoctorBubble(text){
+  if(!text){ doctorBub.style.display='none'; return; }
+  doctorBub.textContent  = text;
+  doctorBub.style.display= 'block';
+}
+
+/* ── PIP update ── */
+function resetPips(){
+  pips.forEach(p => p.className = 'pip');
+}
+
+/* ═══════════════════════════════════════════════
+   ROUND SETUP
+═══════════════════════════════════════════════ */
+function nextRound(){
+  currentDisease = diseaseList[randInt(0, diseaseList.length-1)];
+
+  const wrong = [];
+  while(wrong.length < 3){
+    const pick = diseaseList[randInt(0, diseaseList.length-1)];
+    if(pick.name !== currentDisease.name && !wrong.find(w=>w.name===pick.name)){
+      wrong.push(pick);
+    }
+  }
+  options = shuffle([currentDisease, ...wrong]);
+
+  pendingAnswer = null;
+  attemptCount  = 0;
+  roundOver     = false;
+
+  // Symptoms
+  symptomLines.innerHTML = '';
+  currentDisease.symptoms.forEach(s=>{
+    const d = document.createElement('div');
+    d.className = 'symptom-line';
+    d.textContent = '• ' + s;
+    symptomLines.appendChild(d);
+  });
+
+  renderOptions();
+
+  diagBtn.disabled       = true;
+  skipBtn.disabled       = false;
+  nextBtn.style.display  = 'none';
+  explBox.style.display  = 'none';
+  explBox.textContent    = '';
+  feedbackEl.textContent = '';
+  resetPips();
+  showBubble('wait');
+  showDoctorBubble(null);
+
+  // In challenge: re-enable the timer after it was paused for "next patient"
+  if(challengeOn && timerPaused){
+    resumeTimer();
+  }
+}
+
+/* ─ Render 4 option rows ─
+   A key rule: once a row is marked .wrong it gets .locked immediately
+   so the player CANNOT select it again (prevents double-selecting). */
+function renderOptions(){
+  optionsCon.innerHTML = '';
+  options.forEach((opt, i) => {
+    const row = document.createElement('div');
+    row.className = 'option-row';
+    row.dataset.index = i;
+
+    const box = document.createElement('div');
+    box.className = 'option-checkbox';
+    box.textContent = '○';
+
+    const lbl = document.createElement('div');
+    lbl.className = 'option-label';
+    lbl.textContent = opt.name;
+
+    row.appendChild(box);
+    row.appendChild(lbl);
+    row.addEventListener('click', () => selectOption(i));
+    optionsCon.appendChild(row);
+  });
+}
+
+function selectOption(i){
+  if(roundOver) return;
+  const rows = optionsCon.querySelectorAll('.option-row');
+  const targetRow = rows[i];
+  if(!targetRow || targetRow.classList.contains('locked')) return;
+
+  // Deselect all non-locked, non-wrong rows
+  rows.forEach(r => {
+    if(!r.classList.contains('locked') && !r.classList.contains('wrong')){
+      r.classList.remove('selected');
+      r.querySelector('.option-checkbox').textContent = '○';
+    }
+  });
+
+  targetRow.classList.add('selected');
+  targetRow.querySelector('.option-checkbox').textContent = '●';
+  pendingAnswer = options[i];
+  diagBtn.disabled = false;
+}
+
+/* ═══════════════════════════════════════════════
+   DIAGNOSE (main answer-checking logic)
+═══════════════════════════════════════════════ */
+diagBtn.addEventListener('click', handleDiagnose);
+
+function handleDiagnose(){
+  if(!pendingAnswer || roundOver) return;
+  if(audioCtx.state==='suspended') audioCtx.resume();
+
+  const correct = pendingAnswer.name === currentDisease.name;
+
+  // ── PRACTICE MODE ──────────────────────────────
+  if(gameMode === 'practice'){
+    if(correct){
+      playSuccess();
+      markOption(pendingAnswer.name, 'correct');
+      setFeedback('✓ CORRECT!', '#69f0ae');
+      showBubble('correct');
+      showDoctorBubble('Good diagnosis! Moving on…');
+      roundOver = true;
+      diagBtn.disabled = true;
+      lockAllOptions();
+      nextBtn.style.display = 'inline-block';
+    } else {
+      playCrash();
+      markOption(pendingAnswer.name, 'wrong');
+      attemptCount++;
+      roundOver = true;
+      diagBtn.disabled = true;
+      lockAllOptions();
+      revealCorrect();
+      setFeedback('✗ Wrong — see the correct answer below.', '#ff5252');
+      showBubble('wrong');
+      showDoctorBubble('The correct answer is: ' + currentDisease.name);
+      nextBtn.style.display = 'inline-block';
+    }
+    return;
+  }
+
+  // ── CHALLENGE MODE ─────────────────────────────
+  if(correct){
+    playSuccess();
+    updateScore(3 - attemptCount);
+    changeTrust(+10);
+    markOption(pendingAnswer.name, 'correct');
+    pips[attemptCount] && pips[attemptCount].classList.add('used-correct');
+    setFeedback(`✓ CORRECT! +${3 - attemptCount} pts`, '#69f0ae');
+    showBubble('correct');
+    showDoctorBubble('Great diagnosis! Next patient…');
+    roundOver = true;
+    diagBtn.disabled = true;
+    lockAllOptions();
+    skipBtn.disabled = true;
+    checkCert();
+
+    // PAUSE timer → show NEXT PATIENT button (player controls pacing)
+    pauseTimer();
+    nextBtn.style.display = 'inline-block';
+
+  } else {
+    // Wrong guess
+    playCrash();
+    if (score > 0) {
+      updateScore(-1);         // -1 immediately
+    }
+    changeTrust(-15);
+    pips[attemptCount] && pips[attemptCount].classList.add('used-wrong');
+
+    // Lock this wrong option so it CANNOT be selected again
+    markOption(pendingAnswer.name, 'wrong');
+    lockOption(pendingAnswer.name);   // <— prevents double-select
+
+    attemptCount++;
+    pendingAnswer  = null;
+    diagBtn.disabled = true;
+
+    // Deselect any remaining option that was blue-highlighted
+    optionsCon.querySelectorAll('.option-row.selected').forEach(r => {
+      r.classList.remove('selected');
+      r.querySelector('.option-checkbox').textContent = '○';
+    });
+
+    if(attemptCount >= 3){
+      // 3rd wrong → reveal + pause for next
+      roundOver = true;
+      lockAllOptions();
+      revealCorrect();
+      setFeedback('✗ 3 wrong — see the correct answer.', '#ff5252');
+      showBubble('wrong');
+      showDoctorBubble('The correct answer is: ' + currentDisease.name);
+      skipBtn.disabled = true;
+
+      // PAUSE timer → show NEXT PATIENT button
+      pauseTimer();
+      nextBtn.style.display = 'inline-block';
+
+    } else {
+      const attLeft = 3 - attemptCount;
+      setFeedback(
+        `✗ Incorrect — ${attLeft} attempt${attLeft>1?'s':''} left. −1 pt`,
+        '#ff5252'
+      );
+      showBubble('wrong');
+      showDoctorBubble('Try again…');
+      // Brief wrong bubble, then back to wait
+      setTimeout(() => {
+        if(!roundOver){
+          showBubble('wait');
+          showDoctorBubble(null);
+        }
+      }, 1200);
+    }
+  }
+}
+
+/* ── Option state helpers ── */
+function markOption(name, cls){
+  optionsCon.querySelectorAll('.option-row').forEach(r => {
+    if(r.querySelector('.option-label').textContent === name){
+      r.classList.remove('selected','wrong','correct');
+      r.classList.add(cls);
+      r.querySelector('.option-checkbox').textContent = cls==='correct' ? '✓' : '✗';
+    }
+  });
+}
+
+/* Lock a SPECIFIC option by name (prevent re-selection of wrong answers) */
+function lockOption(name){
+  optionsCon.querySelectorAll('.option-row').forEach(r => {
+    if(r.querySelector('.option-label').textContent === name){
+      r.classList.add('locked');
+    }
+  });
+}
+
+/* Lock ALL options */
+function lockAllOptions(){
+  optionsCon.querySelectorAll('.option-row').forEach(r => r.classList.add('locked'));
+}
+
+/* Highlight the correct answer (after all 3 attempts wrong) */
+function revealCorrect(){
+  optionsCon.querySelectorAll('.option-row').forEach(r => {
+    if(r.querySelector('.option-label').textContent === currentDisease.name){
+      r.classList.add('reveal-correct');
+      r.querySelector('.option-checkbox').textContent = '✓';
+    }
+  });
+  explBox.style.display = 'block';
+  explBox.innerHTML = '<strong>Explanation:</strong> ' + currentDisease.explanation;
+}
+
+/* ═══════════════════════════════════════════════
+   NEXT / SKIP buttons
+═══════════════════════════════════════════════ */
+nextBtn.addEventListener('click', () => {
+  nextBtn.style.display = 'none';
+  nextRound();   // nextRound() calls resumeTimer() if challengeOn
+});
+
+skipBtn.addEventListener('click', () => {
+  if(!challengeOn) return;
+  nextRound();
+});
+
+/* ═══════════════════════════════════════════════
+   CERTIFICATION
+═══════════════════════════════════════════════ */
+function checkCert(){
+  if(badgeAlerted) return;
+  if(score >= 15){
+    const raw = localStorage.getItem('FBLA_CAREER_DATA');
+    let data = raw ? JSON.parse(raw) : {
+      completed:[], totalScore:0,
+      scorePerCareer:{"Computer Scientist":0,"Chemist":0,"Stock Trader":0,"Judge":0,"Lawyer":0,"Pianist":0,"Doctor":0}
+    };
+    if(!data.completed.includes('Doctor')){
+      data.completed.push('Doctor');
+      localStorage.setItem('FBLA_CAREER_DATA', JSON.stringify(data));
+    }
+    badgeAlerted = true;
+    // Don't double-pause: timer is already paused after correct answer
+    document.getElementById('cert-modal').style.display = 'block';
+  }
+}
+
+document.getElementById('cert-close-btn').addEventListener('click', () => {
+  document.getElementById('cert-modal').style.display = 'none';
+  // Timer stays paused until player clicks NEXT PATIENT
+});
+
+/* ═══════════════════════════════════════════════
+   CHALLENGE MODE
+═══════════════════════════════════════════════ */
+playBtn.addEventListener('click', startChallenge);
+
+function startChallenge(){
+  if(audioCtx.state==='suspended') audioCtx.resume();
+  playSound(392, 0.4, 'square');
+  challengeOn    = true;
+  gameMode       = 'challenge';
+  score          = 0;
+  timer          = 10;
+  trust          = 100;
+  badgeAlerted   = false;
+  hasSavedPoints = false;
+
+  scoreEl.textContent   = 'Score: 0';
+  timerEl.textContent   = '2:00';
+  modeBadge.textContent = 'CHALLENGE MODE';
+  modeBadge.style.color = '#ffd54f';
+
+  // Reset trust bar
+  trustFill.style.width      = '100%';
+  trustFill.style.background = 'var(--green)';
+  trustPct.textContent       = '100%';
+
+  playBtn.style.display = 'none';
+  skipBtn.style.display = 'inline-block';
+  hintEl.textContent    = 'Select diagnosis → DIAGNOSE. Wrong options are locked. SKIP costs nothing.';
+
+  nextRound();
+  if(timerInterval) clearInterval(timerInterval);
+  timerPaused = false;
+  startTimer();
+}
+
+/* ── Timer ── */
+function startTimer(){
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if(timerPaused) return;
+    timer--;
+    const m = Math.floor(timer/60), s = timer % 60;
+    timerEl.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+    if(timer <= 0){
+      clearInterval(timerInterval);
+      endChallenge();
+    }
+  }, 1000);
+}
+
+function pauseTimer()  { timerPaused = true;  }
+function resumeTimer() { timerPaused = false; }
+
+function endChallenge(){
+  challengeOn = false;
+  gameMode    = 'practice';
+  roundOver   = true;
+  diagBtn.disabled = true;
+  lockAllOptions();
+
+  skipBtn.style.display = 'none';
+  nextBtn.style.display = 'none';
+  playBtn.style.display = 'inline-block';
+  playBtn.textContent   = 'REPLAY CHALLENGE';
+  modeBadge.textContent = 'PRACTICE MODE';
+  modeBadge.style.color = '';
+
+  setFeedback(`Time's up! Final score: ${score}`, '#ffd54f');
+  showDoctorBubble(`Session ended. Score: ${score}`);
+  saveCareerData(score);
+  hintEl.textContent = 'Press C to start Challenge Mode.';
+}
+
+/* ═══════════════════════════════════════════════
+   DATA PERSISTENCE
+═══════════════════════════════════════════════ */
+function saveCareerData(pts){
+  if(hasSavedPoints || pts <= 0) return;
+  const raw = localStorage.getItem('FBLA_CAREER_DATA');
+  let data = raw ? JSON.parse(raw) : {
+    completed:[], totalScore:0,
+    scorePerCareer:{"Computer Scientist":0,"Chemist":0,"Stock Trader":0,"Judge":0,"Lawyer":0,"Pianist":0,"Doctor":0}
+  };
+  data.totalScore = (Number(data.totalScore)||0) + pts;
+  data.scorePerCareer["Doctor"] = (Number(data.scorePerCareer["Doctor"])||0) + pts;
+  localStorage.setItem('FBLA_CAREER_DATA', JSON.stringify(data));
+  hasSavedPoints = true;
+}
+
+/* ═══════════════════════════════════════════════
+   EXIT LOGIC
+═══════════════════════════════════════════════ */
+document.getElementById('return').addEventListener('click', handleExit);
+window.addEventListener('keydown', e => { if(e.key==='Escape') handleExit(); });
+
+function handleExit(){
+  const raw = localStorage.getItem('FBLA_CAREER_DATA');
+  let data = raw ? JSON.parse(raw) : { completed:[], totalScore:0 };
+  const status = data.completed.includes('Doctor') ? 'Quest Complete' : 'Quest Incomplete';
+  document.getElementById('exit-status-text').textContent = `EXIT? STATUS: ${status}`;
+  document.getElementById('retro-exit-modal').style.display = 'block';
+  document.getElementById('confirm-exit-btn').focus();
+  pauseTimer();
+}
+
+function executeExit(){
+  saveCareerData(score);
+  window.location.href = '../index.html';
+}
+
+function closeExitModal(){
+  document.getElementById('retro-exit-modal').style.display = 'none';
+  // Only resume if the timer should be running (challenge on, round not over)
+  if(challengeOn && !roundOver && document.getElementById('infoModal').style.display !== 'flex'){
+    resumeTimer();
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   INFO MODAL
+═══════════════════════════════════════════════ */
+document.getElementById('infoBtn').onclick = () => {
+  document.getElementById('infoModal').style.display = 'flex';
+  pauseTimer();
+};
+document.getElementById('infoClose').onclick = () => {
+  document.getElementById('infoModal').style.display = 'none';
+  if(challengeOn && !roundOver) resumeTimer();
+};
+window.onclick = e => {
+  if(e.target === document.getElementById('infoModal')){
+    document.getElementById('infoModal').style.display = 'none';
+    if(challengeOn && !roundOver) resumeTimer();
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   START SCREEN
+═══════════════════════════════════════════════ */
+document.getElementById('startScreenBtn').onclick = dismissStart;
+
+window.addEventListener('keydown', e => {
+  const ss = document.getElementById('startScreen');
+  if(e.key==='Enter'
+    && ss.style.display !== 'none'
+    && document.getElementById('retro-exit-modal').style.display !== 'block'
+    && document.getElementById('infoModal').style.display !== 'flex'){
+    dismissStart();
+  }
+  if((e.key==='c' || e.key==='C')
+    && ss.style.display === 'none'
+    && !challengeOn
+    && gameMode === 'practice'){
+    startChallenge();
+  }
+});
+
+function dismissStart(){
+  document.getElementById('startScreen').style.display = 'none';
+}
+
+/* ═══════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════ */
+nextRound();
+</script>
+</body>
+</html>

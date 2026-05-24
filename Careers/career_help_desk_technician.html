@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Help Desk Technician</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        #infoBtn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 35px;
+            height: 35px;
+            background: #1976d2;
+            color: white;
+            border: 2px solid #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+            z-index: 15000;
+        }
+        #infoBtn:hover {
+            background: #2196f3;
+            transform: translate(-1px, -1px);
+            box-shadow: 5px 5px 0 rgba(0,0,0,0.6);
+        }
+        #infoBtn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+        }
+        
+        /* --- 8. MODAL SYSTEMS --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 15000;
+            inset: 0;
+            overflow: hidden;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal::before {
+            content: "";
+            display: block;
+            position: fixed; 
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .info-modal-content {
+            background-color: #ffffff;
+            margin: 2% auto 4% auto; 
+            border-radius: 15px;
+            width: 60%;
+            max-height: 93vh; 
+            position: relative;
+            text-align: left;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            color: #000000; 
+            line-height: 1.6;
+            font-size: 14px; 
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .info-modal-content h3 { font-size: 0.8rem; }
+        .info-modal-content p { font-size: 11px; }
+
+        .modal-header {
+            position: relative;
+            top: 0;
+            background: #ffffff;
+            padding: 20px 35px;
+            border-bottom: 2px solid #f1f1f1;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 20px 35px 35px 35px;
+            max-height: none;
+            overflow-y: visible;
+        }
+
+        .modal-content h2, .modal-content h3 {
+            color: #000000;
+            margin: 0;
+            text-shadow: none; 
+        }
+
+        /* Scrollbar Styling */
+        .info-modal-content::-webkit-scrollbar { width: 8px; }
+        .info-modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .info-modal-content::-webkit-scrollbar-thumb { background: #1976d2; border-radius: 10px; }
+
+        .close-btn {
+            font-size: 28px;
+            font-weight: bold; 
+            cursor: pointer;
+            color: #000; 
+            line-height: 1;
+            margin-top: -20px;
+            margin-right: -20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="infoBtn" title="How to Play">?</div>
+
+    <div id="infoModal" class="modal">
+        <div class="info-modal-content">
+            <div class="modal-header">
+                <h2 style="font-size: 1.1rem; margin-bottom: -10px;">🧑‍⚖️ CAREER QUEST: JUDGE</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+    
+            <div class="modal-body">
+                <h3>CHALLENGE GOAL</h3>
+                <ul><li><p>End the game with a final score of 20 or more to certify.</p></li></ul>
+
+                <h3>HOW TO PLAY</h3>
+                <ul style="font-size: 1.0rem;">
+                    <li><p>Analyze the case description and evidence provided.</p></li>
+                    <li><p>Choose the correct verdict based on the law to earn points.</p></li>
+                    <li><p>Maintain your Public Trust bar; incorrect rulings will penalize your career.</p></li>
+                    <li><p>Read the Verdict Analysis to understand why the right verdict is correct.</p></li>
+                    <li><p>Every 5 points your score increases by will earn you 1 point towards your total score</p></li>
+                </ul>
+                <h3>CONTROLS</h3>
+                <ul style="font-size: 1.0rem;">
+                  <li><p>Use the <strong>MOUSE</strong> to select your verdict</p></li>
+                  <li><p>Press <strong>ENTER</strong> to move to the next case</p></li>
+                  <li><p>Press <strong>ESC</strong> to exit the game</p></li>
+               </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
