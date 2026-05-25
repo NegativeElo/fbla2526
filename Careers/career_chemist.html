@@ -17,6 +17,8 @@
 
         :root {
             --blue: #3498db;
+            --primary: #4361ee;
+            --accent: #4cc9f0;
         }
 
         /* --- 2. BACKGROUND ANIMATION & CRT EFFECTS --- */
@@ -304,10 +306,6 @@
         }
 
         /* Text labels for table sub-series */
-        .seriesLabel {position: absolute;
-          font-size: 10px;
-          color: #fff;
-          font-weight: bold; }
 
         /* Info / Help Button */
         #infoBtn {
@@ -338,6 +336,7 @@
             transform: translateY(0px);
             box-shadow: 0 1px 0 #0d47a1;
         }
+
 
         /* Series Labels (Lanthanides/Actinides) */
         .seriesLabel { 
@@ -515,6 +514,18 @@
             font-family: 'Press Start 2P', cursive;
         }
         
+        #axModal {
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0;
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.85); 
+            z-index: 20000; 
+            font-family: 'Press Start 2P', cursive;
+        }
+        
         .exit-modal-content {
             background: #000;
             border: 4px solid var(--pixel-blue, #1976d2); 
@@ -644,6 +655,125 @@
             transform: translateY(2px);
             box-shadow: 0 0 0 transparent !important;
         }
+        
+        /* ===================== COMPREHENSIVE ACCESSIBILITY SYSTEM ===================== */
+/* 1. Screen Reader Live Ticker */
+.sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;
+}
+
+/* 2. Keyboard Navigation Focus Rings */
+button:focus, a:focus, input:focus, .career-node:focus, .element:focus, .choice-box:focus {
+    outline: 4px solid -webkit-focus-ring-color-auto;
+    outline-offset: 4px !important;
+}
+
+/* 3. High Contrast Mode (Fixes all shadow and color inconsistencies) */
+body.ax-high-contrast {
+    background-color: #000000 !important;
+    background-image: none !important;
+    color: #ffffff !important;
+}
+body.ax-high-contrast * {
+    text-shadow: none !important;
+}
+body.ax-high-contrast button, 
+body.ax-high-contrast .career-node, 
+body.ax-high-contrast .element, 
+body.ax-high-contrast .choice-box, 
+body.ax-high-contrast .objection-card,
+body.ax-high-contrast .verdict-btn,
+body.ax-high-contrast .stat-card,
+body.ax-high-contrast .stock-card,
+body.ax-high-contrast .game-panel,
+body.ax-high-contrast .panel-card,
+body.ax-high-contrast canvas,
+body.ax-high-contrast #axToggleBtn,
+body.ax-high-contrast #infoBtn {
+    background: #000000 !important;
+    color: #7e8c7e !important;
+    border: 3px solid #ffffff !important;
+    box-shadow: 5px 5px 0 #ffffff !important; 
+}
+body.ax-high-contrast button:hover, 
+body.ax-high-contrast .career-node:hover, 
+body.ax-high-contrast .element:hover, 
+body.ax-high-contrast .choice-box:hover, 
+body.ax-high-contrast .verdict-btn:hover,
+body.ax-high-contrast #axToggleBtn:hover,
+body.ax-high-contrast #infoBtn:hover {
+    outline: 4px solid #00ff00 !important;
+    background: #000000 !important;
+    color: #00ff00 !important;
+    border-color: #00ff00 !important;
+    box-shadow: 7px 7px 0 #00ff00 !important;
+}
+body.ax-high-contrast .popup-modal-content *, 
+body.ax-high-contrast .modal-content *,
+body.ax-high-contrast .info-modal-content *,
+body.ax-high-contrast .ax-modal-content * {
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+}
+
+/* 4. Dyslexia / Clean Readable Font */
+body.ax-readable-font * {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+    letter-spacing: 0.04em !important;
+}
+
+/* 5. Enhanced Layout Scale (Flat bump avoids recursive scaling bugs) */
+body.ax-large-text p, 
+body.ax-large-text li, 
+body.ax-large-text button, 
+body.ax-large-text .choice-box,
+body.ax-large-text .objection-card,
+body.ax-large-text .hud-metric,
+body.ax-large-text .stat-label,
+body.ax-large-text .stat-value,
+body.ax-large-text .timer,
+body.ax-large-text .score { 
+    font-size: calc(100% + 4px) !important; 
+    line-height: 1.7 !important;
+}
+body.ax-large-text h1 { font-size: calc(100% + 8px) !important; }
+body.ax-large-text h2 { font-size: calc(100% + 6px) !important; }
+body.ax-large-text h3 { font-size: calc(100% + 4px) !important; }
+
+/* 6. AX Interface Specific Layout */
+#axToggleBtn {
+    position: fixed; top: 10px; left: 55px; width: 35px; height: 35px;
+    background: #6a1b9a; color: white; border: 2px solid #fff;
+    display: flex; justify-content: center; align-items: center;
+    font-family: 'Press Start 2P', cursive; font-size: 12px;
+    cursor: pointer; box-shadow: 4px 4px 0 rgba(0,0,0,0.5); z-index: 99999;
+    transition: all 0.2s ease;
+}
+#axToggleBtn:hover { background: #8e24aa; transform: translate(-1px, -1px); box-shadow: 5px 5px 0 rgba(0,0,0,0.6); }
+#axToggleBtn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
+
+#axModal { 
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.85); z-index: 999999; font-family: 'Press Start 2P', cursive; 
+    justify-content: center; align-items: center;
+}
+#axModal .ax-modal-content { 
+    background: #000; border: 4px solid #4cc9f0; padding: 30px; color: white; 
+    min-width: 400px; max-width: 90%; text-align: left; position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+#axModal .ax-modal-header { font-size: 14px; color: #4cc9f0; margin-bottom: 20px; }
+#axModal hr { border-color: #333; margin-bottom: 20px; }
+#axModal label { display: flex; align-items: center; gap: 15px; font-size: 11px; cursor: pointer; margin-bottom: 15px; font-family: Arial, sans-serif; color: #fff;}
+#axModal input[type="checkbox"] { transform: scale(1.4); cursor: pointer; }
+#axModal .ax-close-btn { 
+    background: #4361ee; color: white; padding: 12px 24px; border: 2px solid #fff;
+    cursor: pointer; font-family: 'Press Start 2P', cursive; font-size: 10px;
+    display: block; margin: 30px auto 0 auto; text-transform: uppercase;
+}
+#axModal .ax-close-btn:hover { background: #3b5bdb; }
+/* ============================================================================== */
     </style>
 </head>
 <body>
@@ -678,7 +808,29 @@
             </div>
         </div>
     </div>
-
+    <div id="axToggleBtn" title="Accessibility Options" onclick="toggleAxMenu()" role="button" tabindex="0" aria-label="Open Accessibility Menu">AX</div>
+<div id="axModal" role="dialog" aria-modal="true" aria-labelledby="ax-title">
+    <div class="ax-modal-content">
+        <h2 id="ax-title" class="ax-modal-header">♿ ACCESSIBILITY SUITE</h2>
+        <hr>
+        <div>
+            <label>
+                <input type="checkbox" id="chk-contrast" onchange="updateAxSetting('contrast', this.checked)"> 
+                HIGH CONTRAST MODE (MONOCHROME)
+            </label>
+            <label>
+                <input type="checkbox" id="chk-font" onchange="updateAxSetting('readableFont', this.checked)"> 
+                SANS-SERIF TYPOGRAPHY (READABILITY)
+            </label>
+            <label>
+                <input type="checkbox" id="chk-text" onchange="updateAxSetting('largeText', this.checked)"> 
+                ENHANCED LAYOUT SCALE (+15% SIZE)
+            </label>
+        </div>
+        <button class="ax-close-btn" onclick="toggleAxMenu()">CLOSE</button>
+    </div>
+</div>
+<div id="ax-live-ticker" aria-live="polite" class="sr-only"></div>
     <div id="chem-cert-modal">
         <div class="chem-cert-modal-content">
             <p>Great job! You are now certified as a Chemist! Keep playing to increase your total score!</p>
@@ -793,6 +945,60 @@
         }
     })
 
+    // Load accessibility preference from session storage
+    // ===================== DYNAMIC ACCESSIBILITY CONTROLLERS =====================
+function toggleAxMenu() {
+    const modal = document.getElementById('axModal');
+    const isOpening = modal.style.display !== 'flex';
+    modal.style.display = isOpening ? 'flex' : 'none';
+    if (isOpening) {
+        const chk = document.getElementById('chk-contrast');
+        if (chk) chk.focus();
+    }
+}
+
+function updateAxSetting(key, value) {
+    let settings = JSON.parse(localStorage.getItem('FBLA_AX_SETTINGS')) || { contrast: false, readableFont: false, largeText: false };
+    settings[key] = value;
+    localStorage.setItem('FBLA_AX_SETTINGS', JSON.stringify(settings));
+    applyGlobalAccessibility();
+}
+
+function applyGlobalAccessibility() {
+    const settings = JSON.parse(localStorage.getItem('FBLA_AX_SETTINGS')) || { contrast: false, readableFont: false, largeText: false };
+    
+    document.body.classList.toggle('ax-high-contrast', !!settings.contrast);
+    document.body.classList.toggle('ax-readable-font', !!settings.readableFont);
+    document.body.classList.toggle('ax-large-text', !!settings.largeText);
+    
+    if(document.getElementById('chk-contrast')) document.getElementById('chk-contrast').checked = !!settings.contrast;
+    if(document.getElementById('chk-font')) document.getElementById('chk-font').checked = !!settings.readableFont;
+    if(document.getElementById('chk-text')) document.getElementById('chk-text').checked = !!settings.largeText;
+}
+
+// Intercept keyboard for AX Modal
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const axModal = document.getElementById('axModal');
+        if (axModal && axModal.style.display === 'flex') {
+            toggleAxMenu();
+            e.stopPropagation(); 
+        }
+    }
+});
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyGlobalAccessibility);
+} else {
+    applyGlobalAccessibility();
+}
+
+// Helper to announce events to screen readers
+function announceToScreenReader(msg) {
+    const ticker = document.getElementById('ax-live-ticker');
+    if (ticker) ticker.textContent = msg;
+}
+// =============================================================================
     /* --- AUDIO SYSTEM (WEB AUDIO API) --- */
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const NOTE_FREQS = {
@@ -843,57 +1049,12 @@
 
     let practiceGoal = null;
     let acceptingAnswers = true;
-    let practiceAnsweredThisRound = false;
 
     // Database of Chemical Formulas
     const goalLists = { 
         "Carbon dioxide (CO₂)": {C:1, O:2},
         "Glucose (C₆H₁₂O₆)": {C:6, H:12, O:6},
-        "Lithium oxide (Li₂O)": {Li:2, O:1},
-        "Table salt (NaCl)": {Na:1, Cl:1},
-        "Water (H₂O)": {H:2, O:1},
-        "Methane (CH₄)": {C:1, H:4},
-        "Ammonia (NH₃)": {N:1, H:3},
-        "Ammonium (NH₄)": {N:1, H:4},
-        "Ethanol (C₂H₆O)": {C:2, H:6, O:1},
-        "Sulfuric Acid (H₂SO₄)": {H:2, S:1, O:4},
-        "Baking Soda (NaHCO₃)": {Na:1, H:1, C:1, O:3},
-        "Acetic Acid (C₂H₄O₂)": {C:2, H:4, O:2},
-        "Hydrochloric Acid (HCl)": {H:1, Cl:1},
-        "Oxygen Gas (O₂)": {O:2},
-        "Nitric Acid (HNO₃)": {H:1, N:1, O:3},
-        "Phosphoric Acid (H₃PO₄)": {H:3, P:1, O:4},
-        "Sodium Hydroxide (NaOH)": {Na:1, O:1, H:1},
-        "Potassium Hydroxide (KOH)": {K:1, O:1, H:1},
-        "Calcium Carbonate (CaCO₃)": {Ca:1, C:1, O:3},
-        "Magnesium Hydroxide (Mg(OH)₂)": {Mg:1, O:2, H:2},
-        "Nitrogen Gas (N₂)": {N:2},
-        "Ozone (O₃)": {O:3},
-        "Nitrous Oxide (N₂O)": {N:2, O:1},
-        "Hydrogen Sulfide (H₂S)": {H:2, S:1},
-        "Sulfur Dioxide (SO₂)": {S:1, O:2},
-        "Carbon Monoxide (CO)": {C:1, O:1},
-        "Chlorine Gas (Cl₂)": {Cl:2},
-        "Potassium Chloride (KCl)": {K:1, Cl:1},
-        "Calcium Chloride (CaCl₂)": {Ca:1, Cl:2},
-        "Magnesium Oxide (MgO)": {Mg:1, O:1},
-        "Silver Nitrate (AgNO₃)": {Ag:1, N:1, O:3},
-        "Potassium Permanganate (KMnO₄)": {K:1, Mn:1, O:4},
-        "Propane (C₃H₈)": {C:3, H:8},
-        "Butane (C₄H₁₀)": {C:4, H:10},
-        "Benzene (C₆H₆)": {C:6, H:6},
-        "Acetone (C₃H₆O)": {C:3, H:6, O:1},
-        "Methanol (CH₄O)": {C:1, H:4, O:1},
-        "Caffeine (C₈H₁₀N₄O₂)": {C:8, H:10, N:4, O:2},
-        "Aspirin (C₉H₈O₄)": {C:9, H:8, O:4},
-        "Urea (CH₄N₂O)": {C:1, H:4, N:2, O:1},
-        "Hydrogen Peroxide (H₂O₂)": {H:2, O:2},
-        "Silver Iodide (AgI)": {Ag:1, I:1},
-        "Sodium Fluoride (NaF)": {Na:1, F:1},
-        "Hydrobromic Acid (HBr)": {H:1, Br:1},
-        "Perchloric Acid (HClO₄)": {H:1, Cl:1, O:4},
-        "Chloric Acid (HClO₃)": {H:1, Cl:1, O:3},
-        "Hydroiodic Acid (HI)": {H:1, I:1}
+        "Lithium oxide (Li₂O)": {Li:2, O:1}
     };
     let challengeCompounds = Object.keys(goalLists);
 
@@ -987,7 +1148,7 @@
         document.getElementById("skipButton").style.display = "none";
         document.getElementById("startChallengeButton").style.display = "inline-flex";
         document.getElementById("startChallengeButton").textContent = "Replay Challenge";
-        goal = false;
+        goal = null;
         selectedElements = [];
         updateSelectedElements();
 
@@ -1061,9 +1222,15 @@
             endChallenge();
             return;
         }
+        let previousGoal = goal ? goal.name : null;
         let index = Math.floor(Math.random() * challengeCompounds.length);
         let name = challengeCompounds[index];
         goal = { name: name, formula: goalLists[name] };
+        while (goal.name === previousGoal && challengeCompounds.length > 1) {
+            index = Math.floor(Math.random() * challengeCompounds.length);
+            name = challengeCompounds[index];
+            goal = { name: name, formula: goalLists[name] };
+        }
         const displayName = name.split("(")[0].trim();
         document.getElementById("goalDisplay").textContent = "Goal: " + displayName;
     }
@@ -1108,16 +1275,16 @@
 
     /* --- PRACTICE MODE LOGIC --- */
     function setupPracticeGoal() {
-        const names = Object.keys(goalLists);
-        const randIndex = Math.floor(Math.random() * names.length);
-        const compoundName = names[randIndex];
-        let previousPracticeGoal = practiceGoal ? practiceGoal : null;
+        let names = Object.keys(goalLists);
+        let randIndex = Math.floor(Math.random() * names.length);
+        let compoundName = names[randIndex];
+        let previousPracticeGoal = practiceGoal ? practiceGoal.name : "";
         practiceGoal = {
             name: compoundName,
             formula: goalLists[compoundName]
         };
         // Ensure new goal is different from last
-        while (previousPracticeGoal === practiceGoal) {
+        while (previousPracticeGoal === practiceGoal.name) {
             randIndex = Math.floor(Math.random() * names.length);
             compoundName = names[randIndex];
             practiceGoal = {
@@ -1125,7 +1292,6 @@
                 formula: goalLists[compoundName]
             };
         }
-        practiceAnsweredThisRound = false;
 
         const displayName = compoundName.split("(")[0].trim();
         document.getElementById("goalDisplay").textContent = "Practice: " + displayName;

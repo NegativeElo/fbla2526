@@ -542,6 +542,123 @@
             justify-content: center;
             gap: 20px;
         }
+        /* ===================== COMPREHENSIVE ACCESSIBILITY SYSTEM ===================== */
+/* 1. Screen Reader Live Ticker */
+.sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;
+}
+
+/* 2. Keyboard Navigation Focus Rings */
+button:focus, a:focus, input:focus, .career-node:focus, .element:focus, .choice-box:focus {
+    outline: 4px solid #00ff00 !important;
+    outline-offset: 4px !important;
+}
+
+/* 3. High Contrast Mode (Fixes all shadow and color inconsistencies) */
+body.ax-high-contrast {
+    background-color: #000000 !important;
+    background-image: none !important;
+    color: #ffffff !important;
+}
+body.ax-high-contrast * {
+    text-shadow: none !important;
+}
+body.ax-high-contrast button, 
+body.ax-high-contrast .career-node, 
+body.ax-high-contrast .element, 
+body.ax-high-contrast .choice-box, 
+body.ax-high-contrast .objection-card,
+body.ax-high-contrast .verdict-btn,
+body.ax-high-contrast .stat-card,
+body.ax-high-contrast .stock-card,
+body.ax-high-contrast .game-panel,
+body.ax-high-contrast .panel-card,
+body.ax-high-contrast canvas,
+body.ax-high-contrast #axToggleBtn,
+body.ax-high-contrast #infoBtn {
+    background: #000000 !important;
+    color: #00ff00 !important;
+    border: 3px solid #ffffff !important;
+    box-shadow: 5px 5px 0 #ffffff !important; 
+}
+body.ax-high-contrast button:hover, 
+body.ax-high-contrast .career-node:hover, 
+body.ax-high-contrast .element:hover, 
+body.ax-high-contrast .choice-box:hover, 
+body.ax-high-contrast .verdict-btn:hover,
+body.ax-high-contrast #axToggleBtn:hover,
+body.ax-high-contrast #infoBtn:hover {
+    background: #000000 !important;
+    color: #00ff00 !important;
+    border-color: #00ff00 !important;
+    box-shadow: 7px 7px 0 #00ff00 !important;
+}
+body.ax-high-contrast .popup-modal-content *, 
+body.ax-high-contrast .modal-content *,
+body.ax-high-contrast .info-modal-content *,
+body.ax-high-contrast .ax-modal-content * {
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+}
+
+/* 4. Dyslexia / Clean Readable Font */
+body.ax-readable-font * {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+    letter-spacing: 0.04em !important;
+}
+
+/* 5. Enhanced Layout Scale (Flat bump avoids recursive scaling bugs) */
+body.ax-large-text p, 
+body.ax-large-text li, 
+body.ax-large-text button, 
+body.ax-large-text .choice-box,
+body.ax-large-text .objection-card,
+body.ax-large-text .hud-metric,
+body.ax-large-text .stat-label,
+body.ax-large-text .stat-value,
+body.ax-large-text .timer,
+body.ax-large-text .score { 
+    font-size: calc(100% + 4px) !important; 
+    line-height: 1.7 !important;
+}
+body.ax-large-text h1 { font-size: calc(100% + 8px) !important; }
+body.ax-large-text h2 { font-size: calc(100% + 6px) !important; }
+body.ax-large-text h3 { font-size: calc(100% + 4px) !important; }
+
+/* 6. AX Interface Specific Layout */
+#axToggleBtn {
+    position: fixed; top: 10px; left: 55px; width: 35px; height: 35px;
+    background: #6a1b9a; color: white; border: 2px solid #fff;
+    display: flex; justify-content: center; align-items: center;
+    font-family: 'Press Start 2P', cursive; font-size: 12px;
+    cursor: pointer; box-shadow: 4px 4px 0 rgba(0,0,0,0.5); z-index: 99999;
+    transition: all 0.2s ease;
+}
+#axToggleBtn:hover { background: #8e24aa; transform: translate(-1px, -1px); box-shadow: 5px 5px 0 rgba(0,0,0,0.6); }
+#axToggleBtn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
+
+#axModal { 
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.85); z-index: 999999; font-family: 'Press Start 2P', cursive; 
+    justify-content: center; align-items: center;
+}
+#axModal .ax-modal-content { 
+    background: #000; border: 4px solid #4cc9f0; padding: 30px; color: white; 
+    min-width: 400px; max-width: 90%; text-align: left; position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+#axModal .ax-modal-header { font-size: 14px; color: #4cc9f0; margin-bottom: 20px; }
+#axModal hr { border-color: #333; margin-bottom: 20px; }
+#axModal label { display: flex; align-items: center; gap: 15px; font-size: 11px; cursor: pointer; margin-bottom: 15px; font-family: Arial, sans-serif; color: #fff;}
+#axModal input[type="checkbox"] { transform: scale(1.4); cursor: pointer; }
+#axModal .ax-close-btn { 
+    background: #4361ee; color: white; padding: 12px 24px; border: 2px solid #fff;
+    cursor: pointer; font-family: 'Press Start 2P', cursive; font-size: 10px;
+    display: block; margin: 30px auto 0 auto; text-transform: uppercase;
+}
+#axModal .ax-close-btn:hover { background: #3b5bdb; }
+/* ============================================================================== */
     </style>
 </head>
 <body>
@@ -594,6 +711,29 @@
             box-shadow: 0 3px 0 #0d75a1;">GAVEL IN</button>
     </div>
 
+    <div id="axToggleBtn" title="Accessibility Options" onclick="toggleAxMenu()" role="button" tabindex="0" aria-label="Open Accessibility Menu">AX</div>
+<div id="axModal" role="dialog" aria-modal="true" aria-labelledby="ax-title">
+    <div class="ax-modal-content">
+        <h2 id="ax-title" class="ax-modal-header">♿ ACCESSIBILITY SUITE</h2>
+        <hr>
+        <div>
+            <label>
+                <input type="checkbox" id="chk-contrast" onchange="updateAxSetting('contrast', this.checked)"> 
+                HIGH CONTRAST MODE (MONOCHROME)
+            </label>
+            <label>
+                <input type="checkbox" id="chk-font" onchange="updateAxSetting('readableFont', this.checked)"> 
+                SANS-SERIF TYPOGRAPHY (READABILITY)
+            </label>
+            <label>
+                <input type="checkbox" id="chk-text" onchange="updateAxSetting('largeText', this.checked)"> 
+                ENHANCED LAYOUT SCALE (+15% SIZE)
+            </label>
+        </div>
+        <button class="ax-close-btn" onclick="toggleAxMenu()">CLOSE</button>
+    </div>
+</div>
+<div id="ax-live-ticker" aria-live="polite" class="sr-only"></div>
     <div class="main-wrapper">
         <div id="courtroomView">
             <div class="panel-return-btn" onclick="handleExit()">EXIT</div>
@@ -754,6 +894,60 @@
             closeModal();
         }
     }
+
+    // ===================== DYNAMIC ACCESSIBILITY CONTROLLERS =====================
+function toggleAxMenu() {
+    const modal = document.getElementById('axModal');
+    const isOpening = modal.style.display !== 'flex';
+    modal.style.display = isOpening ? 'flex' : 'none';
+    if (isOpening) {
+        const chk = document.getElementById('chk-contrast');
+        if (chk) chk.focus();
+    }
+}
+
+function updateAxSetting(key, value) {
+    let settings = JSON.parse(localStorage.getItem('FBLA_AX_SETTINGS')) || { contrast: false, readableFont: false, largeText: false };
+    settings[key] = value;
+    localStorage.setItem('FBLA_AX_SETTINGS', JSON.stringify(settings));
+    applyGlobalAccessibility();
+}
+
+function applyGlobalAccessibility() {
+    const settings = JSON.parse(localStorage.getItem('FBLA_AX_SETTINGS')) || { contrast: false, readableFont: false, largeText: false };
+    
+    document.body.classList.toggle('ax-high-contrast', !!settings.contrast);
+    document.body.classList.toggle('ax-readable-font', !!settings.readableFont);
+    document.body.classList.toggle('ax-large-text', !!settings.largeText);
+    
+    if(document.getElementById('chk-contrast')) document.getElementById('chk-contrast').checked = !!settings.contrast;
+    if(document.getElementById('chk-font')) document.getElementById('chk-font').checked = !!settings.readableFont;
+    if(document.getElementById('chk-text')) document.getElementById('chk-text').checked = !!settings.largeText;
+}
+
+// Intercept keyboard for AX Modal
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const axModal = document.getElementById('axModal');
+        if (axModal && axModal.style.display === 'flex') {
+            toggleAxMenu();
+            e.stopPropagation(); 
+        }
+    }
+});
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyGlobalAccessibility);
+} else {
+    applyGlobalAccessibility();
+}
+
+// Helper to announce events to screen readers
+function announceToScreenReader(msg) {
+    const ticker = document.getElementById('ax-live-ticker');
+    if (ticker) ticker.textContent = msg;
+}
+// =============================================================================
 
     /* --- JUDGE MESSAGE MODAL LOGIC --- */
     function showJudgeMessage(message, callback) {
