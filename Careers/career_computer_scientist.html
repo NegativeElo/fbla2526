@@ -564,11 +564,40 @@ body.ax-high-contrast #infoBtn:hover {
     border-color: #00ff00 !important;
     box-shadow: 7px 7px 0 #00ff00 !important;
 }
+
+body.ax-high-contrast canvas {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 3px solid #ffffff !important;
+    box-shadow: 5px 5px 0 #ffffff !important;
+}
+body.ax-high-contrast .popup-modal-content,
+body.ax-high-contrast .modal-content,
+body.ax-high-contrast .info-modal-content,
+body.ax-high-contrast .ax-modal-content,
+body.ax-high-contrast .exit-modal-content,
+body.ax-high-contrast .lawyer-message-modal-content,
+body.ax-high-contrast .pianist-message-modal-content,
+body.ax-high-contrast .game-modal-content,
+body.ax-high-contrast .cert-modal-content,
+body.ax-high-contrast .chem-cert-modal-content,
+body.ax-high-contrast .limit-info-modal-content {
+    background: #000000 !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+}
 body.ax-high-contrast .popup-modal-content *, 
 body.ax-high-contrast .modal-content *,
 body.ax-high-contrast .info-modal-content *,
-body.ax-high-contrast .ax-modal-content * {
-    color: #ffffff !important;
+body.ax-high-contrast .ax-modal-content *,
+body.ax-high-contrast .exit-modal-content *,
+body.ax-high-contrast .lawyer-message-modal-content *,
+body.ax-high-contrast .pianist-message-modal-content *,
+body.ax-high-contrast .game-modal-content *,
+body.ax-high-contrast .cert-modal-content *,
+body.ax-high-contrast .chem-cert-modal-content *,
+body.ax-high-contrast .limit-info-modal-content * {
+    color: inherit !important;
     border-color: #ffffff !important;
 }
 
@@ -582,6 +611,9 @@ body.ax-readable-font * {
 body.ax-large-text p, 
 body.ax-large-text li, 
 body.ax-large-text button, 
+body.ax-large-text input,
+body.ax-large-text select,
+body.ax-large-text textarea,
 body.ax-large-text .choice-box,
 body.ax-large-text .objection-card,
 body.ax-large-text .hud-metric,
@@ -589,12 +621,12 @@ body.ax-large-text .stat-label,
 body.ax-large-text .stat-value,
 body.ax-large-text .timer,
 body.ax-large-text .score { 
-    font-size: calc(100% + 4px) !important; 
+    font-size: 16px !important; 
     line-height: 1.7 !important;
 }
-body.ax-large-text h1 { font-size: calc(100% + 8px) !important; }
-body.ax-large-text h2 { font-size: calc(100% + 6px) !important; }
-body.ax-large-text h3 { font-size: calc(100% + 4px) !important; }
+body.ax-large-text h1 { font-size: 36px !important; }
+body.ax-large-text h2 { font-size: 28px !important; }
+body.ax-large-text h3 { font-size: 22px !important; }
 
 /* 6. AX Interface Specific Layout */
 #axToggleBtn {
@@ -628,8 +660,70 @@ body.ax-large-text h3 { font-size: calc(100% + 4px) !important; }
     display: block; margin: 30px auto 0 auto; text-transform: uppercase;
 }
 #axModal .ax-close-btn:hover { background: #3b5bdb; }
+
+body #return,
+body .panel-return-btn,
+body .exit-btn,
+body .starting-panel-return-btn {
+    background: #ef1111 !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+    box-shadow: 0 3px 0 #990000 !important;
+}
+body #return:hover,
+body .panel-return-btn:hover,
+body .exit-btn:hover,
+body .starting-panel-return-btn:hover {
+    background: #ff5555 !important;
+    box-shadow: 0 6px 0 #990000 !important;
+}
+body button:focus-visible,
+body a:focus-visible,
+body input:focus-visible,
+body .career-node:focus-visible,
+body .choice-box:focus-visible {
+    outline: 4px solid #00ff00 !important;
+    outline-offset: 4px !important;
+}
+
+/* 7. Unified Exit Modal + Exit Buttons */
+body #retro-exit-modal .popup-modal-content,
+body #retro-exit-modal .modal-content,
+body #retro-exit-modal .exit-modal-content {
+    width: min(90vw, 520px) !important;
+    padding: 28px !important;
+    background: #111111 !important;
+    color: #ffffff !important;
+    border: 3px solid #ffffff !important;
+    box-sizing: border-box !important;
+}
+body #exit-status-text {
+    color: #ffffff !important;
+}
+body #confirm-exit-btn,
+body #cancel-exit-btn,
+body .exit-btn {
+    border: 2px solid #ffffff !important;
+    color: #ffffff !important;
+    text-transform: uppercase !important;
+}
+body #confirm-exit-btn {
+    background: #ef1111 !important;
+    box-shadow: 0 4px 0 #990000 !important;
+}
+body #cancel-exit-btn {
+    background: #555555 !important;
+    box-shadow: 0 4px 0 #333333 !important;
+}
+body #confirm-exit-btn:hover,
+body #cancel-exit-btn:hover,
+body .exit-btn:hover {
+    filter: brightness(1.12) !important;
+}
 /* ============================================================================== */
   </style>
+    <link rel="stylesheet" href="../accessibility-consistency.css">
+    <script defer src="../accessibility-consistency.js"></script>
 </head>
 <body>
 

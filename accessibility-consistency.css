@@ -1,0 +1,292 @@
+/* ===================== GLOBAL UI / ACCESSIBILITY CONSISTENCY OVERRIDE =====================
+   Shared framework CSS for repeated Career Quest UI: info/instruction modals,
+   exit modals, navigation focus, and accessibility states. This file intentionally
+   loads after page-local styles so it can normalize inconsistent base CSS. */
+:root {
+    --cq-blue: #1976d2;
+    --cq-blue-hover: #2196f3;
+    --cq-exit: #ef1111;
+    --cq-exit-hover: #ff5555;
+    --cq-exit-shadow: #990000;
+    --cq-cancel: #555555;
+    --cq-cancel-hover: #666666;
+    --cq-cancel-shadow: #333333;
+    --cq-focus: #ffffff;
+    --cq-ax-focus: #00ff66;
+    --cq-ax-bg: #000000;
+    --cq-ax-fg: #ffffff;
+    --cq-ax-accent: #00ff66;
+    --cq-info-width: 720px;
+    --cq-exit-width: 520px;
+}
+
+/* Regular controls do not show focus rings. Navigation/location-changing controls opt in below. */
+button:focus,
+button:focus-visible,
+input:focus,
+input:focus-visible,
+select:focus,
+select:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+.choice-btn:focus,
+.choice-btn:focus-visible,
+.verdict-btn:focus,
+.verdict-btn:focus-visible,
+.element:focus,
+.element:focus-visible,
+.choice-box:focus,
+.choice-box:focus-visible,
+.objection-card:focus,
+.objection-card:focus-visible {
+    outline: none !important;
+}
+
+a:focus,
+a:focus-visible,
+.career-node:focus,
+.career-node:focus-visible,
+#return:focus,
+#return:focus-visible,
+.starting-panel-return-btn:focus,
+.starting-panel-return-btn:focus-visible,
+.panel-return-btn:focus,
+.panel-return-btn:focus-visible,
+.btn-exit:focus,
+.btn-exit:focus-visible,
+#confirm-exit-btn:focus,
+#confirm-exit-btn:focus-visible,
+#confirm-docs-btn:focus,
+#confirm-docs-btn:focus-visible {
+    outline: 4px solid var(--cq-focus) !important;
+    outline-offset: 4px !important;
+}
+
+/* Consistent always-present framework buttons. */
+#infoBtn,
+#axToggleBtn {
+    width: 35px !important;
+    height: 35px !important;
+    border: 2px solid #ffffff !important;
+    color: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.5) !important;
+    box-sizing: border-box !important;
+}
+#infoBtn { background: var(--cq-blue) !important; z-index: 15000 !important; }
+#axToggleBtn { background: #6a1b9a !important; z-index: 15001 !important; }
+#infoBtn:hover { background: var(--cq-blue-hover) !important; }
+#axToggleBtn:hover { background: #8e24aa !important; }
+
+#return,
+.starting-panel-return-btn,
+.panel-return-btn,
+.btn-exit {
+    background: var(--cq-exit) !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+    box-shadow: 0 3px 0 var(--cq-exit-shadow) !important;
+    text-transform: uppercase !important;
+    box-sizing: border-box !important;
+}
+#return:hover,
+.starting-panel-return-btn:hover,
+.panel-return-btn:hover,
+.btn-exit:hover {
+    background: var(--cq-exit-hover) !important;
+    box-shadow: 0 6px 0 var(--cq-exit-shadow) !important;
+}
+
+/* Info / instructions modals use the same panel geometry everywhere. */
+#infoModal { z-index: 16000 !important; }
+#infoModal .modal-content,
+#infoModal .info-modal-content {
+    width: min(90vw, var(--cq-info-width)) !important;
+    max-width: min(90vw, var(--cq-info-width)) !important;
+    max-height: 82vh !important;
+    overflow-y: auto !important;
+    padding: 30px !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    border: 4px solid var(--cq-blue) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45) !important;
+    box-sizing: border-box !important;
+    text-align: left !important;
+}
+#infoModal .modal-content *,
+#infoModal .info-modal-content * {
+    color: inherit !important;
+}
+#infoModal h2,
+#infoModal h3 {
+    color: var(--cq-blue) !important;
+}
+
+/* Exit modals use the same panel geometry and button colors everywhere, including doctor-style pages. */
+#retro-exit-modal { z-index: 20000 !important; }
+#retro-exit-modal .popup-modal-content,
+#retro-exit-modal .modal-content,
+#retro-exit-modal .exit-modal-content {
+    width: min(90vw, var(--cq-exit-width)) !important;
+    max-width: min(90vw, var(--cq-exit-width)) !important;
+    min-height: 0 !important;
+    padding: 28px !important;
+    background: #111111 !important;
+    color: #ffffff !important;
+    border: 3px solid #ffffff !important;
+    border-radius: 10px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.55) !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+}
+#retro-exit-modal .popup-modal-content *,
+#retro-exit-modal .modal-content *,
+#retro-exit-modal .exit-modal-content *,
+#exit-status-text {
+    color: #ffffff !important;
+}
+#confirm-exit-btn,
+#confirm-docs-btn,
+#cancel-exit-btn,
+#cancel-docs-btn {
+    border: 2px solid #ffffff !important;
+    color: #ffffff !important;
+    text-transform: uppercase !important;
+    box-sizing: border-box !important;
+}
+#confirm-exit-btn,
+#confirm-docs-btn {
+    background: var(--cq-exit) !important;
+    box-shadow: 0 4px 0 var(--cq-exit-shadow) !important;
+}
+#cancel-exit-btn,
+#cancel-docs-btn {
+    background: var(--cq-cancel) !important;
+    box-shadow: 0 4px 0 var(--cq-cancel-shadow) !important;
+}
+#confirm-exit-btn:hover,
+#confirm-docs-btn:hover { background: var(--cq-exit-hover) !important; }
+#cancel-exit-btn:hover,
+#cancel-docs-btn:hover { background: var(--cq-cancel-hover) !important; }
+
+/* Accessibility color mode: identical palette and readable modal text on every page. */
+body.ax-high-contrast {
+    background-color: var(--cq-ax-bg) !important;
+    background-image: none !important;
+    color: var(--cq-ax-fg) !important;
+}
+body.ax-high-contrast * {
+    text-shadow: none !important;
+}
+body.ax-high-contrast button,
+body.ax-high-contrast input,
+body.ax-high-contrast select,
+body.ax-high-contrast textarea,
+body.ax-high-contrast .career-node,
+body.ax-high-contrast .element,
+body.ax-high-contrast .choice-box,
+body.ax-high-contrast .objection-card,
+body.ax-high-contrast .verdict-btn,
+body.ax-high-contrast .stat-card,
+body.ax-high-contrast .stock-card,
+body.ax-high-contrast .game-panel,
+body.ax-high-contrast .panel-card,
+body.ax-high-contrast #infoBtn,
+body.ax-high-contrast #axToggleBtn {
+    background: var(--cq-ax-bg) !important;
+    color: var(--cq-ax-accent) !important;
+    border-color: var(--cq-ax-fg) !important;
+    box-shadow: 5px 5px 0 var(--cq-ax-fg) !important;
+}
+body.ax-high-contrast #infoModal .modal-content,
+body.ax-high-contrast #infoModal .info-modal-content,
+body.ax-high-contrast #retro-exit-modal .popup-modal-content,
+body.ax-high-contrast #retro-exit-modal .modal-content,
+body.ax-high-contrast #retro-exit-modal .exit-modal-content,
+body.ax-high-contrast .popup-modal-content,
+body.ax-high-contrast .modal-content,
+body.ax-high-contrast .info-modal-content,
+body.ax-high-contrast .ax-modal-content,
+body.ax-high-contrast .exit-modal-content,
+body.ax-high-contrast .lawyer-message-modal-content,
+body.ax-high-contrast .pianist-message-modal-content,
+body.ax-high-contrast .game-modal-content,
+body.ax-high-contrast .cert-modal-content,
+body.ax-high-contrast .chem-cert-modal-content,
+body.ax-high-contrast .limit-info-modal-content {
+    background: var(--cq-ax-bg) !important;
+    color: var(--cq-ax-fg) !important;
+    border-color: var(--cq-ax-fg) !important;
+}
+body.ax-high-contrast #infoModal .modal-content *,
+body.ax-high-contrast #infoModal .info-modal-content *,
+body.ax-high-contrast #retro-exit-modal .popup-modal-content *,
+body.ax-high-contrast #retro-exit-modal .modal-content *,
+body.ax-high-contrast #retro-exit-modal .exit-modal-content *,
+body.ax-high-contrast .popup-modal-content *,
+body.ax-high-contrast .modal-content *,
+body.ax-high-contrast .info-modal-content *,
+body.ax-high-contrast .ax-modal-content *,
+body.ax-high-contrast .exit-modal-content *,
+body.ax-high-contrast .lawyer-message-modal-content *,
+body.ax-high-contrast .pianist-message-modal-content *,
+body.ax-high-contrast .game-modal-content *,
+body.ax-high-contrast .cert-modal-content *,
+body.ax-high-contrast .chem-cert-modal-content *,
+body.ax-high-contrast .limit-info-modal-content * {
+    color: inherit !important;
+    border-color: var(--cq-ax-fg) !important;
+}
+body.ax-high-contrast a:focus,
+body.ax-high-contrast a:focus-visible,
+body.ax-high-contrast .career-node:focus,
+body.ax-high-contrast .career-node:focus-visible,
+body.ax-high-contrast #return:focus,
+body.ax-high-contrast #return:focus-visible,
+body.ax-high-contrast .starting-panel-return-btn:focus,
+body.ax-high-contrast .starting-panel-return-btn:focus-visible,
+body.ax-high-contrast .panel-return-btn:focus,
+body.ax-high-contrast .panel-return-btn:focus-visible,
+body.ax-high-contrast .btn-exit:focus,
+body.ax-high-contrast .btn-exit:focus-visible,
+body.ax-high-contrast #confirm-exit-btn:focus,
+body.ax-high-contrast #confirm-exit-btn:focus-visible,
+body.ax-high-contrast #confirm-docs-btn:focus,
+body.ax-high-contrast #confirm-docs-btn:focus-visible {
+    outline-color: var(--cq-ax-focus) !important;
+}
+body.ax-high-contrast canvas {
+    background-color: #ffffff !important;
+    border-color: var(--cq-ax-fg) !important;
+}
+
+/* Large text mode uses fixed values so nothing shrinks because of inherited percentages. */
+body.ax-large-text p,
+body.ax-large-text li,
+body.ax-large-text button,
+body.ax-large-text input,
+body.ax-large-text select,
+body.ax-large-text textarea,
+body.ax-large-text .case-text,
+body.ax-large-text .panel-header,
+body.ax-large-text .choice-box,
+body.ax-large-text .choice-btn,
+body.ax-large-text .objection-card,
+body.ax-large-text .verdict-btn,
+body.ax-large-text .hud-metric,
+body.ax-large-text .stat-label,
+body.ax-large-text .stat-value,
+body.ax-large-text .timer,
+body.ax-large-text .score,
+body.ax-large-text #exit-status-text,
+body.ax-large-text #infoModal .modal-content,
+body.ax-large-text #infoModal .info-modal-content {
+    font-size: 16px !important;
+    line-height: 1.7 !important;
+}
+body.ax-large-text h1 { font-size: 36px !important; line-height: 1.25 !important; }
+body.ax-large-text h2 { font-size: 28px !important; line-height: 1.3 !important; }
+body.ax-large-text h3 { font-size: 22px !important; line-height: 1.35 !important; }
