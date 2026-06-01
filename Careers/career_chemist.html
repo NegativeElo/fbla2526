@@ -1140,7 +1140,51 @@ function announceToScreenReader(msg) {
     const goalLists = { 
         "Carbon dioxide (CO₂)": {C:1, O:2},
         "Glucose (C₆H₁₂O₆)": {C:6, H:12, O:6},
-        "Lithium oxide (Li₂O)": {Li:2, O:1}
+        "Lithium oxide (Li₂O)": {Li:2, O:1},
+        "Table salt (NaCl)": {Na:1, Cl:1},
+        "Water (H₂O)": {H:2, O:1},
+        "Methane (CH₄)": {C:1, H:4},
+        "Ammonia (NH₃)": {N:1, H:3},
+        "Ammonium (NH₄)": {N:1, H:4},
+        "Ethanol (C₂H₆O)": {C:2, H:6, O:1},
+        "Sulfuric Acid (H₂SO₄)": {H:2, S:1, O:4},
+        "Baking Soda (NaHCO₃)": {Na:1, H:1, C:1, O:3},
+        "Acetic Acid (C₂H₄O₂)": {C:2, H:4, O:2},
+        "Hydrochloric Acid (HCl)": {H:1, Cl:1},
+        "Oxygen Gas (O₂)": {O:2},
+        "Nitric Acid (HNO₃)": {H:1, N:1, O:3},
+        "Phosphoric Acid (H₃PO₄)": {H:3, P:1, O:4},
+        "Sodium Hydroxide (NaOH)": {Na:1, O:1, H:1},
+        "Potassium Hydroxide (KOH)": {K:1, O:1, H:1},
+        "Calcium Carbonate (CaCO₃)": {Ca:1, C:1, O:3},
+        "Magnesium Hydroxide (Mg(OH)₂)": {Mg:1, O:2, H:2},
+        "Nitrogen Gas (N₂)": {N:2},
+        "Ozone (O₃)": {O:3},
+        "Nitrous Oxide (N₂O)": {N:2, O:1},
+        "Hydrogen Sulfide (H₂S)": {H:2, S:1},
+        "Sulfur Dioxide (SO₂)": {S:1, O:2},
+        "Carbon Monoxide (CO)": {C:1, O:1},
+        "Chlorine Gas (Cl₂)": {Cl:2},
+        "Potassium Chloride (KCl)": {K:1, Cl:1},
+        "Calcium Chloride (CaCl₂)": {Ca:1, Cl:2},
+        "Magnesium Oxide (MgO)": {Mg:1, O:1},
+        "Silver Nitrate (AgNO₃)": {Ag:1, N:1, O:3},
+        "Potassium Permanganate (KMnO₄)": {K:1, Mn:1, O:4},
+        "Propane (C₃H₈)": {C:3, H:8},
+        "Butane (C₄H₁₀)": {C:4, H:10},
+        "Benzene (C₆H₆)": {C:6, H:6},
+        "Acetone (C₃H₆O)": {C:3, H:6, O:1},
+        "Methanol (CH₄O)": {C:1, H:4, O:1},
+        "Caffeine (C₈H₁₀N₄O₂)": {C:8, H:10, N:4, O:2},
+        "Aspirin (C₉H₈O₄)": {C:9, H:8, O:4},
+        "Urea (CH₄N₂O)": {C:1, H:4, N:2, O:1},
+        "Hydrogen Peroxide (H₂O₂)": {H:2, O:2},
+        "Silver Iodide (AgI)": {Ag:1, I:1},
+        "Sodium Fluoride (NaF)": {Na:1, F:1},
+        "Hydrobromic Acid (HBr)": {H:1, Br:1},
+        "Perchloric Acid (HClO₄)": {H:1, Cl:1, O:4},
+        "Chloric Acid (HClO₃)": {H:1, Cl:1, O:3},
+        "Hydroiodic Acid (HI)": {H:1, I:1}
     };
     let challengeCompounds = Object.keys(goalLists);
 
@@ -1352,6 +1396,10 @@ function announceToScreenReader(msg) {
             pickNextGoal();
             selectedElements = [];
             updateSelectedElements();
+            setTimeout(() => {
+                reactionDisplay.textContent = "";
+                reactionDisplay.style.display = "none";
+            }, 1000);
         } else { 
             playSound(120, 0.3, 'sawtooth');
             reactionDisplay.style.color = "#ff5555";
@@ -1410,7 +1458,7 @@ function announceToScreenReader(msg) {
             }, 1500);
         } else {
             reactionDisplay.style.color = "#ff5555";
-            const correctFormulaString = formulaToString(practiceGoal.formula);
+            const correctFormulaString = practiceGoal.name.split("(")[1].substring(0, practiceGoal.name.split("(")[1].length - 1).trim();
             reactionDisplay.textContent = "WRONG. ANSWER: " + correctFormulaString;
             playSound(120, 0.3, "sawtooth");
             acceptingAnswers = false;
