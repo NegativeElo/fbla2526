@@ -1396,6 +1396,10 @@ function announceToScreenReader(msg) {
             pickNextGoal();
             selectedElements = [];
             updateSelectedElements();
+            setTimeout(() => {
+                reactionDisplay.textContent = "";
+                reactionDisplay.style.display = "none";
+            }, 1000);
         } else { 
             playSound(120, 0.3, 'sawtooth');
             reactionDisplay.style.color = "#ff5555";
@@ -1454,7 +1458,7 @@ function announceToScreenReader(msg) {
             }, 1500);
         } else {
             reactionDisplay.style.color = "#ff5555";
-            const correctFormulaString = formulaToString(practiceGoal.formula);
+            const correctFormulaString = practiceGoal.name.split("(")[1].substring(0, practiceGoal.name.split("(")[1].length - 1).trim();
             reactionDisplay.textContent = "WRONG. ANSWER: " + correctFormulaString;
             playSound(120, 0.3, "sawtooth");
             acceptingAnswers = false;
