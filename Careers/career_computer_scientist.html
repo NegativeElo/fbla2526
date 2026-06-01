@@ -865,7 +865,6 @@ body .exit-btn:hover {
     let timer;
     let challengeStarted = false;
     let isRunning;
-
     const runBtn = document.getElementById('runBtn')
     const stopBtn = document.getElementById('stopBtn')
     const playBtn = document.getElementById('playBtn');
@@ -1054,33 +1053,8 @@ function announceToScreenReader(msg) {
       notify.textContent = msg;
       notify.style.opacity = '1';
     }
-
-    /* --- TIMER LOGIC --- */
-    function startTimer() {
-      clearInterval(timerInterval);
-      timerInterval = setInterval(() => {
-        if (timer > 0) {
-          timer--;
-          let mins = Math.floor(timer/60);
-          let secs = timer%60;
-          document.getElementById('timer').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-        } else {
-          clearInterval(timerInterval);
-          gameActive = false;
-          showNotify(`Time's up! Collected: ${score}`);
-          updateCareerData(score); 
-          runBtn.disabled = true;
-          runBtn.classList.add('disabled-button');
-          stopBtn.disabled = true;
-        
-          playBtn.style.display = "inline-block";
-          playBtn.textContent = "Replay Challenge";
-          isRunning = false;
-        
-          challengeStarted = false;
-        }
-      }, 1000);
-    }
+    
+    
 
     /* --- INITIALIZATION & BLOCKLY SETUP --- */
     window.onload = function() {
@@ -1109,7 +1083,7 @@ function announceToScreenReader(msg) {
       }
 
       // Inject Blockly Editor
-      const workspace = Blockly.inject('blocklyDiv', { toolbox: document.getElementById('toolbox'), scrollbars:true, trashcan:true, media: '../lib/blockly/media' });
+      let workspace = Blockly.inject('blocklyDiv', { toolbox: document.getElementById('toolbox'), scrollbars:true, trashcan:true, media: '../lib/blockly/media' });
       
       // Define Custom Blocks
       Blockly.defineBlocksWithJsonArray([
@@ -1137,7 +1111,7 @@ function announceToScreenReader(msg) {
       let obstacleCoords = [];
       let playerActive = true;
       let ingredientActive = true;
-      timer = 120;
+      timer = 10;
       gameActive = false;
       timerInterval = null;
       isRunning = false;
@@ -1194,7 +1168,61 @@ function announceToScreenReader(msg) {
         runBtn.classList.remove('disabled-button');
         stopBtn.disabled = true;
       }
+      
+      function resetToPracticeMode() {
+        moveQueue.length = 0;
+        processing = false;
+        isRunning = false;
+        gameActive = false;
+        challengeStarted = false;
+        score = 0;
+        timer = 120;
+        clearInterval(timerInterval);
+        document.getElementById('timer').textContent = '2:00';
+        document.getElementById('score').textContent = 'Score: 0';
+        showNotify('');
+        runBtn.disabled = false;
+        runBtn.classList.remove('disabled-button');
+        stopBtn.disabled = true;
+        playBtn.style.display = 'inline-block';
+        playBtn.textContent = 'Replay Challenge';
+        if (workspace) workspace.clear();
+        if (typeof setChallengePositions === 'function') setChallengePositions(getRandomSetup());
+        if (typeof draw === 'function') draw();
+      }
+      
+      /* --- TIMER LOGIC --- */
+      function startTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (timer > 0) {
+          timer--;
+          let mins = Math.floor(timer/60);
+          let secs = timer%60;
+          document.getElementById('timer').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        } else {
+          clearInterval(timerInterval);
+          gameActive = false;
+          showNotify(`Time's up! Collected: ${score}`);
+          updateCareerData(score); 
+          runBtn.disabled = true;
+          runBtn.classList.add('disabled-button');
+          stopBtn.disabled = true;
+        
+          playBtn.style.display = "inline-block";
+          playBtn.textContent = "Replay Challenge";
+          isRunning = false;
+        
+          challengeStarted = false;
 
+          setTimeout(() => {
+            if (challengeStarted === false) {
+              resetToPracticeMode();
+            }
+          }, 3000);
+        }
+      }, 1000);
+    }
       /* --- RENDER LOGIC --- */
       function draw() {
         ctx.clearRect(0, 0, canvasSize, canvasSize);
@@ -1388,19 +1416,20 @@ function announceToScreenReader(msg) {
       playBtn.addEventListener('click', () => {
         playSound(392.00, 0.4, 'square');
         hasSavedPoints = false; 
-        badgeAlertedThisRound = false; 
-        moveQueue.length = 0; processing = false; isRunning = false;
+        badgeAlertedThisRound = false;
         challengeStarted = true;
-        gameActive = true;
+        gameActive = true; 
+        moveQueue.length = 0; processing = false; isRunning = false;
         setChallengePositions(getRandomSetup());
-        workspace.clear(); notify.textContent = "";
+        workspace.clear();
+        notify.textContent = "";
         score = 0; 
         document.getElementById('score').textContent = "Score: 0";
         playBtn.style.display = "none";
         runBtn.disabled = false;
         runBtn.classList.remove('disabled-button');
         stopBtn.disabled = true;
-        timer = 120;
+        timer = 10;
         let mins = Math.floor(timer/60);
         let secs = timer%60;
         document.getElementById('timer').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
