@@ -1111,7 +1111,7 @@ function announceToScreenReader(msg) {
       let obstacleCoords = [];
       let playerActive = true;
       let ingredientActive = true;
-      timer = 10;
+      timer = 120;
       gameActive = false;
       timerInterval = null;
       isRunning = false;
@@ -1429,7 +1429,7 @@ function announceToScreenReader(msg) {
         runBtn.disabled = false;
         runBtn.classList.remove('disabled-button');
         stopBtn.disabled = true;
-        timer = 10;
+        timer = 120;
         let mins = Math.floor(timer/60);
         let secs = timer%60;
         document.getElementById('timer').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
