@@ -266,6 +266,7 @@ body.ax-high-contrast canvas {
 /* Large text mode uses fixed values so nothing shrinks because of inherited percentages. */
 body.ax-large-text p,
 body.ax-large-text li,
+body.ax-large-text div,
 body.ax-large-text button,
 body.ax-large-text input,
 body.ax-large-text select,

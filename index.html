@@ -251,7 +251,8 @@ body .exit-btn:hover {
         }
 
         h1 { font-size: 2.5rem; color: var(--accent); margin: 10px 0; }
-        .master-score { font-size: 0.8rem; color: #aaa; }
+        .master-score { font-size: 0.8rem; color: #aaa; margin-bottom: 20px; }
+        .objective { font-size: 0.75rem; color: #11ef45; margin-bottom: 20px; }
 
         /* --- Leaderboard Styles --- */
         .leaderboard {
@@ -776,7 +777,7 @@ body .exit-btn:hover {
                 <li>Each career game's scoring system, challenge goal, and other information is explained in its info modal.</li>
                 <li>You can finish this simulation in two ways:</li>
                 <ol>
-                    <li>Get certified in all six careers</li>
+                    <li>Get certified in all seven careers</li>
                     <li>Reach a total score of 100 or more</li>
                 </ol>
             </ul>
@@ -825,7 +826,7 @@ body .exit-btn:hover {
                     CAREER QUEST:<br>AN OVERVIEW
                 </h1>
                 <p style="font-size: 11px; color: #fff; line-height: 2;">
-                    A retro-style simulation where you explore six different careers,<br>
+                    A retro-style simulation where you explore seven different careers,<br>
                     complete challenges, and build your total score across multiple mini‑games.
                 </p>
             </div>
@@ -842,7 +843,7 @@ body .exit-btn:hover {
             <div class="start-slide" id="slide-2">
                 <p style="font-size: 13px; color: #57abff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">HOW TO FINISH</p>
                 <p style="font-size: 10px; line-height: 2.6; color: #ddd; text-align: left;">
-                    &bull;&nbsp; Get certified in all six careers,&nbsp;<em style="color:#aaa;">or</em><br>
+                    &bull;&nbsp; Get certified in all seven careers,&nbsp;<em style="color:#aaa;">or</em><br>
                     &bull;&nbsp; Reach a total score of 100 or more.
                 </p>
             </div>
@@ -922,8 +923,8 @@ body .exit-btn:hover {
 
     <div class="hud">
         <h1>CAREER QUEST</h1>
-        <div class="master-score" id="stats">Total Score: 0 | Careers: 0/6</div>
-        
+        <div class="master-score" id="stats">Total Score: 0 | Careers: 0/7</div>
+        <div class="objective" id="current-objective">Objective: Earn 100 more points or certify in 7 more careers</div>
         <div class="leaderboard">
             <h3>TOP CAREERS</h3>
             <ol id="top-three-list">
@@ -1233,14 +1234,15 @@ function announceToScreenReader(msg) {
             const rawData = localStorage.getItem('FBLA_CAREER_DATA');
             const data = rawData ? JSON.parse(rawData) : { completed: [], totalScore: 0, scorePerCareer: {"Computer Scientist":0, "Chemist": 0, "Stock Trader":0, "Judge":0, "Lawyer":0, "Pianist": 0, "Doctor": 0 } };
             document.getElementById('stats').innerText = 
-                `Total Score: ${data.totalScore} | Careers Certified: ${data.completed.length}/6`;
-
+                `Total Score: ${data.totalScore} | Careers Certified: ${data.completed.length}/7`;
+            document.getElementById('current-objective').innerText = 
+                `Objective: Earn ${100 - data.totalScore} more points or certify in ${7 - data.completed.length} more careers`;
             topThree();
 
-            if (data.completed.length === 6 || data.totalScore >= 100) {
+            if (data.completed.length === 7 || data.totalScore >= 100) {
                 document.getElementById('stats').style.color = "#ffd700";
                 if (!localStorage.getItem('WIN_SCREEN_SHOWN')) {
-                    if (data.completed.length === 6) {
+                    if (data.completed.length === 7) {
                         document.getElementById('win-status-text').innerHTML = `ALL CAREERS COMPLETED<br><br>SCORE: ${data.totalScore}`;
                     } else if (data.totalScore >= 100) {
                         document.getElementById('win-status-text').innerHTML = `SCORE OF ${data.totalScore} ACHIEVED<br><br>${data.completed.length} CAREERS COMPLETED`
