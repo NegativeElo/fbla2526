@@ -864,7 +864,6 @@ body .exit-btn:hover {
                     padding: 20px 28px; 
                     box-shadow: inset 0 0 10px rgba(25, 118, 210, 0.3), 0 0 15px rgba(25, 118, 210, 0.2);
                     text-align: left;">
-                    <span style="font-size: 16px; margin-right: 6px;">↖️</span>
                     An info button will be available in the top-left corner at any time for detailed rules and scoring for each career.
                 </p>
             </div>
@@ -954,7 +953,7 @@ body .exit-btn:hover {
         <a href="./Careers/career_pianist.html" class="career-node" id="node-Pianist">
             <h3>PIANIST</h3>
         </a>
-        <a href="./Careers/career.html" class="career-node" id="node-Doctor">
+        <a href="./Careers/career_doctor.html" class="career-node" id="node-Doctor">
             <h3>DOCTOR</h3>
         </a>
     </div>
@@ -1127,9 +1126,44 @@ function announceToScreenReader(msg) {
         }
 
         // --- Exit Modal Logic ---
-        function executeExit() {
-            window.close();
-        }
+        async function executeExit() {
+    // Detect Electron: nodeIntegration=true means require() works
+    const isElectron = (typeof require !== 'undefined') && (() => {
+        try { return !!require('electron'); } catch(e) { return false; }
+    })();
+
+    if (isElectron) {
+        const { ipcRenderer } = require('electron');
+        await ipcRenderer.invoke('close-window');
+    } else {
+        // Browser fallback: window.close() only works if this tab
+        // was script-opened. After navigation it silently fails,
+        // so we show a "safe to close" message instead.
+        window.close();
+        // If still here after 300ms, the browser blocked it
+        setTimeout(() => {
+            document.body.style.backgroundColor = '#000';
+            
+            document.body.innerHTML = `
+                <div style="display:flex;flex-direction:column;align-items:center;
+                    justify-content:center;height:100vh;text-align:center;
+                    font-family:'Press Start 2P',cursive;">
+                    <h1 style="color:#06d45c;font-size:24px;margin-bottom:20px;">
+                        PROGRESS SAVED
+                    </h1>
+                    <p style="color:#aaa;font-size:11px;margin-bottom:30px;">
+                        SAFE TO CLOSE THIS TAB
+                    </p>
+                    <button onclick="location.href='index.html'"
+                        style="font-family:'Press Start 2P',cursive;
+                        background:#4361ee;color:#fff;border:none;
+                        padding:12px 24px;font-size:10px;cursor:pointer;">
+                        RETURN TO HUB
+                    </button>
+                </div>`;
+        }, 300);
+    }
+}
         function closeExitModal() {
             document.getElementById('retro-exit-modal').style.display = "none";
         }
@@ -1175,13 +1209,8 @@ function announceToScreenReader(msg) {
                 <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; text-align:center; font-family:'Press Start 2P';">
                     <h1 style="color:#06d45c; font-size: 30px; margin-bottom: 20px;">UPLINK TERMINATED</h1>
                     <p style="color:#555; font-size: 16px;">SAFE TO CLOSE WINDOW</p>
-                    <button class="btn" style="background:#333; margin-top:50px; font-size:10px;" onclick="location.reload()">REBOOT SYSTEM</button>
+                    <button class="btn" style=" margin-top: 20px; font-size:10px;" onclick="location.reload()">REBOOT SYSTEM</button>
                 </div>`;
-            window.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    window.close();
-                }
-            });
         }
 
         function openExitModal() {
