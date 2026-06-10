@@ -1079,7 +1079,7 @@ body .exit-btn:hover {
             
             <div class="modal-body">
                 <p id="modalStockName" style="color:#1976d2; margin-bottom:15px; font-weight:bold;"></p>
-                
+                <p id="info" style="color:#ffffff; font-size: 11px; margin-bottom: 20px;"></p>
                 <div class="input-group">
                     <label>Quantity:</label>
                     <input type="number" id="tradeQty" class="retro-input" placeholder="0">
@@ -1094,6 +1094,8 @@ body .exit-btn:hover {
 
                 <div class="button-container" style="margin-top:20px;">
                     <button id="confirmTradeBtn" class="btn-style" style="background:#24f555; box-shadow: 0 4px 0  #28a745">CONFIRM</button>
+                    <button id="buyMaxBtn" class="btn-style" style="background:#1976d2; box-shadow: 0 4px 0 #0d47a1; display:none;">BUY MAX</button>
+                    <button id="sellAllBtn" class="btn-style" style="background:#1976d2; box-shadow: 0 4px 0 #0d47a1; display:none;">SELL ALL</button>
                     <button onclick="closeTradeModal()" class="btn-style" style="background:#ff3e28; box-shadow: 0 4px 0 #c94638">CANCEL</button>
                 </div>
             </div>
@@ -1583,21 +1585,20 @@ function announceToScreenReader(msg) {
             const modal = document.getElementById('tradeModal');
             const title = document.getElementById('modalTitle');
             const stockName = document.getElementById('modalStockName');
+            const info = document.getElementById('info');
             const priceGroup = document.getElementById('priceInputGroup');
             const qtyInput = document.getElementById('tradeQty');
             const priceInput = document.getElementById('tradePrice');
             const errorMsg = document.getElementById('tradeError');
+            const maxBuyBtn = document.getElementById('buyMaxBtn');
+            const sellAllBtn = document.getElementById('sellAllBtn');
+            let maxBuy = Math.floor(100*money/stock.price)/100;
 
             stockName.textContent = "";
             if (updateStockInfo) {
                 clearInterval(updateStockInfo);
             }
 
-            // Update stock price display every 100ms
-            stockName.textContent = `${stock.name} (Current: $${stock.price.toFixed(2)})`;
-            updateStockInfo = setInterval(() => {
-                stockName.textContent = `${stock.name} (Current: $${stock.price.toFixed(2)})`;
-            }, 100)
             
             qtyInput.value = '';
             priceInput.value = '';
@@ -1613,16 +1614,44 @@ function announceToScreenReader(msg) {
             if (type === 'buy') {
                 title.textContent = "BUY STOCK";
                 priceGroup.style.display = 'none';
+                info.textContent = "Max Buy: " + maxBuy.toFixed(2) + " shares";
+                maxBuyBtn.style.display = 'inline-block';
+                sellAllBtn.style.display = 'none';
             } else if (type === 'sell') {
                 title.textContent = "SELL STOCK";
                 priceGroup.style.display = 'none';
+                info.innerHTML = "Shares available: " + stock.shares.toFixed(2) + "<br> (Avg Cost: $" + (stock.shares>0 ? (stock.cashInvested/stock.shares).toFixed(2) : "0.00") + ")";
+                maxBuyBtn.style.display = 'none';
+                sellAllBtn.style.display = 'inline-block';
             } else if (type === 'limit_buy') {
                 title.textContent = "SET BUY LIMIT";
                 priceGroup.style.display = 'block';
+                info.textContent = "Max Buy: " + maxBuy.toFixed(2) + " shares";
+                maxBuyBtn.style.display = 'none';
+                sellAllBtn.style.display = 'none';
             } else if (type === 'limit_sell') {
                 title.textContent = "SET SELL LIMIT";
                 priceGroup.style.display = 'block';
+                info.innerHTML = "Shares available: " + stock.shares.toFixed(2) + "<br> (Avg Cost: $" + (stock.shares>0 ? (stock.cashInvested/stock.shares).toFixed(2) : "0.00") + ")";
+                maxBuyBtn.style.display = 'none';
+                sellAllBtn.style.display = 'none';
             }
+            
+            // Update stock price display every 100ms
+            stockName.textContent = `${stock.name} (Current: $${stock.price.toFixed(2)})`;
+            updateStockInfo = setInterval(() => {
+                stockName.textContent = `${stock.name} (Current: $${stock.price.toFixed(2)})`;
+                maxBuy = Math.floor(100*money/stock.price)/100; 
+                if (type === 'buy') {
+                    info.textContent = "Max Buy: " + maxBuy.toFixed(2) + " shares";
+                } else if (type === 'sell') {
+                    info.innerHTML = "Shares available: " + stock.shares.toFixed(2) + "<br> (Avg Cost: $" + (stock.shares>0 ? (stock.cashInvested/stock.shares).toFixed(2) : "0.00") + ")";
+                } else if (type === 'limit_buy') {
+                    info.textContent = "Max Buy: " + maxBuy.toFixed(2) + " shares";
+                } else if (type === 'limit_sell') {
+                    info.innerHTML = "Shares available: " + stock.shares.toFixed(2) + "<br> (Avg Cost: $" + (stock.shares>0 ? (stock.cashInvested/stock.shares).toFixed(2) : "0.00") + ")";
+                }
+            }, 100)
             
             // Focus on quantity input
             qtyInput.focus();
@@ -1742,6 +1771,40 @@ function announceToScreenReader(msg) {
             }
         });
 
+        document.getElementById('buyMaxBtn').addEventListener('click', () => {
+            const i = currentTrade.index;
+            const errorMsg = document.getElementById('tradeError');
+            let maxBuy = Math.floor(100*money/stocks[i].price)/100;
+            let cost = maxBuy * stocks[i].price;
+            money -= cost;
+            stocks[i].cashInvested += Math.round(cost * 100) / 100;
+            stocks[i].shares += maxBuy;
+            errorMsg.textContent = "";
+            if (updateErrorInterval) {
+                clearInterval(updateErrorInterval);
+                updateErrorInterval = null;
+            }
+            closeTradeModal()
+            renderStocks();
+        });
+
+        document.getElementById('sellAllBtn').addEventListener('click', () => {
+            const i = currentTrade.index;
+            const errorMsg = document.getElementById('tradeError');
+            let qty = stocks[i].shares;
+            money += qty * stocks[i].price;
+            avgCost = stocks[i].cashInvested/stocks[i].shares;
+            stocks[i].shares -= qty;
+            stocks[i].cashInvested -= avgCost*qty
+            if (stocks[i].shares === 0) stocks[i].cashInvested = 0;
+            errorMsg.textContent = "";
+            if (updateErrorInterval) {
+                clearInterval(updateErrorInterval);
+                updateErrorInterval = null;
+            }
+            closeTradeModal();
+            renderStocks();
+        });
         // Allow Enter key to confirm trade
         document.getElementById('tradeModal').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') document.getElementById('confirmTradeBtn').click();
