@@ -927,7 +927,7 @@ body .exit-btn:hover {
       </div>
       <div class="modal-body">
         <h3>CHALLENGE GOAL</h3>
-        <ul><li><p>Earn at least 15 points in 2 minutes to get certified!</p></li></ul>
+        <ul><li><p>Earn at least 20 points in 2 minutes to get certified!</p></li></ul>
 
         <h3>HOW TO PLAY</h3>
         <ul>
@@ -1024,7 +1024,7 @@ body .exit-btn:hover {
   <!-- ── PAGE HEADER ── -->
   <h2>DIAGNOSIS WARD</h2>
   <p class="challenge-goal">Listen to the patient's symptoms and select the correct diagnosis!</p>
-  <p class="challenge-goal" style="margin-bottom:15px;">Earn 15 points in 2 minutes to get certified!</p>
+  <p class="challenge-goal" style="margin-bottom:15px;">Earn 20 points in 2 minutes to get certified!</p>
 
   <!-- ── MAIN GAME AREA ── -->
   <div id="game-container">
@@ -1490,7 +1490,7 @@ function handleDiagnose(){
   if(correct){
     playSuccess();
     updateScore(3 - attemptCount);
-    changeTrust(+10);
+    changeTrust(10);
     markOption(pendingAnswer.name, 'correct');
     pips[attemptCount] && pips[attemptCount].classList.add('used-correct');
     setFeedback(`✓ CORRECT! +${3 - attemptCount} pts`, '#69f0ae');
