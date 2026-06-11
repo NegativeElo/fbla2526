@@ -456,6 +456,7 @@
       min-width: 350px;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      z-index: 21001;
     }
     
     .cert-modal-content p {
@@ -760,7 +761,7 @@ body .exit-btn:hover {
   <div id="axToggleBtn" title="Accessibility Options" onclick="toggleAxMenu()" role="button" tabindex="0" aria-label="Open Accessibility Menu">AX</div>
 <div id="axModal" role="dialog" aria-modal="true" aria-labelledby="ax-title">
     <div class="ax-modal-content">
-        <h2 id="ax-title" class="ax-modal-header">♿ ACCESSIBILITY SUITE</h2>
+        <h2 id="ax-title" class="ax-modal-header">ACCESSIBILITY SUITE</h2>
         <hr>
         <div>
             <label>
@@ -943,6 +944,7 @@ function announceToScreenReader(msg) {
 
     function resumeGame() {
       if (challengeStarted && gameActive && timer > 0 && timerBeforePause !== null) {
+        timer = timerBeforePause;
         startTimer();
         timerBeforePause = null;
       }

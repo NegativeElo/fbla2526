@@ -960,7 +960,7 @@ body .exit-btn:hover {
   <div id="axToggleBtn" title="Accessibility Options" onclick="toggleAxMenu()" role="button" tabindex="0" aria-label="Open Accessibility Menu">AX</div>
 <div id="axModal" role="dialog" aria-modal="true" aria-labelledby="ax-title">
     <div class="ax-modal-content">
-        <h2 id="ax-title" class="ax-modal-header">♿ ACCESSIBILITY SUITE</h2>
+        <h2 id="ax-title" class="ax-modal-header">ACCESSIBILITY SUITE</h2>
         <hr>
         <div>
             <label>
@@ -1610,7 +1610,7 @@ skipBtn.addEventListener('click', () => {
 ═══════════════════════════════════════════════ */
 function checkCert(){
   if(badgeAlerted) return;
-  if(score >= 15){
+  if(score >= 20){
     const raw = localStorage.getItem('FBLA_CAREER_DATA');
     let data = raw ? JSON.parse(raw) : {
       completed:[], totalScore:0,
@@ -1701,7 +1701,7 @@ function endChallenge(){
     setFeedback(`Time's up! Final score: ${score}`, '#ffd54f');
     showDoctorBubble(`Session ended. Score: ${score}`);
   }
-  saveCareerData(score);
+  saveCareerData(Math.floor(score/5));
   hintEl.textContent = 'Press C to start Challenge Mode.';
   setTimeout(() => {
     if (gameMode === 'practice') {
@@ -1745,7 +1745,7 @@ function handleExit(){
 }
 
 function executeExit(){
-  saveCareerData(score);
+  saveCareerData(Math.floor(score/5));
   window.location.href = '../index.html';
 }
 
