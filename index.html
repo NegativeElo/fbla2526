@@ -319,6 +319,19 @@ body .exit-btn:hover {
             color: white;
         }
 
+.career-node.first {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #1a0533, #6a1fc2, #2d2dfd, #7b1fa2, #1a0533);
+    order: -1;
+    animation: nodeColorShift 1s ease-in-out infinite;
+}
+
+    @keyframes nodeColorShift {
+    0%   { background: radial-gradient(circle at 30% 50%, #2b1a6c, #8f1fb2); }
+    20%  { background: radial-gradient(circle at 70% 50%, #8f1fb2, #2d2dfd); }
+    100% { background: radial-gradient(circle at 30% 50%, #2b1a6c, #8f1fb2); }
+}
+
         .career-node:hover {
             transform: translateY(-10px);
             border-color: var(--accent);
@@ -346,6 +359,7 @@ body .exit-btn:hover {
             border-color: #2ecc71;
             box-shadow: 0 0 25px rgba(46, 204, 113, 0.6);
         }
+        
 
         /* --- Active Button State --- */
         .btn:active {
@@ -796,7 +810,7 @@ body .exit-btn:hover {
     <div id="axToggleBtn" title="Accessibility Options" onclick="toggleAxMenu()" role="button" tabindex="0" aria-label="Open Accessibility Menu">AX</div>
 <div id="axModal" role="dialog" aria-modal="true" aria-labelledby="ax-title">
     <div class="ax-modal-content">
-        <h2 id="ax-title" class="ax-modal-header">♿ ACCESSIBILITY SUITE</h2>
+        <h2 id="ax-title" class="ax-modal-header">ACCESSIBILITY SUITE</h2>
         <hr>
         <div>
             <label>
@@ -941,7 +955,7 @@ body .exit-btn:hover {
         <a href="./Careers/career_chemist.html" class="career-node" id="node-Chem">
             <h3>CHEMIST</h3>
         </a>
-        <a href="./Careers/career_stock_trader.html" class="career-node" id="node-Stock">
+        <a href="./Careers/career_stock_trader.html" class="career-node first" id="node-Stock">
             <h3>STOCK TRADER</h3>
         </a>
         <a href="./Careers/career_judge.html" class="career-node" id="node-Judge">
@@ -1204,6 +1218,7 @@ function announceToScreenReader(msg) {
 
         function confirmResetGame() {
             localStorage.removeItem("FBLA_CAREER_DATA");
+            sessionStorage.removeItem('CURRENT_CAREER_SESSION');
             document.body.style.backgroundColor = "#000";
             document.body.innerHTML = `
                 <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; text-align:center; font-family:'Press Start 2P';">
@@ -1246,6 +1261,17 @@ function announceToScreenReader(msg) {
             for (let i = 0; i < 3; i++) {
                 if (careers[i] && careers[i].score > 0) {
                     list.innerHTML += `<li>${i+1}. <span>${careers[i].name}</span>: ${careers[i].score}</li>`;
+                    let currentFirst = document.querySelector('.career-node.first');
+                    const careerNodes = document.querySelectorAll('.career-node');
+                    const searchWord = careers[0].name.toLowerCase().trim();
+                    for (let node of careerNodes) {
+                        if (node.querySelector('h3').textContent.toLowerCase() === searchWord) {
+                            currentFirst.classList.remove('first');
+                            node.classList.add('first');
+                            node.style.order = -1;
+                            break;
+                        }
+                    }
                 } else {
                     list.innerHTML += `<li>${i+1}. ---</li>`;
                 }
@@ -1300,8 +1326,8 @@ function announceToScreenReader(msg) {
         }
 
         // --- Initialization ---
+        updateHub();
         window.onload = function() {
-            updateHub();
             applyGlobalAccessibility();
             if (document.getElementById('startScreen').style.display !== 'none') {
                 initStartScreen();
