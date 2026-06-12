@@ -656,12 +656,17 @@ body.ax-large-text h3 { font-size: 22px !important; }
     position: fixed; top: 10px; left: 55px; width: 35px; height: 35px;
     background: #6a1b9a; color: white; border: 2px solid #fff;
     display: flex; justify-content: center; align-items: center;
-    font-family: 'Press Start 2P', cursive; font-size: 12px;
+    font-family: 'Press Start 2P', cursive; font-size: 30px;
     cursor: pointer; box-shadow: 4px 4px 0 rgba(0,0,0,0.5); z-index: 99999;
     transition: all 0.2s ease;
 }
 #axToggleBtn:hover { background: #8e24aa; transform: translate(-1px, -1px); box-shadow: 5px 5px 0 rgba(0,0,0,0.6); }
 #axToggleBtn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
+
+#axToggleBtn .ax-gear {
+    display: inline-block;
+    transform: translate(0px, -1px);
+}
 
 #axModal { 
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -673,9 +678,9 @@ body.ax-large-text h3 { font-size: 22px !important; }
     min-width: 400px; max-width: 90%; text-align: left; position: relative;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
-#axModal .ax-modal-header { font-size: 14px; color: #4cc9f0; margin-bottom: 20px; }
+#axModal .ax-modal-header { font-size: 14px; color: #4cc9f0; margin-bottom: 20px; text-shadow: 2px 2px #1976d2; }
 #axModal hr { border-color: #333; margin-bottom: 20px; }
-#axModal label { display: flex; align-items: center; gap: 15px; font-size: 11px; cursor: pointer; margin-bottom: 15px; font-family: Arial, sans-serif; color: #fff;}
+#axModal label { display: flex; align-items: center; gap: 15px; font-size: 11px; cursor: pointer; margin-bottom: 15px; font-family: 'Press Start 2P', cursive; color: #fff;}
 #axModal input[type="checkbox"] { transform: scale(1.4); cursor: pointer; }
 #axModal .ax-close-btn { 
     background: #4361ee; color: white; padding: 12px 24px; border: 2px solid #fff;
@@ -798,10 +803,10 @@ body .exit-btn:hover {
             box-shadow: 0 3px 0 #0d75a1;">GAVEL IN</button>
     </div>
 
-    <div id="axToggleBtn" title="Accessibility Options" onclick="toggleAxMenu()" role="button" tabindex="0" aria-label="Open Accessibility Menu">AX</div>
+    <div id="axToggleBtn" title="Accessibility Options" onclick="toggleAxMenu()" role="button" tabindex="0" aria-label="Open Accessibility Menu"><span class="ax-gear">⚙</span></div>
 <div id="axModal" role="dialog" aria-modal="true" aria-labelledby="ax-title">
     <div class="ax-modal-content">
-        <h2 id="ax-title" class="ax-modal-header">ACCESSIBILITY SUITE</h2>
+        <h2 id="ax-title" class="ax-modal-header">SETTINGS</h2>
         <hr>
         <div>
             <label>
