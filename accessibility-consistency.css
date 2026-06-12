@@ -76,9 +76,9 @@ a:focus-visible,
     box-sizing: border-box !important;
 }
 #infoBtn { background: var(--cq-blue) !important; z-index: 15000 !important; }
-#axToggleBtn { background: #6a1b9a !important; z-index: 15001 !important; }
+#axToggleBtn { background: #5f6368 !important; z-index: 15001 !important; }
 #infoBtn:hover { background: var(--cq-blue-hover) !important; }
-#axToggleBtn:hover { background: #8e24aa !important; }
+#axToggleBtn:hover { background: #7a7f85 !important; }
 
 #return,
 .starting-panel-return-btn,
