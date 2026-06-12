@@ -90,6 +90,7 @@
     #infoBtn:hover { background: #2196f3; transform: translate(-1px,-1px); box-shadow: 5px 5px 0 rgba(0,0,0,0.6); }
     #infoBtn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
 
+    
     /* ── 6. EXIT BUTTON ── */
     #return {
       position: absolute;
@@ -387,12 +388,12 @@
   padding: 10px 12px;
   font-size: 9px;
   line-height: 1.7;
-  position: relative;
+  position: relative;        /* keep if you still want ::before/::after tail */
   width: 100%;
   text-align: left;
-  top: -50px;
-}
-    #speech-bubble::before {
+  margin-top: -70px;
+  /* top: -50px;  ← remove this */
+}    #speech-bubble::before {
       content: '';
       position: absolute;
       bottom: 100%; left: 50%;
@@ -579,6 +580,7 @@
   line-height: 1.7;
   text-align: left;
   width: 90%;
+  margin-top: 8px;
 }
     #explanation-box strong { color: var(--gold); }
 
@@ -591,6 +593,9 @@
   display: flex;
   gap: 6px;
   justify-content: center;
+  position: relative;
+  margin-top: 6px;
+  /* top: -50px;  ← remove this */
 }
     .pip {
       width: 10px; height: 10px;
@@ -604,13 +609,13 @@
 
     /* ── TRUST BAR ── */
     #trust-bar-wrap {
-  width: 90%;
   display: flex;
   flex-direction: column;
   gap: 4px;
   align-self: stretch;
-  position: absolute;
-  top: 405px;
+  position: relative;
+  margin-top: 8px;
+  /* top: -50px;  ← remove this */
 }
     #trust-label {
       font-size: 8px;
@@ -652,24 +657,25 @@
 
     /* ── SPEECH BUBBLES on patient side ── */
     #bubble-wrap {
-      position: relative;
-      width: 100%;
-      min-height: 46px;
-    }
+  position: relative;
+  width: 100%;
+  min-height: 46px;
+  margin-top: 8px;
+}
     .pat-bubble {
-      display: none;
-      position: relative;
-      bottom: 0;
-      border-radius: 10px;
-      padding: 8px 11px;
-      font-size: 8px;
-      line-height: 1.6;
-      text-align: center;
-      color: white;
-      pointer-events: none;
-      box-shadow: 0 3px 0 rgba(0,0,0,0.3);
-      top: -160px;
-    }
+  display: none;
+  position: relative;
+  border-radius: 10px;
+  padding: 8px 11px;
+  font-size: 8px;
+  line-height: 1.6;
+  text-align: center;
+  color: white;
+  pointer-events: none;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.3);
+  margin-top: -170px;
+  /* top: -160px; ← remove this */
+}
     .pat-bubble::after {
       content: '';
       position: absolute;
@@ -1032,7 +1038,46 @@ body .exit-btn:hover {
     <!-- LEFT: Patient + Symptoms -->
     <div id="left-panel">
       <div id="mode-badge">PRACTICE MODE</div>
-
+      <div id="noteBtn">NOTES</div>
+      <div id="notesModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>DISEASE SYMPTOMS</h2>
+            <span class="close-btn" id="noteClose">&times;</span>
+          </div>
+          <div id="note-list" class="modal-body">
+            <div><strong>FLU:</strong> Fever, aching, cough</div>
+            <div><strong>FOOD POISONING:</strong> Stomach Cramps, nausea, vomiting</div>
+            <div><strong>ALLERGIES:</strong> Itchy eyes, sneezing, runny nose</div>
+            <div><strong>MIGRAINE:</strong> Light sensitivity, headache, dizziness</div>
+            <div><strong>COMMON COLD:</strong> Sore throat, congestion, sneezing</div>
+            <div><strong>BRONCHITIS:</strong> Mucus cough, chest tightness, breathlessness</div>
+            <div><strong>STREP THROAT:</strong> Painful swallowing, swollen tonsils, fever</div>
+            <div><strong>CONJUNCTIVITIS:</strong> Bloodshot eyes, crusty eyelids, grainy sensation</div>
+            <div><strong>ASTHMA:</strong> Wheezing, constant cough, chest tightness</div>
+            <div><strong>VERTIGO:</strong> Spinning sensation, balance loss, tilting feeling</div>
+            <div><strong>PNEUMONIA:</strong> Chest pain, phlegm, chills</div>
+            <div><strong>ANXIETY:</strong> Racing heart, shaking, impending doom</div>
+            <div><strong>GASTROENTERITIS:</strong> Diarrhea, low fever, bloating cramps</div>
+            <div><strong>HYPOGLYCEMIA:</strong> Shakiness, sweating, lack of concentration</div>
+            <div><strong>ECZEMA:</strong> Dry skin, itchy rash, inflammation</div>
+            <div><strong>INSOMNIA:</strong> Can't sleep, exhausted, wake up at night</div>
+            <div><strong>UTI:</strong> Burning sensation when urinating, urge to pee, lower back pain</div>
+            <div><strong>ACID REFLUX:</strong> Chest burning, sour mouth, hard swallowing after eating</div>
+            <div><strong>SINUSITIS:</strong> Facial pressure, inability to smell, nasal discharge</div>
+            <div><strong>MONO:</strong> Extreme fatigue, swollen glands, sore throat</div>
+            <div><strong>LYME DISEASE:</strong> Bullseye rash, joint pain, lingering headache</div>
+            <div><strong>SHINGLES:</strong> Painful rash, tingly skin, burning sensation</div>
+            <div><strong>ANEMIA:</strong> Weakness, pale skin, cold extremities</div>
+            <div><strong>KIDNEY STONES:</strong> Sharp pain, blood in urine, nausea</div>
+            <div><strong>CARPAL TUNNEL:</strong> Numb fingers, tingling hand, weakness</div>
+            <div><strong>HYPERTHYROIDISM:</strong> Weight loss, irritability, heat intolerance</div>
+            <div><strong>GALLSTONES:</strong> Abdominal pain, shoulder pain, greasy food sickness</div>
+            <div><strong>GOUT:</strong> Red swollen toe, tender joint, sudden night pain</div>
+            <div><strong>PSORIASIS:</strong> Red patches, cracked bleeding skin, swollen stiff joints</div>
+          </div>
+        </div>
+      </div>
       <div id="patient-scene">
         <div class="exam-table">
           <div class="exam-table-leg left"></div>
@@ -1451,7 +1496,10 @@ function selectOption(i){
    DIAGNOSE (main answer-checking logic)
 ═══════════════════════════════════════════════ */
 diagBtn.addEventListener('click', handleDiagnose);
-
+const noteItems = document.getElementById('note-list').querySelectorAll('div');
+for (let item of noteItems) {
+  item.style.display = 'none';
+}
 function handleDiagnose(){
   if(!pendingAnswer || roundOver) return;
   if(audioCtx.state==='suspended') audioCtx.resume();
@@ -1482,6 +1530,12 @@ function handleDiagnose(){
       showBubble('wrong');
       showDoctorBubble('The correct answer is: ' + currentDisease.name);
       nextBtn.style.display = 'inline-block';
+    }
+    for (let item of noteItems) {
+      if (item.textContent.includes(currentDisease.name.toUpperCase())) {
+        item.style.display = 'block';
+        break;
+      }
     }
     return;
   }
@@ -1768,12 +1822,27 @@ document.getElementById('infoClose').onclick = () => {
   document.getElementById('infoModal').style.display = 'none';
   if(challengeOn && !roundOver) resumeTimer();
 };
-window.onclick = e => {
-  if(e.target === document.getElementById('infoModal')){
-    document.getElementById('infoModal').style.display = 'none';
-    if(challengeOn && !roundOver) resumeTimer();
+window.addEventListener('click', e => {
+  const infoModal = document.getElementById('infoModal');
+  const noteModal = document.getElementById('noteModal');
+
+  if (e.target === infoModal) {
+    infoModal.style.display = 'none';
+    if (challengeOn && !roundOver) resumeTimer();
+  } else if (e.target === noteModal) {
+    noteModal.style.display = 'none';
   }
+});
+
+
+document.getElementById('noteBtn').onclick = () => {
+  const noteList = document.getElementById('notesModal');
+  noteList.style.display = 'block';
+}
+document.getElementById('noteClose').onclick = () => {
+  document.getElementById('notesModal').style.display = 'none';
 };
+
 
 /* ═══════════════════════════════════════════════
    START SCREEN
