@@ -592,7 +592,6 @@ body.ax-large-text h3 { font-size: 22px !important; }
 
 #axToggleBtn .ax-gear {
     display: inline-block;
-    transform: translate(0px, -1px);
 }
 
 #axModal { 
@@ -710,8 +709,12 @@ body .exit-btn:hover {
             </div>
         </div>
     </div>
-    <div id="axToggleBtn" title="Settings" onclick="toggleAxMenu()" role="button" tabindex="0" aria-label="Open Accessibility Menu"><span class="ax-gear">⚙</span></div>
-<div id="axModal" role="dialog" aria-modal="true" aria-labelledby="ax-title">
+    <div id="axToggleBtn" title="Settings" onclick="toggleAxMenu()" role="button" tabindex="0" aria-label="Open Accessibility Menu">
+        <span class="ax-gear">
+            <img src="../Sprites/settings.png" alt="" aria-hidden="true" style="width: 110px; height: 62px; display: block;">
+        </span>
+    </div>
+    <div id="axModal" role="dialog" aria-modal="true" aria-labelledby="ax-title">
     <div class="ax-modal-content">
         <h2 id="ax-title" class="ax-modal-header">SETTINGS</h2>
         <hr>
@@ -960,11 +963,9 @@ body .exit-btn:hover {
             if (["1", "2", "3", "4"].includes(e.key)) {
                 const map = {"1":"A", "2":"B", "3":"C", "4":"D"};
                 if (!document.getElementById("btnA").disabled) handleChoice(map[e.key]);
-            }
-            if (["A", "B", "C", "D"].includes(key)) {
+            } else if (["A", "B", "C", "D"].includes(key)) {
                 if (!document.getElementById("btnA").disabled) handleChoice(key);
-            }
-            if (e.key === "Enter" && document.getElementById("nextBtn").style.display === 'block') {
+            } else if (e.key === "Enter" && document.getElementById("nextBtn").style.display === 'block') {
                 loadNewCase();
             }
         }
@@ -1377,7 +1378,6 @@ function announceToScreenReader(msg) {
             btn.textContent = currentCase.options[i];
             btn.disabled = false;
         });
-        document.getElementById('btnA').focus();
 
         document.getElementById('explanationText').textContent = "Listen to the statement...";
         gameActive = true;

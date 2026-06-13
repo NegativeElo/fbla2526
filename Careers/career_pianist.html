@@ -639,7 +639,6 @@ body.ax-large-text h3 { font-size: 22px !important; }
 
 #axToggleBtn .ax-gear {
     display: inline-block;
-    transform: translate(0px, -1px);
 }
 
 #axModal { 
@@ -759,8 +758,12 @@ body .exit-btn:hover {
             </div>
         </div>
     </div>
-    <div id="axToggleBtn" title="Settings" onclick="toggleAxMenu()" role="button" tabindex="0" aria-label="Open Accessibility Menu"><span class="ax-gear">⚙</span></div>
-<div id="axModal" role="dialog" aria-modal="true" aria-labelledby="ax-title">
+    <div id="axToggleBtn" title="Settings" onclick="toggleAxMenu()" role="button" tabindex="0" aria-label="Open Accessibility Menu">
+        <span class="ax-gear">
+            <img src="../Sprites/settings.png" alt="" aria-hidden="true" style="width: 110px; height: 62px; display: block;">
+        </span>
+    </div>
+    <div id="axModal" role="dialog" aria-modal="true" aria-labelledby="ax-title">
     <div class="ax-modal-content">
         <h2 id="ax-title" class="ax-modal-header">SETTINGS</h2>
         <hr>
