@@ -303,6 +303,47 @@
   flex-direction: column;
   align-items: center;
   gap: 14px;
+  position: relative;
+}
+#noteBtn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 60px;
+  height: 80px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 20;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  overflow: hidden;
+}
+
+#noteBtn:hover {
+  transform: translate(-1px, -1px) scale(1.1);
+  filter: brightness(1.25) drop-shadow(2px 2px 4px rgba(0,0,0,0.6));
+}
+
+#noteBtn:active {
+  transform: translate(1px, 1px) scale(0.95);
+  filter: brightness(0.9);
+}
+
+
+
+#noteBtn img {
+  width: 40px;
+  height: 40px;
+  image-rendering: pixelated;
+  object-fit: contain;
+  display: block;
+  transform: scale(8);
+  transform-origin: center;
+  z-index: 50000;
 }
     #patient-scene {
       z-index: 500;
@@ -318,7 +359,7 @@
     .exam-table {
       z-index: 600;
       position: absolute;
-      top: 65px; left: 50%;
+      top: 85px; left: 50%;
       transform: translateX(-50%);
       width: 220px; height: 22px;
       background: #8d6e63;
@@ -393,12 +434,12 @@
   padding: 10px 12px;
   font-size: 9px;
   line-height: 1.7;
-  position: relative;        /* keep if you still want ::before/::after tail */
+  position: relative;        
   width: 100%;
   text-align: left;
-  margin-top: -70px;
-  /* top: -50px;  ← remove this */
-}    #speech-bubble::before {
+  margin-top: -40px;
+}    
+#speech-bubble::before {
       content: '';
       position: absolute;
       bottom: 100%; left: 50%;
@@ -647,7 +688,7 @@
     /* ── PATIENT SPRITE IMAGE ── */
     #patient-sprite {
       position: absolute;
-      top: 15px;
+      top: 40px;
       width: 70px; height: 110px;
       display: flex;
       flex-direction: column;
@@ -678,8 +719,7 @@
   color: white;
   pointer-events: none;
   box-shadow: 0 3px 0 rgba(0,0,0,0.3);
-  margin-top: -170px;
-  /* top: -160px; ← remove this */
+  margin-top: -145px;
 }
     .pat-bubble::after {
       content: '';
@@ -835,6 +875,7 @@ body.ax-large-text h3 { font-size: 22px !important; }
     font-family: 'Press Start 2P', cursive; font-size: 30px;
     cursor: pointer; box-shadow: 4px 4px 0 rgba(0,0,0,0.5); z-index: 99999;
     transition: all 0.2s ease;
+    overflow: hidden;
 }
 #axToggleBtn:hover { background: #8e24aa; transform: translate(-1px, -1px); box-shadow: 5px 5px 0 rgba(0,0,0,0.6); }
 #axToggleBtn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
@@ -931,7 +972,7 @@ body .exit-btn:hover {
 <body>
 
   <!-- Info Button -->
-  <div id="infoBtn" title="HOW TO PLAY">?</div>
+  <div id="infoBtn" title="How To Play">?</div>
 
   <!-- ── INFO MODAL ── -->
   <div id="infoModal" class="modal">
@@ -974,7 +1015,7 @@ body .exit-btn:hover {
 
   <div id="axToggleBtn" title="Settings" onclick="toggleAxMenu()" role="button" tabindex="0" aria-label="Open Accessibility Menu">
         <span class="ax-gear">
-            <img src="../Sprites/settings.png" alt="" aria-hidden="true" style="width: 110px; height: 62px; display: block;">
+<img src="../Sprites/settings.png" alt="" aria-hidden="true" style="width: 35px; height: 35px; object-fit: contain; display: block; transform: scale(3.5); transform-origin: center;">
         </span>
     </div>
     <div id="axModal" role="dialog" aria-modal="true" aria-labelledby="ax-title">
@@ -1051,7 +1092,11 @@ body .exit-btn:hover {
     <!-- LEFT: Patient + Symptoms -->
     <div id="left-panel">
       <div id="mode-badge">PRACTICE MODE</div>
-      <div id="noteBtn">NOTES</div>
+      <div id="noteBtn" title="Notes" role="button" tabindex="0" aria-label="View Disease Symptoms">
+  <span>
+<img src="../Sprites/notes.png" alt="" aria-hidden="true" style="display:block;">
+  </span>
+</div>
       <div id="notesModal" class="modal">
         <div class="modal-content">
           <div class="modal-header">
@@ -1419,7 +1464,11 @@ function resetPips(){
    ROUND SETUP
 ═══════════════════════════════════════════════ */
 function nextRound(){
+  previousDisease = currentDisease;
   currentDisease = diseaseList[randInt(0, diseaseList.length-1)];
+  while (previousDisease && currentDisease.name === previousDisease.name) {
+    currentDisease = diseaseList[randInt(0, diseaseList.length-1)];
+  }
 
   const wrong = [];
   while(wrong.length < 3){
