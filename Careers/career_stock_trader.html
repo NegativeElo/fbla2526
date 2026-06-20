@@ -224,7 +224,9 @@
             padding: 15px;
             border-radius: 8px;
         }
-
+        .stock-card.active-position {
+            order: -1;
+        }
         /* Stock price display */
         .price-display {
             font-size: 1.2rem;
@@ -917,6 +919,7 @@ body #cancel-exit-btn:hover,
 body .exit-btn:hover {
     filter: brightness(1.12) !important;
 }
+
 /* ============================================================================== */
     </style>
     <link rel="stylesheet" href="../accessibility-consistency.css">
@@ -1087,15 +1090,16 @@ body .exit-btn:hover {
             <div class="modal-body">
                 <p id="modalStockName" style="color:#1976d2; margin-bottom:15px; font-weight:bold;"></p>
                 <p id="info" style="color:#ffffff; font-size: 11px; margin-bottom: 20px;"></p>
+                <div id="priceInputGroup" class="input-group" style="display:none;">
+                    <label>Target Price ($):</label>
+                    <input type="number" id="tradePrice" class="retro-input" placeholder="0.00">
+                </div>
+
                 <div class="input-group">
                     <label>Quantity:</label>
                     <input type="number" id="tradeQty" class="retro-input" placeholder="0">
                 </div>
 
-                <div id="priceInputGroup" class="input-group" style="display:none;">
-                    <label>Target Price ($):</label>
-                    <input type="number" id="tradePrice" class="retro-input" placeholder="0.00">
-                </div>
 
                 <p id="tradeError" style="color:red; font-size:10px; min-height:15px;"></p>
 
@@ -1216,36 +1220,36 @@ body .exit-btn:hover {
            =========================================== */
         // Array of all available stocks with their properties
         const stocks = [
-            { name: "NVIDIA (NVDA)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "MICROSOFT (MSFT)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "APPLE (AAPL)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "ALPHABET (GOOGL)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "AMAZON (AMZN)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "TESLA (TSLA)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "META (META)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "AMD (AMD)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "NETFLIX (NFLX)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "WALMART (WMT)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "COSTCO (COST)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "COCA-COLA (KO)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "MCDONALD'S (MCD)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "STARBUCKS (SBUX)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "NIKE (NKE)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "VISA (V)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "JPMORGAN (JPM)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "DISNEY (DIS)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "BERKSHIRE (BRK.B)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "PFIZER (PFE)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "ADOBE (ADBE)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "PALANTIR (PLTR)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "SALESFORCE (CRM)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "SPOTIFY (SPOT)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "EXXON MOBIL (XOM)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "BOEING (BA)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "AIRBNB (ABNB)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "UBER (UBER)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "ASML (ASML)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 },
-            { name: "MASTERCARD (MA)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: null, sellLimit: null, history: [], sessionStartPrice: 0 }
+            { name: "NVIDIA (NVDA)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "MICROSOFT (MSFT)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "APPLE (AAPL)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "ALPHABET (GOOGL)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "AMAZON (AMZN)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "TESLA (TSLA)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "META (META)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "AMD (AMD)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "NETFLIX (NFLX)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "WALMART (WMT)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "COSTCO (COST)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "COCA-COLA (KO)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "MCDONALD'S (MCD)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "STARBUCKS (SBUX)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "NIKE (NKE)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "VISA (V)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "JPMORGAN (JPM)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "DISNEY (DIS)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "BERKSHIRE (BRK.B)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "PFIZER (PFE)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "ADOBE (ADBE)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "PALANTIR (PLTR)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "SALESFORCE (CRM)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "SPOTIFY (SPOT)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "EXXON MOBIL (XOM)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "BOEING (BA)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "AIRBNB (ABNB)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "UBER (UBER)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "ASML (ASML)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 },
+            { name: "MASTERCARD (MA)", price: 0, shares: 0, bankrupt: false, cashInvested: 0, buyLimit: [], sellLimit: [], history: [], sessionStartPrice: 0 }
         ];
 
         // Initialize each stock with a random starting price
@@ -1380,13 +1384,13 @@ function announceToScreenReader(msg) {
             // Handle bankruptcy if price drops below $1
             if (stock.price < 1.00){
                 stock.bankrupt = true; stock.price = 0.00;
-                if(stock.buyLimit !== null) {
+                if(stock.buyLimit.length>0) {
                     showLimitInfo(`BUY LIMIT ORDER ON ${stock.name} CANCELED DUE TO COMPANY BANKRUPTCY`);
                 }
-                if(stock.sellLimit !== null) {
+                if(stock.sellLimit.length>0) {
                     showLimitInfo(`SELL LIMIT ORDER ON ${stock.name} CANCELED DUE TO COMPANY BANKRUPTCY`);
                 }
-                stock.buyLimit = null; stock.sellLimit = null;
+                stock.buyLimit = []; stock.sellLimit = [];
             }
 
             // Update price history (keep last 20 prices for chart)
@@ -1406,42 +1410,44 @@ function announceToScreenReader(msg) {
             if (stock.bankrupt) return;
 
             // Check buy limit orders
-            if (stock.buyLimit) {
-                let cost = stock.buyLimit.shares * stock.buyLimit.price;
+            for (let idx = stock.buyLimit.length - 1; idx >= 0; idx--) {
+                const order = stock.buyLimit[idx];
+                let cost = order.shares * order.price;
                 if (money<cost) {
                     showLimitInfo(`BUY LIMIT ORDER CANCELED: Insufficient funds for ${stock.name}`);
-                    stock.buyLimit = null;
-                } else if (stock.price <= stock.buyLimit.price) {
-                    let buyCost = stock.buyLimit.shares * stock.price;
+                    stock.buyLimit.splice(idx, 1);
+                } else if (stock.price <= order.price) {
+                    let buyCost = order.shares * stock.price;
                     money -= buyCost;
                     stock.cashInvested+=buyCost;
-                    stock.shares += stock.buyLimit.shares;
-                    showLimitInfo(`BUY LIMIT ORDER TRIGGERED: Bought ${stock.buyLimit.shares} shares of ${stock.name} at $${stock.price.toFixed(2)}`);
-                    stock.buyLimit = null;
+                    stock.shares += order.shares;
+                    showLimitInfo(`BUY LIMIT ORDER TRIGGERED: Bought ${order.shares} shares of ${stock.name} at $${stock.price.toFixed(2)}`);
+                    stock.buyLimit.splice(idx, 1);
                 }
-                renderStocks();
             }
 
             // Check sell limit orders
-            if (stock.sellLimit) {
-                if(stock.shares<stock.sellLimit.shares) {
+            for (let idx = stock.sellLimit.length - 1; idx>=0; idx--) {
+                const order = stock.sellLimit[idx];
+                if(stock.shares<order.shares) {
                     showLimitInfo(`SELL LIMIT ORDER FAILED: Insufficient shares for ${stock.name}`);
-                    stock.sellLimit = null;
-                } else if (stock.price >= stock.sellLimit.price) {
-                    if (stock.shares >= stock.sellLimit.shares) {
+                    stock.sellLimit.splice(idx, 1);
+                } else if (stock.price >= order.price) {
+                    if (stock.shares >= order.shares) {
                         avgCost = stock.cashInvested/stock.shares
-                        money += stock.sellLimit.shares * stock.price;
-                        stock.shares -= stock.sellLimit.shares;
-                        stock.cashInvested -= avgCost*stock.sellLimit.shares;
-                        if (stock.shares === 0) {
+                        money += order.shares * stock.price;
+                        stock.shares -= order.shares;
+                        stock.cashInvested -= avgCost*order.shares;
+                        if (Math.abs(stock.shares) < 1e-6) {
+                            stock.shares = 0;
                             stock.cashInvested = 0;
                         }
-                        showLimitInfo(`SELL LIMIT ORDER TRIGGERED: Sold ${stock.sellLimit.shares} shares of ${stock.name} at $${stock.price.toFixed(2)}`);
-                        stock.sellLimit = null;
+                        showLimitInfo(`SELL LIMIT ORDER TRIGGERED: Sold ${order.shares} shares of ${stock.name} at $${stock.price.toFixed(2)}`);
+                        stock.sellLimit.splice(idx, 1);
                     }
                 }
-                renderStocks();
             }
+            renderStocks();
         }
 
         /* ===========================================
@@ -1500,7 +1506,8 @@ function announceToScreenReader(msg) {
                     `;
                     container.appendChild(card);
                 }
-
+                const hasActivity = stock.shares > 0.000001 || stock.buyLimit.length > 0 || stock.sellLimit.length > 0;
+                card.classList.toggle('active-position', hasActivity);
                 // Update card content
                 document.getElementById(`shares-${index}`).textContent = stock.shares.toFixed(2);
                 document.getElementById(`price-${index}`).textContent = `$${stock.price.toFixed(2)}`;
@@ -1515,8 +1522,8 @@ function announceToScreenReader(msg) {
                 // Display active limit orders
                 const orderRow = document.getElementById(`orderRow-${index}`);
                 orderRow.innerHTML = `
-                    ${stock.buyLimit ? `<div class="order-item"><span>Limit Buy: ${stock.buyLimit.shares} @ $${stock.buyLimit.price.toFixed(2)}</span> <button class="cancel-x" onclick="cancelLimit(${index}, 'buy')">X</button></div>` : ''}
-                    ${stock.sellLimit ? `<div class="order-item"><span>Limit Sell: ${stock.sellLimit.shares} @ $${stock.sellLimit.price.toFixed(2)}</span> <button class="cancel-x" onclick="cancelLimit(${index}, 'sell')">X</button></div>` : ''}
+                    ${stock.buyLimit.map((o, oi) => `<div class="order-item"><span>Limit Buy: ${o.shares} @ $${o.price.toFixed(2)}</span> <button class="cancel-x" onclick="cancelLimit(${index}, 'buy', ${oi})">X</button></div>`).join('')}
+                    ${stock.sellLimit.map((o, oi) => `<div class="order-item"><span>Limit Sell: ${o.shares} @ $${o.price.toFixed(2)}</span> <button class="cancel-x" onclick="cancelLimit(${index}, 'sell', ${oi})">X</button></div>`).join('')}
                 `;
 
                 updateChart(index);
@@ -1581,6 +1588,14 @@ function announceToScreenReader(msg) {
             }
         }
 
+        function getTotalPendingBuyCost() {
+            let total = 0;
+            stocks.forEach(s => {
+                s.buyLimit.forEach(o => total += o.price * o.shares);
+            });
+            return total;
+        }
+
         /* ===========================================
            TRADE MODAL
            =========================================== */
@@ -1588,11 +1603,10 @@ function announceToScreenReader(msg) {
 
         let updateStockInfo = null;  // Interval for updating stock price in modal
 
-        // Open trade modal for buying/selling/setting limits
         function openTradeModal(index, type) {
             currentTrade = { index: index, type: type };
             const stock = stocks[index];
-            
+
             const modal = document.getElementById('tradeModal');
             const title = document.getElementById('modalTitle');
             const stockName = document.getElementById('modalStockName');
@@ -1603,25 +1617,27 @@ function announceToScreenReader(msg) {
             const errorMsg = document.getElementById('tradeError');
             const maxBuyBtn = document.getElementById('buyMaxBtn');
             const sellAllBtn = document.getElementById('sellAllBtn');
-            let maxBuy = Math.floor(100*money/stock.price)/100;
 
             stockName.textContent = "";
             if (updateStockInfo) {
                 clearInterval(updateStockInfo);
             }
 
-            
             qtyInput.value = '';
             priceInput.value = '';
             errorMsg.textContent = '';
-            modal.style.display = 'block';
-            errorMsg.textContent = "";
             if (updateErrorInterval) {
                 clearInterval(updateErrorInterval);
                 updateErrorInterval = null;
             }
 
-            // Set modal title and show/hide price input based on trade type
+            let availableMoney = money - getTotalPendingBuyCost();
+            let maxBuy = Math.floor(100 * availableMoney / stock.price) / 100;
+            let reservedShares = stock.sellLimit.reduce((sum, o) => sum + o.shares, 0);
+            let availableShares = stock.shares - reservedShares;
+
+            modal.style.display = 'block';
+
             if (type === 'buy') {
                 title.textContent = "BUY STOCK";
                 priceGroup.style.display = 'none';
@@ -1631,41 +1647,53 @@ function announceToScreenReader(msg) {
             } else if (type === 'sell') {
                 title.textContent = "SELL STOCK";
                 priceGroup.style.display = 'none';
-                info.innerHTML = "Shares available: " + stock.shares.toFixed(2) + "<br> (Avg Cost: $" + (stock.shares>0 ? (stock.cashInvested/stock.shares).toFixed(2) : "0.00") + ")";
+                info.innerHTML = "Shares available: " + availableShares.toFixed(2) + "<br> (Avg Cost: $" + (stock.shares>0 ? (stock.cashInvested/stock.shares).toFixed(2) : "0.00") + ")";
                 maxBuyBtn.style.display = 'none';
                 sellAllBtn.style.display = 'inline-block';
             } else if (type === 'limit_buy') {
                 title.textContent = "SET BUY LIMIT";
                 priceGroup.style.display = 'block';
-                info.textContent = "Max Buy: " + maxBuy.toFixed(2) + " shares";
                 maxBuyBtn.style.display = 'none';
                 sellAllBtn.style.display = 'none';
+                info.textContent = "";
             } else if (type === 'limit_sell') {
                 title.textContent = "SET SELL LIMIT";
                 priceGroup.style.display = 'block';
-                info.innerHTML = "Shares available: " + stock.shares.toFixed(2) + "<br> (Avg Cost: $" + (stock.shares>0 ? (stock.cashInvested/stock.shares).toFixed(2) : "0.00") + ")";
+                info.innerHTML = "Shares available: " + availableShares.toFixed(2) + "<br> (Avg Cost: $" + (stock.shares>0 ? (stock.cashInvested/stock.shares).toFixed(2) : "0.00") + ")";
                 maxBuyBtn.style.display = 'none';
                 sellAllBtn.style.display = 'none';
             }
-            
-            // Update stock price display every 100ms
+
+            // Set focus ONCE (not inside the interval)
+            if (type === 'limit_buy' || type === 'limit_sell') {
+                priceInput.focus();
+            } else {
+                qtyInput.focus();
+            }
+
             stockName.textContent = `${stock.name} (Current: $${stock.price.toFixed(2)})`;
             updateStockInfo = setInterval(() => {
                 stockName.textContent = `${stock.name} (Current: $${stock.price.toFixed(2)})`;
-                maxBuy = Math.floor(100*money/stock.price)/100; 
+                let liveAvailableMoney = money - getTotalPendingBuyCost();
+                let liveReservedShares = stock.sellLimit.reduce((sum, o) => sum + o.shares, 0);
+                let liveAvailableShares = stock.shares - liveReservedShares;
+                let livePrice = parseFloat(priceInput.value);
+
                 if (type === 'buy') {
-                    info.textContent = "Max Buy: " + maxBuy.toFixed(2) + " shares";
+                    let liveMaxBuy = Math.floor(100 * liveAvailableMoney / stock.price) / 100;
+                    info.textContent = "Max Buy: " + liveMaxBuy.toFixed(2) + " shares";
                 } else if (type === 'sell') {
-                    info.innerHTML = "Shares available: " + stock.shares.toFixed(2) + "<br> (Avg Cost: $" + (stock.shares>0 ? (stock.cashInvested/stock.shares).toFixed(2) : "0.00") + ")";
+                    info.innerHTML = "Shares available: " + liveAvailableShares.toFixed(2) + "<br> (Avg Cost: $" + (stock.shares>0 ? (stock.cashInvested/stock.shares).toFixed(2) : "0.00") + ")";
                 } else if (type === 'limit_buy') {
-                    info.textContent = "Max Buy: " + maxBuy.toFixed(2) + " shares";
+                    if (!(isNaN(livePrice) || livePrice <= 0)) {
+                        info.textContent = 'Max Buy: ' + (Math.floor(100*liveAvailableMoney/livePrice)/100).toFixed(2) + " shares";
+                    } else {
+                        info.textContent = "";
+                    }
                 } else if (type === 'limit_sell') {
-                    info.innerHTML = "Shares available: " + stock.shares.toFixed(2) + "<br> (Avg Cost: $" + (stock.shares>0 ? (stock.cashInvested/stock.shares).toFixed(2) : "0.00") + ")";
+                    info.innerHTML = "Shares available: " + liveAvailableShares.toFixed(2) + "<br> (Avg Cost: $" + (stock.shares>0 ? (stock.cashInvested/stock.shares).toFixed(2) : "0.00") + ")";
                 }
             }, 100)
-            
-            // Focus on quantity input
-            qtyInput.focus();
         }
 
         // Close trade modal
@@ -1731,12 +1759,17 @@ function announceToScreenReader(msg) {
 
             // Market Sell
             else if (type === 'sell') {
-                if (stocks[i].shares >= qty) {
+                let reservedShares = stocks[i].sellLimit.reduce((sum, o) => sum + o.shares, 0);
+                let availableShares = stocks[i].shares - reservedShares;
+                if (availableShares >= qty) {
                     money += qty * stocks[i].price;
                     avgCost = stocks[i].cashInvested/stocks[i].shares;
                     stocks[i].shares -= qty;
                     stocks[i].cashInvested -= avgCost*qty
-                    if (stocks[i].shares === 0) stocks[i].cashInvested = 0;
+                    if (Math.abs(stocks[i].shares) < 1e-6) {
+                        stocks[i].shares = 0;
+                        stocks[i].cashInvested = 0;
+                    }
                     errorMsg.textContent = "";
                     if (updateErrorInterval) {
                         clearInterval(updateErrorInterval);
@@ -1755,8 +1788,9 @@ function announceToScreenReader(msg) {
                     errorMsg.textContent = "Invalid target price.";
                     return;
                 }
-                if (money >= limitPrice * qty) {
-                    stocks[i].buyLimit = { price: limitPrice, shares: qty };
+                let totalCost = limitPrice*qty + getTotalPendingBuyCost();
+                if (money >= totalCost) {
+                    stocks[i].buyLimit.push({ price: limitPrice, shares: qty });
                     showLimitInfo(`BUY LIMIT ORDER PLACED: ${qty} shares of ${stocks[i].name} at $${limitPrice.toFixed(2)}`);
                     closeTradeModal();
                     renderStocks();
@@ -1771,8 +1805,13 @@ function announceToScreenReader(msg) {
                     errorMsg.textContent = "Invalid target price.";
                     return;
                 }
-                if (stocks[i].shares >= qty) {
-                    stocks[i].sellLimit = { price: limitPrice, shares: qty };
+                let awaitingShares = 0;
+                stocks[i].sellLimit.forEach((order) => {
+                    awaitingShares += order.shares;
+                });
+                let totalShares = qty + awaitingShares;
+                if (stocks[i].shares >= totalShares) {
+                    stocks[i].sellLimit.push({ price: limitPrice, shares: qty });
                     showLimitInfo(`SELL LIMIT ORDER PLACED: ${qty} shares of ${stocks[i].name} at $${limitPrice.toFixed(2)}`);
                     closeTradeModal();
                     renderStocks();
@@ -1785,7 +1824,8 @@ function announceToScreenReader(msg) {
         document.getElementById('buyMaxBtn').addEventListener('click', () => {
             const i = currentTrade.index;
             const errorMsg = document.getElementById('tradeError');
-            let maxBuy = Math.floor(100*money/stocks[i].price)/100;
+            let availableMoney = money - getTotalPendingBuyCost();
+            let maxBuy = Math.floor(100 * availableMoney / stocks[i].price) / 100;
             let cost = maxBuy * stocks[i].price;
             money -= cost;
             stocks[i].cashInvested += Math.round(cost * 100) / 100;
@@ -1799,23 +1839,28 @@ function announceToScreenReader(msg) {
             renderStocks();
         });
 
-        document.getElementById('sellAllBtn').addEventListener('click', () => {
-            const i = currentTrade.index;
-            const errorMsg = document.getElementById('tradeError');
-            let qty = stocks[i].shares;
-            money += qty * stocks[i].price;
-            avgCost = stocks[i].cashInvested/stocks[i].shares;
-            stocks[i].shares -= qty;
-            stocks[i].cashInvested -= avgCost*qty
-            if (stocks[i].shares === 0) stocks[i].cashInvested = 0;
-            errorMsg.textContent = "";
-            if (updateErrorInterval) {
-                clearInterval(updateErrorInterval);
-                updateErrorInterval = null;
-            }
-            closeTradeModal();
-            renderStocks();
-        });
+            document.getElementById('sellAllBtn').addEventListener('click', () => {
+                const i = currentTrade.index;
+                const errorMsg = document.getElementById('tradeError');
+                let reservedShares = stocks[i].sellLimit.reduce((sum, o) => sum + o.shares, 0);
+                let availableShares = stocks[i].shares - reservedShares;
+                let qty = availableShares;
+                money += qty * stocks[i].price;
+                avgCost = stocks[i].cashInvested/stocks[i].shares;
+                stocks[i].shares -= qty;
+                stocks[i].cashInvested -= avgCost*qty
+                if (Math.abs(stocks[i].shares) < 1e-6) {
+                    stocks[i].shares = 0;
+                    stocks[i].cashInvested = 0;
+                }
+                errorMsg.textContent = "";
+                if (updateErrorInterval) {
+                    clearInterval(updateErrorInterval);
+                    updateErrorInterval = null;
+                }
+                closeTradeModal();
+                renderStocks();
+            });
         // Allow Enter key to confirm trade
         document.getElementById('tradeModal').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') document.getElementById('confirmTradeBtn').click();
@@ -1825,17 +1870,17 @@ function announceToScreenReader(msg) {
            CANCEL LIMIT ORDERS
            =========================================== */
         // Cancel a limit order
-        window.cancelLimit = (i, type) => {
+        window.cancelLimit = (i, type, orderIdx) => {
             if (type === 'buy') {
-                if (stocks[i].buyLimit) {
+                if (stocks[i].buyLimit[orderIdx]) {
                     showLimitInfo(`BUY LIMIT ORDER CANCELED for ${stocks[i].name}`);
                 }
-                stocks[i].buyLimit = null;
+                stocks[i].buyLimit.splice(orderIdx, 1);
             } else {
-                if (stocks[i].sellLimit) {
+                if (stocks[i].sellLimit[orderIdx]) {
                     showLimitInfo(`SELL LIMIT ORDER CANCELED for ${stocks[i].name}`);
                 }
-                stocks[i].sellLimit = null;
+                stocks[i].sellLimit.splice(orderIdx, 1);
             }
             renderStocks();
         };
@@ -1905,8 +1950,8 @@ function announceToScreenReader(msg) {
                 s.shares = 0;
                 s.bankrupt = false;
                 s.cashInvested = 0;
-                s.buyLimit = null;
-                s.sellLimit = null;
+                s.buyLimit = [];
+                s.sellLimit = [];
                 const startPrice = Math.round((Math.random()*300 + 100)*100)/100;
                 s.price = startPrice;
                 s.sessionStartPrice = s.price;
@@ -1991,7 +2036,7 @@ function announceToScreenReader(msg) {
             chartInstances = [];
             money = 100000; timeLeft = 180; badgeAlertedThisRound = false; hasSavedPoints = false;
             stocks.forEach(s => {
-                s.shares = 0; s.bankrupt = false; s.buyLimit = null; s.sellLimit = null;
+                s.shares = 0; s.bankrupt = false; s.buyLimit = []; s.sellLimit = [];
                 const startPrice = Math.round((Math.random()*300 + 100)*100)/100;
                 s.price = startPrice; s.sessionStartPrice = s.price; s.history = [s.price];
             });
