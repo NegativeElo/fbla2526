@@ -793,7 +793,7 @@ body .exit-btn:hover {
                 <li>Each career game has a specific challenge goal; completing it certifies you in that career.</li>
                 <li>Career games also award points that add to your total score (shown in the main hub).</li>
                 <li>Your top careers are the three careers in which you have earned the most points.</li>
-                <li>Each career game's scoring system, challenge goal, and other information is explained in its info modal.</li>
+                <li>Each career game's scoring system, challenge goal, and other information is explained in its help guide.</li>
                 <li>You can finish this simulation in two ways:</li>
                 <ol>
                     <li>Get certified in all seven careers</li>
@@ -804,7 +804,7 @@ body .exit-btn:hover {
             <h3>Controls</h3>
             <ul style="font-size: 11px;">
                 <li>All games are playable with the mouse</li>
-                <li>Some games also support keyboard controls (listed in each career's info modal)</li>
+                <li>Some games also support keyboard controls (listed in each career's help modal)</li>
                 <li>Press <strong>Enter</strong> to skip intro screens</li>
                 <li>Press <strong>Escape</strong> to exit a career game or, from the main hub, to close the application</li>
             </ul>
@@ -824,15 +824,15 @@ body .exit-btn:hover {
         <div>
             <label>
                 <input type="checkbox" id="chk-contrast" onchange="updateAxSetting('contrast', this.checked)"> 
-                HIGH CONTRAST MODE (MONOCHROME)
+                HIGH CONTRAST MODE
             </label>
             <label>
                 <input type="checkbox" id="chk-font" onchange="updateAxSetting('readableFont', this.checked)"> 
-                SANS-SERIF TYPOGRAPHY (READABILITY)
+                SANS-SERIF TYPOGRAPHY
             </label>
             <label>
                 <input type="checkbox" id="chk-text" onchange="updateAxSetting('largeText', this.checked)"> 
-                ENHANCED LAYOUT SCALE (+15% SIZE)
+                INCREASED TEXT SIZE
             </label>
         </div>
         <button class="ax-close-btn" onclick="toggleAxMenu()">CLOSE</button>
@@ -867,7 +867,7 @@ body .exit-btn:hover {
                 <p style="font-size: 13px; color: #57abff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">HOW TO FINISH</p>
                 <p style="font-size: 10px; line-height: 2.6; color: #ddd; text-align: left;">
                     &bull;&nbsp; Get certified in all seven careers,&nbsp;<em style="color:#aaa;">or</em><br>
-                    &bull;&nbsp; Reach a total score of 100 or more.
+                    &bull;&nbsp; Reach a total score of 100 or more. Each game 
                 </p>
             </div>
 
@@ -875,7 +875,7 @@ body .exit-btn:hover {
                 <p style="font-size: 13px; color: #57abff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">BASIC CONTROLS</p>
                 <p style="font-size: 10px; line-height: 2.2; color: #ddd; text-align: left;">
                     &bull;&nbsp; Play with the mouse in every game.<br>
-                    &bull;&nbsp; Some games have extra keyboard controls (shown in each career's info modal).<br>
+                    &bull;&nbsp; Some games have extra keyboard controls (shown in each career's help guide).<br>
                     &bull;&nbsp; Press <strong style="color:#fff;">Enter</strong> to advance slides.<br>
                     &bull;&nbsp; Press <strong style="color:#fff;">Escape</strong> to exit a career or close the app from the main hub.
                 </p>
@@ -887,7 +887,7 @@ body .exit-btn:hover {
                     padding: 20px 28px; 
                     box-shadow: inset 0 0 10px rgba(25, 118, 210, 0.3), 0 0 15px rgba(25, 118, 210, 0.2);
                     text-align: left;">
-                    An info button will be available in the top-left corner at any time for detailed rules and scoring for each career.
+                    An help button will be available in the top-left corner at any time for detailed rules and scoring for each career.
                 </p>
             </div>
         </div>
@@ -1227,6 +1227,7 @@ function announceToScreenReader(msg) {
 
         function confirmResetGame() {
             localStorage.removeItem("FBLA_CAREER_DATA");
+            localStorage.removeItem("WIN_SCREEN_SHOWN");
             sessionStorage.removeItem('CURRENT_CAREER_SESSION');
             document.body.style.backgroundColor = "#000";
             document.body.innerHTML = `
