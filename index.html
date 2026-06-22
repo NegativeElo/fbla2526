@@ -87,6 +87,13 @@ body.ax-high-contrast #infoBtn:hover {
     border-color: #00ff00 !important;
     box-shadow: 7px 7px 0 #00ff00 !important;
 }
+body.ax-high-contrast h1 {
+    color: #11ef45 !important;
+}
+body.ax-high-contrast .hud {
+    border-bottom: 4px solid var(--positive);
+
+}
 body.ax-high-contrast .popup-modal-content,
 body.ax-high-contrast .modal-content,
 body.ax-high-contrast .info-modal-content,
@@ -243,6 +250,12 @@ body #cancel-exit-btn:hover,
 body #resetGameBtn:hover,
 body .exit-btn:hover {
     filter: brightness(1.12) !important;
+}
+/* Keep the docs button compact even in large-text mode, to avoid overlapping the header */
+body.ax-large-text #docs {
+    font-size: 13px !important;
+    padding: 10px 15px !important;
+    line-height: 1.6 !important;
 }
 /* ============================================================================== */
         /* --- HUD (Heads Up Display) Styles --- */
@@ -1064,8 +1077,6 @@ body .exit-btn:hover {
         function goToNextSlide() {
             if (currentSlide < TOTAL_SLIDES - 1) {
                 goToSlide(currentSlide + 1);
-            }else {
-                setTimeout(closeStartScreen, 900);
             }
         }
 
@@ -1236,6 +1247,11 @@ function announceToScreenReader(msg) {
                     <p style="color:#555; font-size: 16px;">SAFE TO CLOSE WINDOW</p>
                     <button class="btn" style=" margin-top: 20px; font-size:10px;" onclick="location.reload()">REBOOT SYSTEM</button>
                 </div>`;
+            window.addEventListener('keydown', e => {
+                if (e.key === "Escape") {
+                    window.close();
+                }
+            });
         }
 
         function openExitModal() {

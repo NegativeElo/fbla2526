@@ -247,7 +247,8 @@ body.ax-high-contrast .game-panel,
 body.ax-high-contrast .panel-card,
 body.ax-high-contrast canvas,
 body.ax-high-contrast #axToggleBtn,
-body.ax-high-contrast #infoBtn {
+body.ax-high-contrast #infoBtn,
+body.ax-high-contrast #return {
     background: #000000 !important;
     color: #00ff00 !important;
     border: 3px solid #ffffff !important;
@@ -471,9 +472,10 @@ body .exit-btn:hover {
             <h2>Tools and Technologies</h2>
             <ul>
         <li><strong>Unified Web Framework (HTML5, CSS3, JavaScript):</strong> The architecture uses a modular approach where six distinct career simulations are unified by a central <code>index.html</code> hub. This structure leverages the <strong>LocalStorage API</strong> to maintain a persistent global state (scores and certifications) across different browser sessions without requiring a backend.</li>
-        <li><strong>Dynamic Rendering (p5.js Library):</strong> Different rendering paradigms are applied across the labs. The <strong>Chemist</strong> and <strong>Pianist</strong> modules use p5.js for procedural visual generation, while the <strong>Computer Scientist</strong> and <strong>Stock Trader</strong> labs utilize the Canvas API for real-time data visualization and matrix-style "code rain" effects.</li>
-        <li><strong>Mathematical Audio Synthesis (DSP):</strong> Instead of static audio files, the <strong>Pianist</strong> lab utilizes the <code>p5.PolySynth</code> engine to generate audio frequencies in real-time using the chromatic scale formula. The <strong>Computer Scientist</strong> lab features synthesized 8-bit sound effects to reinforce the retro aesthetic.</li>
-        <li><strong>Retro-Futurist Design Suite:</strong> Visual sophistication is achieved through advanced CSS3. Custom <strong>CRT Scanline Emulation</strong> is implemented via linear-gradient overlays and <code>::before</code> pseudo-elements, paired with <code>@keyframes</code> animations to simulate authentic screen flicker and "glow" effects.</li>
+        <li><strong>Dynamic Rendering:</strong> Different rendering paradigms are applied across the labs. The <strong>Chemist</strong> and <strong>Pianist</strong> modules use p5.js for procedural visual generation, while the <strong>Computer Scientist</strong> and <strong>Stock Trader</strong> worlds utilize the Canvas API for real-time visualization, with the <strong>Computer Scientist</strong> game using Blockly and <strong>Stock Trader</strong> game using chart.js.</li>
+        <li><strong>Mathematical Audio Synthesis (DSP):</strong> Instead of static audio files, the <strong>Pianist</strong> lab utilizes the <code>p5.sound</code> engine to generate audio frequencies in real-time using the chromatic scale formula. The <strong>Computer Scientist</strong> lab features synthesized 8-bit sound effects to reinforce the retro aesthetic.</li>
+        <li><strong>Retro-Futurist Design Suite:</strong> Visual sophistication is achieved through the Press Start 2P font and advanced CSS3. Custom <strong>CRT Scanline Emulation</strong> is implemented via linear-gradient overlays and <code>::before</code> pseudo-elements, paired with <code>@keyframes</code> animations to simulate authentic screen flicker and "glow" effects.</li>
+        <li><strong>All libraries and assets used:</strong> Blockly, p5.js, p5.sound, Chart.js, and Press Start 2P font.</li>
     </ul>
 
     <h2>Technical Complexity and Sophistication</h2>
