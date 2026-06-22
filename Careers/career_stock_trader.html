@@ -27,25 +27,39 @@
 
         /* Main body styling with animated gradient background */
         body {
-            background: radial-gradient(circle at center, #2b1a6c, #8f1fb2, #2d2dfd);
-            background-attachment: fixed;
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            font-family: 'Press Start 2P', cursive;
-            color: white;
-            margin: 0;
-            padding: 20px;
-            font-size: 11px;
-            line-height: 1.6;
-            text-align: center;
-        }
+    background: #1a1148; /* solid fallback so there's no flash before the layer paints */
+    font-family: 'Press Start 2P', cursive;
+    color: white;
+    margin: 0;
+    padding: 10px;
+    font-size: 11px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
+}
 
-        /* Animated gradient background keyframes */
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+/* GPU-composited animated background layer — runs smoothly regardless of main-thread load */
+body::after {
+    content: "";
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, #2b1a6c, #8f1fb2, #2d2dfd);
+    z-index: -2;
+    pointer-events: none;
+    animation: gradientShift 15s ease infinite;
+    will-change: transform;
+}
+
+@keyframes gradientShift {
+    0%   { transform: translate3d(0, 0, 0) scale(1); }
+    50%  { transform: translate3d(-3%, -3%, 0) scale(1.08); }
+    100% { transform: translate3d(0, 0, 0) scale(1); }
+}
 
         /* CRT scanline overlay effect */
         body::before {
@@ -748,7 +762,8 @@ body.ax-high-contrast .game-panel,
 body.ax-high-contrast .panel-card,
 body.ax-high-contrast canvas,
 body.ax-high-contrast #axToggleBtn,
-body.ax-high-contrast #infoBtn {
+body.ax-high-contrast #infoBtn,
+body.ax-high-contrast #return {
     background: #000000 !important;
     color: #00ff00 !important;
     border: 3px solid #ffffff !important;
