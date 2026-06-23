@@ -27,7 +27,10 @@
 
         /* Main body styling with animated gradient background */
         body {
-    background: #1a1148; /* solid fallback so there's no flash before the layer paints */
+    background: radial-gradient(circle at center, #2b1a6c, #8f1fb2, #2d2dfd);
+    background-attachment: fixed;
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
     font-family: 'Press Start 2P', cursive;
     color: white;
     margin: 0;
@@ -37,30 +40,13 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    position: relative;
 }
 
-/* GPU-composited animated background layer — runs smoothly regardless of main-thread load */
-body::after {
-    content: "";
-    position: fixed;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle at center, #2b1a6c, #8f1fb2, #2d2dfd);
-    z-index: -2;
-    pointer-events: none;
-    animation: gradientShift 15s ease infinite;
-    will-change: transform;
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
-
-@keyframes gradientShift {
-    0%   { transform: translate3d(0, 0, 0) scale(1); }
-    50%  { transform: translate3d(-3%, -3%, 0) scale(1.08); }
-    100% { transform: translate3d(0, 0, 0) scale(1); }
-}
-
         /* CRT scanline overlay effect */
         body::before {
             content: " ";
@@ -965,6 +951,7 @@ body .exit-btn:hover {
             <h3>CONTROLS</h3>
             <ul style="font-size: 0.8rem;">
                 <li><p>Use the <strong>MOUSE</strong> to select any buttons.</p></li>
+                <li><p>Use <strong>ENTER</strong> to confirm any trade.</p></li>
                 <li><p>Press <strong>ESC</strong> to exit the game.</p></li>
             </ul>
         </div>
@@ -1464,7 +1451,6 @@ function announceToScreenReader(msg) {
                     }
                 }
             }
-            renderStocks();
         }
 
         /* ===========================================
@@ -1528,7 +1514,12 @@ function announceToScreenReader(msg) {
                 // Update card content
                 document.getElementById(`shares-${index}`).textContent = stock.shares.toFixed(2);
                 document.getElementById(`price-${index}`).textContent = `$${stock.price.toFixed(2)}`;
-                document.getElementById(`price-${index}`).style.color = stock.price >= stock.sessionStartPrice ? '#22c55e' : '#ef4444';
+                if (stock.shares>0) {
+                    avgCost = stock.cashInvested/stock.shares;
+                    document.getElementById(`price-${index}`).style.color = stock.price >= avgCost ? '#22c55e' : '#ef4444';
+                }else {
+                   document.getElementById(`price-${index}`).style.color = stock.price >= stock.sessionStartPrice ? '#22c55e' : '#ef4444';
+                }
                 document.getElementById(`bankrupt-${index}`).innerHTML = stock.bankrupt ? '<span class="bankrupt-msg">LIQUIDATED</span>' : '';
                 document.getElementById(`average-price-${index}`).textContent = stock.shares>0 ? `AVG COST: $${(stock.cashInvested/stock.shares).toFixed(2)}`: '';
                 
@@ -1561,8 +1552,13 @@ function announceToScreenReader(msg) {
             
             const baseline = stocks[i].sessionStartPrice || stocks[i].history[0];
             const currentPrice = stocks[i].price;
-            const chartColor = currentPrice >= baseline ? '#22c55e' : '#ef4444';
-
+            let chartColor;
+            if (stocks[i].shares>0) {
+                avgCost = stocks[i].cashInvested/stocks[i].shares;
+                chartColor = currentPrice >= avgCost ? '#22c55e' : '#ef4444';
+            }else {
+                chartColor = currentPrice >= baseline ? '#22c55e' : '#ef4444';
+            }
             // Create new chart if doesn't exist
             if (!chartInstances[i]) {
                 const ctx = canvas.getContext('2d');

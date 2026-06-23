@@ -867,7 +867,24 @@ body.ax-large-text .score {
 body.ax-large-text h1 { font-size: 36px !important; }
 body.ax-large-text h2 { font-size: 28px !important; }
 body.ax-large-text h3 { font-size: 22px !important; }
-
+body.ax-large-text #speech-bubble {
+  top: 40px;
+}
+body.ax-large-text #patient-sprite {
+  top: 80px;
+}
+body.ax-large-text .exam-table {
+  top: 130px;
+}
+body.ax-large-text #trust-bar-wrap {
+  top: 30px;
+}
+body.ax-large-text #attempt-pips {
+  top: 20px;
+}
+body.ax-large-text #left-panel {
+  height: 45rem;
+}
 /* 6. AX Interface Specific Layout */
 #axToggleBtn {
     position: fixed; top: 10px; left: 55px; width: 35px; height: 35px;
@@ -966,25 +983,7 @@ body .exit-btn:hover {
     filter: brightness(1.12) !important;
 }
 /* ============================================================================== */
-body.ax-large-text #left-panel {
-    gap: 22px !important;
-}
-body.ax-large-text #patient-scene {
-    height: 220px !important;
-}
-body.ax-large-text #speech-bubble {
-    margin-top: 10px !important;
-}
-body.ax-large-text .pat-bubble {
-    margin-top: -20px !important;
-}
-body.ax-large-text #bubble-wrap {
-    min-height: 70px !important;
-}
-body.ax-large-text #trust-bar-wrap,
-body.ax-large-text #attempt-pips {
-    margin-top: 16px !important;
-}
+
   </style>
     <link rel="stylesheet" href="../accessibility-consistency.css">
     <script defer src="../accessibility-consistency.js"></script>
@@ -1236,7 +1235,7 @@ body.ax-large-text #attempt-pips {
         <button id="play-btn">START CHALLENGE</button>
       </div>
 
-      <div id="hint">Select a diagnosis, then click DIAGNOSE. Press C to switch to Challenge Mode.</div>
+      <div id="hint">Select a diagnosis, then click DIAGNOSE.</div>
     </div>
 
   </div><!-- /game-container -->
@@ -1798,7 +1797,7 @@ function startChallenge(){
 
   playBtn.style.display = 'none';
   skipBtn.style.display = 'inline-block';
-  hintEl.textContent    = 'Select diagnosis → DIAGNOSE. Wrong options are locked. SKIP costs nothing.';
+  hintEl.textContent    = 'Select diagnosis → DIAGNOSE. SKIP costs nothing.';
 
   nextRound();
   if(timerInterval) clearInterval(timerInterval);
