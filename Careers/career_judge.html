@@ -1248,7 +1248,7 @@ function announceToScreenReader(msg) {
         let rank;
         if (score < 5) rank = "Law Clerk";
         else if (score < 12) rank = "District Judge";
-        else if (score < 20) rank = "Federal Judge";
+        else if (score < 21) rank = "Federal Judge";
         else rank = "Supreme Court Justice"
         
         document.getElementById('rankText').textContent = `Rank: ${rank}`;
@@ -1380,7 +1380,7 @@ function announceToScreenReader(msg) {
             }
             if (score >= 5) checkPromo('p1', "Promotion: District Judge!");
             if (score >= 12) checkPromo('p2', "Promotion: Federal Judge!");
-            if (score >= 20) checkPromo('p3', "Promotion: Supreme Court Justice!");
+            if (score >= 21) checkPromo('p3', "Promotion: Supreme Court Justice!");
         } else {
             jBub.textContent = (choice === null) ? "Uhh..." : ((choice === 'lost') ? "GUILTY!" : "NOT GUILTY!");
             

@@ -377,7 +377,7 @@
     .exam-table-leg.right { right: 20px; }
 
     #notesModal {
-      z-index: 21000;
+      z-index: 19000;
     }
 
     /* Patient sprite (CSS art) */
@@ -1483,11 +1483,14 @@ function resetPips(){
 /* ═══════════════════════════════════════════════
    ROUND SETUP
 ═══════════════════════════════════════════════ */
+let challengeList = [...diseaseList];
 function nextRound(){
   previousDisease = currentDisease;
-  currentDisease = diseaseList[randInt(0, diseaseList.length-1)];
+  currentDisease = challengeOn ? challengeList[randInt(0, challengeList.length-1)]:
+  diseaseList[randInt(0, diseaseList.length-1)];
   while (previousDisease && currentDisease.name === previousDisease.name) {
-    currentDisease = diseaseList[randInt(0, diseaseList.length-1)];
+    currentDisease = challengeOn ? challengeList[randInt(0, challengeList.length-1)]:
+    diseaseList[randInt(0, diseaseList.length-1)];
   }
 
   const wrong = [];
@@ -1636,6 +1639,7 @@ function handleDiagnose(){
     showBubble('correct');
     showDoctorBubble('Great diagnosis! Next patient…');
     roundOver = true;
+    challengeList = challengeList.filter(disease=>disease.name!==currentDisease.name);
     diagBtn.disabled = true;
     lockAllOptions();
     skipBtn.disabled = true;
@@ -1680,7 +1684,7 @@ function handleDiagnose(){
       // PAUSE timer → show NEXT PATIENT button
       pauseTimer();
       nextBtn.style.display = 'inline-block';
-
+      challengeList = challengeList.filter(disease=>disease.name!==currentDisease.name);
     } else {
       const attLeft = 3 - attemptCount;
       setFeedback(
@@ -1691,6 +1695,11 @@ function handleDiagnose(){
       showDoctorBubble('Try again…');
     }
     changeTrust(-15);
+  }
+  if (challengeList.length === 0) {
+    document.getElementById('cert-modal').querySelector('p').textContent = "Retired! You served a full career.";
+    document.getElementById('cert-modal').style.display = "block";
+    endChallenge();
   }
 }
 
@@ -1829,6 +1838,7 @@ function endChallenge(){
   gameMode    = 'practice';
   roundOver   = true;
   diagBtn.disabled = true;
+  challengeList = [...diseaseList];
   lockAllOptions();
 
   skipBtn.style.display = 'none';
@@ -1847,6 +1857,8 @@ function endChallenge(){
       modeBadge.textContent = 'PRACTICE MODE';
       modeBadge.style.color = '';
       nextRound(); // Start a new practice round after challenge ends
+      timerEl.textContent   = '3:00';
+      scoreEl.textContent   = 'Score: 0'
     }
   }, 3000);
 }
