@@ -1851,7 +1851,7 @@ function endChallenge(){
     showDoctorBubble(`Session ended. Score: ${score}`);
   }
   saveCareerData(Math.floor(score/10));
-  hintEl.textContent = 'Press C to start Challenge Mode.';
+  hintEl.textContent = 'Select a diagnosis, then click DIAGNOSE.';
   setTimeout(() => {
     if (gameMode === 'practice') {
       modeBadge.textContent = 'PRACTICE MODE';
@@ -1953,12 +1953,6 @@ window.addEventListener('keydown', e => {
     && document.getElementById('retro-exit-modal').style.display !== 'block'
     && document.getElementById('infoModal').style.display !== 'flex'){
     dismissStart();
-  }
-  if((e.key==='c' || e.key==='C')
-    && ss.style.display === 'none'
-    && !challengeOn
-    && gameMode === 'practice'){
-    startChallenge();
   }
 });
 
